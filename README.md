@@ -18,3 +18,12 @@ A single-page storefront. No build step.
 
 ## Deploy
 Static files. Deploy the folder to Vercel as a static site (no framework, no build command, output directory = root).
+
+## Dashboard (/admin)
+- `admin.html` (served at `/admin`): sign in with the Supabase admin account (listed in the `admins` table).
+- Edits the banner (image + link), products (name, reference, two photos, 55/35/10 ml before/now prices, availability per size), Now's offers, and review videos.
+- Saving writes one JSON file to Supabase Storage: `media/site/storefront.json` (plus a dated copy in `media/site/history/`).
+- `index.html` reads that file at runtime. If it cannot be loaded, the values written in `index.html` are used.
+
+## Vercel
+`vercel.json`: clean URLs (`/admin`), security headers, and a fallback that serves `/demo` and `/brand` from this repo if a deployment was uploaded without them.

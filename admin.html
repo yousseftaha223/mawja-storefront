@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>MAWJA Dashboard</title>
+<link rel="icon" href="brand/mawja-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ocean:#062F43;--ocean2:#0A3E52;--sand:#E7D5BB;--teal:#0C6F70;--line:rgba(231,213,187,.18);--mute:rgba(231,213,187,.7);--err:#ffb4a8;
+  --serif:"Cormorant Garamond","Noto Sans Arabic",Georgia,serif;--sans:"DM Sans","Noto Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ocean);color:var(--sand);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+img,video{display:block;max-width:100%}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--sand);outline-offset:2px}
+h1,h2{font-family:var(--serif);font-weight:500;line-height:1.1}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:9px 18px;border-radius:4px;border:1px solid transparent;font-weight:500;font-size:14px;white-space:nowrap}
+.btn-sand{background:var(--sand);color:var(--ocean)}
+.btn-teal{background:var(--teal);color:var(--sand)}
+.btn-line{border-color:var(--line);background:transparent}
+.btn-line:hover{border-color:var(--sand)}
+.btn-danger{border-color:rgba(255,180,168,.4);color:var(--err);background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{min-height:34px;padding:5px 12px;font-size:13px}
+label.f{display:block}
+label.f>span{display:block;font-size:13px;color:var(--mute);margin-bottom:5px}
+.in{width:100%;min-height:42px;padding:9px 12px;border:1px solid var(--line);border-radius:4px;background:var(--ocean);color:var(--sand);outline:none}
+.in:focus{border-color:var(--sand)}
+select.in{appearance:auto}
+.hint{font-size:12.5px;color:var(--mute);margin-top:5px}
+.err{color:var(--err);font-size:14px}
+.ok{color:#9fe0c9;font-size:14px}
+.card{background:var(--ocean2);border:1px solid var(--line);border-radius:6px;padding:18px}
+.grid2{display:grid;gap:14px}
+@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+/* Login */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login form{width:100%;max-width:380px;display:grid;gap:14px}
+.login img{height:26px;width:auto;margin-bottom:6px}
+/* App */
+.top{position:sticky;top:0;z-index:20;background:var(--ocean);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:10px;height:62px}
+.top img{height:22px;width:auto}
+.top .acts{display:flex;gap:8px;align-items:center}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tab{padding:8px 14px;border-radius:4px;border:1px solid var(--line);background:transparent;white-space:nowrap;font-size:14px}
+.tab[aria-selected=true]{background:var(--sand);color:var(--ocean);border-color:var(--sand)}
+main{padding:22px 0 120px}
+.sec-h{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.sec-h h2{font-size:34px}
+.sec-h p{color:var(--mute);font-size:14px;max-width:62ch}
+.stack{display:grid;gap:14px}
+.thumb{width:100%;aspect-ratio:1/1;object-fit:contain;background:var(--ocean);border:1px solid var(--line);border-radius:4px}
+.pick{display:grid;gap:8px}
+.pick .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.upl{position:relative;overflow:hidden}
+.upl input{position:absolute;inset:0;opacity:0;cursor:pointer}
+/* Product editor */
+details.prod{background:var(--ocean2);border:1px solid var(--line);border-radius:6px}
+details.prod>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}
+details.prod>summary::-webkit-details-marker{display:none}
+details.prod>summary img{width:52px;height:52px;object-fit:contain;background:var(--ocean);border-radius:4px;flex-shrink:0}
+details.prod>summary .nm{font-family:var(--serif);font-size:22px;line-height:1.1}
+details.prod>summary .sub{font-size:12.5px;color:var(--mute)}
+details.prod>summary .grow{flex:1;min-width:0}
+details.prod>summary .chev{transition:transform .2s;opacity:.7}
+details.prod[open]>summary .chev{transform:rotate(180deg)}
+.pbody{padding:4px 14px 16px;display:grid;gap:16px;border-top:1px solid var(--line)}
+.pbody .imgs{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.pbody .imgs .thumb{max-width:220px}
+table.sz{width:100%;border-collapse:collapse}
+table.sz th{font-weight:500;font-size:12.5px;color:var(--mute);text-align:start;padding:0 6px 6px}
+table.sz td{padding:4px 6px;vertical-align:middle}
+table.sz td:first-child{font-weight:600;white-space:nowrap;padding-inline-start:0}
+table.sz .in{min-height:38px;padding:6px 10px}
+.chk{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:14px}
+.chk input{width:18px;height:18px;accent-color:var(--teal)}
+.toolrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+.badge{font-size:11.5px;padding:2px 8px;border-radius:10px;border:1px solid var(--line);color:var(--mute)}
+.badge.off{border-color:rgba(255,180,168,.4);color:var(--err)}
+/* Offers */
+.olist{display:grid;gap:8px}
+@media(min-width:720px){.olist{grid-template-columns:1fr 1fr}}
+.oitem{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--ocean2);border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.oitem img{width:46px;height:46px;object-fit:contain;background:var(--ocean);border-radius:4px}
+/* Videos */
+.vitem{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:720px){.vitem{grid-template-columns:240px 1fr}}
+.vitem video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000;border-radius:4px}
+/* Save bar */
+.savebar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ocean2);border-top:1px solid var(--line)}
+.savebar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:66px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.status{font-size:14px;color:var(--mute)}
+.status.dirty{color:var(--sand)}
+.busy{position:fixed;inset:0;z-index:50;background:rgba(6,47,67,.7);display:flex;align-items:center;justify-content:center;font-size:16px}
+@media(max-width:560px){.top .hide-sm{display:none}.sec-h h2{font-size:28px}.pbody .imgs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Sign in -->
+<section class="login" id="loginView" hidden>
+  <form id="loginForm" class="card">
+    <img src="brand/mawja-logo-beige.png" alt="MAWJA" width="988" height="155">
+    <h1 style="font-size:32px">Dashboard sign in</h1>
+    <label class="f"><span>Email</span><input class="in" type="email" id="email" autocomplete="email" required></label>
+    <label class="f"><span>Password</span><input class="in" type="password" id="password" autocomplete="current-password" required></label>
+    <p class="err" id="loginErr" role="alert" hidden></p>
+    <button class="btn btn-sand" id="loginBtn" type="submit">Sign in</button>
+  </form>
+</section>
+
+<!-- Dashboard -->
+<div id="appView" hidden>
+  <header class="top">
+    <div class="wrap top-in">
+      <img src="brand/mawja-logo-beige.png" alt="MAWJA" width="988" height="155">
+      <div class="acts">
+        <a class="btn btn-line btn-sm" href="/" target="_blank" rel="noopener">View site ↗</a>
+        <span class="hide-sm status" id="who"></span>
+        <button class="btn btn-line btn-sm" id="signOut" type="button">Sign out</button>
+      </div>
+    </div>
+    <div class="wrap"><nav class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-tab="banner">Banner</button>
+      <button class="tab" role="tab" data-tab="products">Products</button>
+      <button class="tab" role="tab" data-tab="offers">Now's offers</button>
+      <button class="tab" role="tab" data-tab="reviews">Review videos</button>
+    </nav></div>
+  </header>
+  <main><div class="wrap" id="panel"></div></main>
+  <div class="savebar"><div class="wrap">
+    <span class="status" id="saveStatus" role="status" aria-live="polite">All changes saved.</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-line" id="discardBtn" type="button" disabled>Discard changes</button>
+      <button class="btn btn-sand" id="saveBtn" type="button" disabled>Save &amp; publish</button>
+    </div>
+  </div></div>
+</div>
+
+<div class="busy" id="busy" hidden><span id="busyMsg">Working…</span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+<script>
+/* MAWJA dashboard. Edits one JSON file in Supabase Storage (media/site/storefront.json) that index.html reads at runtime.
+   Sign-in uses Supabase Auth. Only accounts listed in the "admins" table can write (enforced by Supabase storage policies). */
+const SB_URL = "https://ppqgtzujpoyhglxsykdw.supabase.co";
+const SB_KEY = "sb_publishable_y8sN7dXJC0moqkQR7G9RVQ_8jyczdbE";
+const BUCKET = "media";
+const STORE_PATH = "site/storefront.json";
+const STORE_URL = `${SB_URL}/storage/v1/object/public/${BUCKET}/${STORE_PATH}`;
+const SIZES = [55, 35, 10];
+const PAGES = [["#shop", "Shop (all fragrances)"], ["#offers", "Now's offers"], ["#men", "Men"], ["#women", "Women"], ["#best", "Best sellers"], ["#reviews", "Customer reviews"], ["#story", "Our story"]];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const slugify = s => String(s).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+let sb = null, data = null, saved = "", tab = "banner";
+
+function busy(msg) { $("#busyMsg").textContent = msg || "Working…"; $("#busy").hidden = !msg; }
+function show(view) { $("#loginView").hidden = view !== "login"; $("#appView").hidden = view !== "app"; }
+
+/* ---------- Auth ---------- */
+async function boot() {
+  if (!window.supabase || !window.supabase.createClient) {
+    show("login"); const e = $("#loginErr"); e.hidden = false; e.textContent = "Could not load the sign-in service. Check your connection and reload."; return;
+  }
+  sb = window.supabase.createClient(SB_URL, SB_KEY);
+  const { data: s } = await sb.auth.getSession();
+  if (s && s.session) await enter(s.session.user); else show("login");
+}
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = $("#loginErr"); err.hidden = true;
+  $("#loginBtn").disabled = true; $("#loginBtn").textContent = "Signing in…";
+  const { data: r, error } = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
+  $("#loginBtn").disabled = false; $("#loginBtn").textContent = "Sign in";
+  if (error || !r.user) { err.hidden = false; err.textContent = "Incorrect email or password."; return; }
+  $("#password").value = "";
+  await enter(r.user);
+});
+$("#signOut").addEventListener("click", async () => {
+  if (dirty() && !confirm("You have unsaved changes. Sign out anyway?")) return;
+  await sb.auth.signOut(); data = null; saved = ""; show("login");
+});
+async function enter(user) {
+  busy("Loading…");
+  const { data: adm, error } = await sb.from("admins").select("user_id").eq("user_id", user.id).maybeSingle();
+  if (error || !adm) {
+    busy(); await sb.auth.signOut(); show("login");
+    const e = $("#loginErr"); e.hidden = false; e.textContent = "This account is not allowed to manage the store."; return;
+  }
+  $("#who").textContent = user.email || "";
+  try { data = normalize(await loadData()); }
+  catch (e) { busy(); alert("Could not load the store data: " + e.message); return; }
+  saved = JSON.stringify(data);
+  busy(); show("app"); setTab(tab); refreshBar();
+}
+
+/* ---------- Data ---------- */
+async function loadData() {
+  const r = await fetch(`${STORE_URL}?v=${Date.now()}`, { cache: "no-store" });
+  if (r.ok) return r.json();
+  if (r.status !== 400 && r.status !== 404) throw new Error(`HTTP ${r.status}`);
+  return loadSiteDefaults(); // Nothing saved yet: start from the values built into index.html.
+}
+// Reads the built-in values from index.html (same origin) in a hidden frame.
+function loadSiteDefaults() {
+  return new Promise((resolve, reject) => {
+    const f = document.createElement("iframe");
+    f.hidden = true; f.src = "/?defaults=1";
+    const fail = setTimeout(() => { f.remove(); reject(new Error("timed out reading index.html")); }, 15000);
+    f.onload = () => {
+      try {
+        const d = JSON.parse(f.contentWindow.eval("JSON.stringify({banner: BANNER, products: PRODUCTS, offers: NOW_OFFERS, reviews: REVIEW_VIDEOS.filter(v => v.src)})"));
+        clearTimeout(fail); f.remove(); resolve(d);
+      } catch (e) { clearTimeout(fail); f.remove(); reject(e); }
+    };
+    document.body.appendChild(f);
+  });
+}
+function normalize(d) {
+  d = d && typeof d === "object" ? d : {};
+  const b = d.banner || {};
+  const products = (Array.isArray(d.products) ? d.products : []).map(p => {
+    const prices = {}, available = {};
+    SIZES.forEach(s => {
+      const P = (p.prices && p.prices[s]) || {};
+      prices[s] = { before: typeof P.before === "number" ? P.before : null, now: typeof P.now === "number" ? P.now : null };
+      available[s] = !(p.available && p.available[s] === false);
+    });
+    return { slug: String(p.slug || ""), name: String(p.name || ""), ref: String(p.ref || ""), cat: p.cat === "women" ? "women" : "men",
+      img: String(p.img || ""), img2: String(p.img2 || p.img || ""), featured: !!p.featured, prices, available };
+  });
+  return {
+    version: 1,
+    banner: { image: String(b.image || ""), alt: String(b.alt || ""), href: String(b.href || "#shop") },
+    products,
+    offers: (Array.isArray(d.offers) ? d.offers : []).filter(s => products.some(p => p.slug === s)),
+    reviews: (Array.isArray(d.reviews) ? d.reviews : []).filter(v => v && v.src).map(v => ({ src: String(v.src), poster: String(v.poster || ""), title: String(v.title || "") })),
+  };
+}
+const dirty = () => data && JSON.stringify(data) !== saved;
+function refreshBar(msg, cls) {
+  const st = $("#saveStatus");
+  const d = dirty();
+  st.textContent = msg || (d ? "You have unsaved changes." : "All changes saved.");
+  st.className = "status" + (cls ? " " + cls : d ? " dirty" : "");
+  $("#saveBtn").disabled = !d; $("#discardBtn").disabled = !d;
+}
+window.addEventListener("beforeunload", e => { if (dirty()) { e.preventDefault(); e.returnValue = ""; } });
+
+/* Must match the checks in index.html, otherwise the site would ignore the saved value. */
+const okSrc = s => /^(https:\/\/[^\s"'<>]+|(demo|brand)\/[\w.\-\/]+)$/.test(s || "");
+const okHref = h => /^(#[\w-]*|https?:\/\/[^\s"'<>]+)$/.test(h || "");
+function validate() {
+  const errs = [];
+  if (!okSrc(data.banner.image)) errs.push("Banner: upload an image.");
+  if (!okHref(data.banner.href)) errs.push("Banner: the link must be a site page (like #shop) or a full link starting with https://");
+  if (!data.products.length) errs.push("Add at least one product.");
+  data.products.forEach((p, i) => {
+    const n = p.name.trim() || `Product ${i + 1}`;
+    if (!p.name.trim()) errs.push(`Product ${i + 1}: enter a name.`);
+    if (!okSrc(p.img)) errs.push(`${n}: upload the first photo.`);
+    if (p.img2 && !okSrc(p.img2)) errs.push(`${n}: the second photo is not valid.`);
+    SIZES.forEach(s => {
+      const P = p.prices[s];
+      if (typeof P.now !== "number" || !(P.now >= 0)) errs.push(`${n} ${s} ml: enter the "now" price.`);
+      if (P.before != null && !(P.before >= 0)) errs.push(`${n} ${s} ml: the "before" price is not valid.`);
+    });
+  });
+  data.reviews.forEach((v, i) => { if (!okSrc(v.src)) errs.push(`Review video ${i + 1}: the video link must start with https://`); });
+  return errs;
+}
+async function save() {
+  const errs = validate();
+  if (errs.length) { alert("Please fix these before saving:\n\n• " + errs.join("\n• ")); return; }
+  const out = clone(data);
+  out.products.forEach(p => { if (!p.img2) p.img2 = p.img; SIZES.forEach(s => { if (p.prices[s].before == null) p.prices[s].before = p.prices[s].now; }); if (!p.featured) delete p.featured; });
+  out.updatedAt = new Date().toISOString();
+  const body = JSON.stringify(out, null, 1); // sent as a raw JSON body (not a form upload)
+  busy("Saving…");
+  try {
+    const st = sb.storage.from(BUCKET);
+    const r = await st.upload(STORE_PATH, body, { upsert: true, cacheControl: "0", contentType: "application/json" });
+    if (r.error) throw r.error;
+    // Keep a dated copy so an earlier version can be restored if needed.
+    await st.upload(`site/history/${out.updatedAt.replace(/[:.]/g, "-")}.json`, body, { upsert: true, cacheControl: "3600", contentType: "application/json" });
+    saved = JSON.stringify(data);
+    busy(); refreshBar("Saved. The site shows the new version on the next page load.", "ok");
+  } catch (e) {
+    busy(); refreshBar("Not saved: " + (e.message || e), "err");
+    if (/row-level security|unauthori|jwt|403/i.test(String(e.message))) alert("Your session may have expired. Sign out, sign in again, then save.");
+  }
+}
+$("#saveBtn").addEventListener("click", save);
+$("#discardBtn").addEventListener("click", () => { if (confirm("Discard all unsaved changes?")) { data = JSON.parse(saved); render(); refreshBar(); } });
+
+/* Uploads go to Supabase Storage (public bucket) under site/img or site/video. */
+async function upload(file, kind) {
+  const isVid = kind === "video";
+  const okType = isVid ? /^video\/(mp4|webm|quicktime)$/ : /^image\/(jpeg|png|webp)$/;
+  if (!okType.test(file.type)) throw new Error(isVid ? "Use an MP4, WebM or MOV video." : "Use a JPG, PNG or WebP image.");
+  const max = isVid ? 50 : 8;
+  if (file.size > max * 1024 * 1024) throw new Error(`The file must be under ${max} MB.`);
+  const ext = (file.name.split(".").pop() || (isVid ? "mp4" : "jpg")).toLowerCase().replace(/[^a-z0-9]/g, "");
+  const path = `site/${isVid ? "video" : "img"}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  busy(isVid ? "Uploading video…" : "Uploading image…");
+  try {
+    const r = await sb.storage.from(BUCKET).upload(path, file, { cacheControl: "31536000", contentType: file.type, upsert: false });
+    if (r.error) throw r.error;
+    return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  } finally { busy(); }
+}
+
+/* ---------- Views ---------- */
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll("#tabs .tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  render();
+  window.scrollTo({ top: 0 });
+}
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b) setTab(b.dataset.tab); });
+
+function imgSrc(s) { return s ? (/^https:/.test(s) ? s : "/" + s) : ""; }
+function imgPicker(path, label, value, hint) {
+  return `<div class="pick">
+    <span style="font-size:13px;color:var(--mute)">${esc(label)}</span>
+    ${value ? `<img class="thumb" src="${esc(imgSrc(value))}" alt="">` : `<div class="thumb" style="display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:13px">No image</div>`}
+    <div class="row"><span class="btn btn-line btn-sm upl">Upload image<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="${esc(path)}" data-kind="img"></span></div>
+    ${hint ? `<p class="hint">${esc(hint)}</p>` : ""}
+  </div>`;
+}
+
+function render() {
+  const P = $("#panel");
+  if (tab === "banner") P.innerHTML = bannerView();
+  else if (tab === "products") P.innerHTML = productsView();
+  else if (tab === "offers") P.innerHTML = offersView();
+  else P.innerHTML = reviewsView();
+}
+
+function bannerView() {
+  const b = data.banner;
+  const isPage = PAGES.some(([h]) => h === b.href) || /^#product-/.test(b.href);
+  const opts = PAGES.map(([h, l]) => `<option value="${h}" ${b.href === h ? "selected" : ""}>${esc(l)} (${h})</option>`).join("")
+    + `<optgroup label="Product pages">${data.products.map(p => `<option value="#product-${esc(p.slug)}" ${b.href === "#product-" + p.slug ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</optgroup>`
+    + `<option value="custom" ${!isPage ? "selected" : ""}>A full link (https://…)</option>`;
+  return `<div class="sec-h"><div><h2>Banner</h2><p>The large image under the header on the homepage. Clicking it opens the link you choose.</p></div></div>
+  <div class="card grid2">
+    ${imgPicker("banner.image", "Banner image", b.image, "Shown square (1:1) and never cropped. A 1000×1000 image works best.")}
+    <div class="stack">
+      <label class="f"><span>When clicked, go to</span><select class="in" data-href-select>${opts}</select></label>
+      <label class="f" ${isPage ? "hidden" : ""} id="customHref"><span>Full link</span><input class="in" type="url" placeholder="https://…" value="${isPage ? "" : esc(b.href)}" data-k="banner.href"></label>
+      <label class="f"><span>Image description (for screen readers)</span><input class="in" value="${esc(b.alt)}" data-k="banner.alt"></label>
+    </div>
+  </div>`;
+}
+
+function productsView() {
+  return `<div class="sec-h"><div><h2>Products</h2><p>Prices are in EGP. "Before" is the old price shown crossed out; leave it empty for no discount. An unavailable size cannot be selected or bought on the site.</p></div>
+    <button class="btn btn-sand" type="button" data-act="addProduct">+ Add product</button></div>
+  <div class="stack">${data.products.map(productCard).join("") || `<p class="hint">No products yet.</p>`}</div>`;
+}
+function productCard(p, i) {
+  const off = SIZES.filter(s => !p.available[s]);
+  const rows = SIZES.map(s => `<tr>
+      <td>${s} ml</td>
+      <td><input class="in" type="number" min="0" step="1" inputmode="numeric" value="${p.prices[s].before ?? ""}" data-k="products.${i}.prices.${s}.before" data-num aria-label="${s} ml before price"></td>
+      <td><input class="in" type="number" min="0" step="1" inputmode="numeric" value="${p.prices[s].now ?? ""}" data-k="products.${i}.prices.${s}.now" data-num aria-label="${s} ml now price"></td>
+      <td><label class="chk"><input type="checkbox" ${p.available[s] ? "checked" : ""} data-k="products.${i}.available.${s}">Available</label></td>
+    </tr>`).join("");
+  return `<details class="prod" data-i="${i}" ${p._open ? "open" : ""}>
+    <summary>
+      ${p.img ? `<img src="${esc(imgSrc(p.img))}" alt="">` : `<span style="width:52px;height:52px;border:1px solid var(--line);border-radius:4px"></span>`}
+      <span class="grow"><span class="nm">${esc(p.name || "New product")}</span><br><span class="sub">${p.cat === "women" ? "Women" : "Men"}${p.ref ? " · Inspired by " + esc(p.ref) : ""}</span></span>
+      ${off.length ? `<span class="badge off">${off.map(s => s + " ml").join(", ")} unavailable</span>` : ""}
+      ${data.offers.includes(p.slug) ? `<span class="badge">On offer</span>` : ""}
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="pbody">
+      <div class="grid2" style="margin-top:12px">
+        <label class="f"><span>Name</span><input class="in" value="${esc(p.name)}" data-k="products.${i}.name"></label>
+        <label class="f"><span>Inspired by (reference)</span><input class="in" value="${esc(p.ref)}" data-k="products.${i}.ref"></label>
+        <label class="f"><span>Category</span><select class="in" data-k="products.${i}.cat"><option value="men" ${p.cat === "men" ? "selected" : ""}>Men</option><option value="women" ${p.cat === "women" ? "selected" : ""}>Women</option></select></label>
+        <div style="display:flex;align-items:flex-end;padding-bottom:10px"><label class="chk"><input type="checkbox" ${p.featured ? "checked" : ""} data-k="products.${i}.featured">Show in Best sellers</label></div>
+      </div>
+      <div class="imgs">
+        ${imgPicker(`products.${i}.img`, "Photo 1 (main)", p.img)}
+        ${imgPicker(`products.${i}.img2`, "Photo 2 (on hover / swipe)", p.img2, p.img2 === p.img ? "Same as photo 1 until you upload a second photo." : "")}
+      </div>
+      <div style="overflow-x:auto"><table class="sz"><thead><tr><th>Size</th><th>Before (EGP)</th><th>Now (EGP)</th><th>Availability</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="toolrow">
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-line btn-sm" type="button" data-act="move" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""}>↑ Move up</button>
+          <button class="btn btn-line btn-sm" type="button" data-act="move" data-i="${i}" data-d="1" ${i === data.products.length - 1 ? "disabled" : ""}>↓ Move down</button>
+        </div>
+        <button class="btn btn-danger btn-sm" type="button" data-act="delProduct" data-i="${i}">Delete product</button>
+      </div>
+      <p class="hint">Page link: #product-${esc(p.slug)}</p>
+    </div>
+  </details>`;
+}
+
+function offersView() {
+  return `<div class="sec-h"><div><h2>Now's offers</h2><p>Tick the products that appear on the Now's offers page. They are shown in the same order as the product list.</p></div></div>
+  <div class="olist">${data.products.map(p => `<label class="oitem"><input type="checkbox" class="chk" style="width:18px;height:18px;accent-color:var(--teal)" data-offer="${esc(p.slug)}" ${data.offers.includes(p.slug) ? "checked" : ""}>
+    ${p.img ? `<img src="${esc(imgSrc(p.img))}" alt="">` : ""}<span><b style="font-family:var(--serif);font-size:20px;font-weight:500">${esc(p.name)}</b><br><span class="hint" style="margin:0">${p.cat === "women" ? "Women" : "Men"}</span></span></label>`).join("")}</div>
+  <p class="hint" style="margin-top:12px">${data.offers.length} selected.</p>`;
+}
+
+function reviewsView() {
+  return `<div class="sec-h"><div><h2>Review videos</h2><p>Videos in the Customer reviews carousel on the homepage. With no videos, the carousel shows its empty placeholder slots. Videos up to 50 MB (MP4 works on every phone).</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="btn btn-sand upl">+ Upload video<input type="file" accept="video/mp4,video/webm,video/quicktime" data-addvideo></span>
+      <button class="btn btn-line" type="button" data-act="addVideoUrl">+ Add by link</button>
+    </div></div>
+  <div class="stack">${data.reviews.map((v, i) => `<div class="card vitem">
+      <video src="${esc(v.src)}" ${v.poster ? `poster="${esc(v.poster)}"` : ""} controls preload="metadata" playsinline></video>
+      <div class="stack">
+        <label class="f"><span>Title (read by screen readers)</span><input class="in" value="${esc(v.title)}" placeholder="Review ${i + 1}" data-k="reviews.${i}.title"></label>
+        <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span class="btn btn-line btn-sm upl">${v.poster ? "Change cover image" : "Add cover image"}<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="reviews.${i}.poster" data-kind="img"></span>
+          ${v.poster ? `<button class="btn btn-line btn-sm" type="button" data-act="clearPoster" data-i="${i}">Remove cover</button>` : ""}
+        </div>
+        <div class="toolrow">
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="1" ${i === data.reviews.length - 1 ? "disabled" : ""}>↓</button>
+          </div>
+          <button class="btn btn-danger btn-sm" type="button" data-act="delVideo" data-i="${i}">Remove video</button>
+        </div>
+      </div>
+    </div>`).join("") || `<p class="hint">No videos yet. The site shows the empty review slots until you add one.</p>`}</div>`;
+}
+
+/* ---------- Editing ---------- */
+function setPath(path, val) {
+  const keys = path.split("."); let o = data;
+  for (let k = 0; k < keys.length - 1; k++) o = o[keys[k]];
+  o[keys[keys.length - 1]] = val;
+}
+function getPath(path) { return path.split(".").reduce((o, k) => o[k], data); }
+// Remember which product cards are open so a re-render keeps them open.
+function keepOpen() { document.querySelectorAll("details.prod").forEach(d => { const p = data.products[d.dataset.i]; if (p) Object.defineProperty(p, "_open", { value: d.open, enumerable: false, configurable: true, writable: true }); }); }
+
+$("#panel").addEventListener("input", e => {
+  const el = e.target, k = el.dataset.k;
+  if (!k) return;
+  if (el.type === "checkbox") setPath(k, el.checked);
+  else if ("num" in el.dataset) setPath(k, el.value === "" ? null : Number(el.value));
+  else setPath(k, el.value);
+  if (/^products\.\d+\.(name|ref|cat)$/.test(k)) {
+    const d = el.closest("details.prod"); const p = data.products[d.dataset.i];
+    d.querySelector(".nm").textContent = p.name || "New product";
+    d.querySelector(".sub").textContent = (p.cat === "women" ? "Women" : "Men") + (p.ref ? " · Inspired by " + p.ref : "");
+  }
+  refreshBar();
+});
+$("#panel").addEventListener("change", async e => {
+  const el = e.target;
+  if (el.matches("[data-k]") && el.type === "checkbox") { keepOpen(); render(); refreshBar(); return; }
+  if (el.matches("[data-href-select]")) {
+    const custom = el.value === "custom";
+    $("#customHref").hidden = !custom;
+    if (!custom) data.banner.href = el.value; else { data.banner.href = ""; $("#customHref input").value = ""; $("#customHref input").focus(); }
+    refreshBar(); return;
+  }
+  if (el.matches("[data-offer]")) {
+    const s = el.dataset.offer;
+    data.offers = el.checked ? data.products.map(p => p.slug).filter(x => x === s || data.offers.includes(x)) : data.offers.filter(x => x !== s);
+    render(); refreshBar(); return;
+  }
+  if (el.matches("[data-upload]") && el.files[0]) {
+    const path = el.dataset.upload;
+    try {
+      const url = await upload(el.files[0], el.dataset.kind);
+      const wasSame = /^products\.\d+\.img$/.test(path) && getPath(path) === getPath(path + "2");
+      setPath(path, url);
+      if (wasSame) setPath(path + "2", url); // keep photo 2 = photo 1 until a separate photo 2 is uploaded
+      keepOpen(); render(); refreshBar();
+    } catch (err) { alert(err.message || err); }
+    el.value = ""; return;
+  }
+  if (el.matches("[data-addvideo]") && el.files[0]) {
+    try {
+      const url = await upload(el.files[0], "video");
+      data.reviews.push({ src: url, poster: "", title: "" });
+      render(); refreshBar();
+    } catch (err) { alert(err.message || err); }
+    el.value = ""; return;
+  }
+});
+$("#panel").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const a = b.dataset.act, i = Number(b.dataset.i), d = Number(b.dataset.d);
+  if (a === "addProduct") {
+    const name = prompt("Name of the new product:"); if (!name || !name.trim()) return;
+    let base = slugify(name) || "product", slug = base, n = 2;
+    while (data.products.some(p => p.slug === slug)) slug = `${base}-${n++}`;
+    const prices = {}, available = {};
+    SIZES.forEach(s => { prices[s] = { before: null, now: null }; available[s] = true; });
+    keepOpen();
+    const p = { slug, name: name.trim(), ref: "", cat: "men", img: "", img2: "", featured: false, prices, available };
+    Object.defineProperty(p, "_open", { value: true, enumerable: false, configurable: true, writable: true });
+    data.products.push(p);
+    render(); refreshBar();
+    const last = document.querySelector("details.prod:last-of-type"); if (last) last.scrollIntoView({ block: "start" });
+    return;
+  }
+  if (a === "delProduct") {
+    const p = data.products[i];
+    if (!confirm(`Delete “${p.name}”? It is removed from the site when you save.`)) return;
+    data.products.splice(i, 1); data.offers = data.offers.filter(s => s !== p.slug);
+    if (data.banner.href === "#product-" + p.slug) data.banner.href = "#shop";
+    keepOpen(); render(); refreshBar(); return;
+  }
+  if (a === "move") { keepOpen(); const [p] = data.products.splice(i, 1); data.products.splice(i + d, 0, p); render(); refreshBar(); return; }
+  if (a === "vmove") { const [v] = data.reviews.splice(i, 1); data.reviews.splice(i + d, 0, v); render(); refreshBar(); return; }
+  if (a === "delVideo") { if (confirm("Remove this video from the carousel?")) { data.reviews.splice(i, 1); render(); refreshBar(); } return; }
+  if (a === "clearPoster") { data.reviews[i].poster = ""; render(); refreshBar(); return; }
+  if (a === "addVideoUrl") {
+    const url = (prompt("Video link (a direct .mp4/.webm file starting with https://):") || "").trim(); if (!url) return;
+    if (!okSrc(url)) { alert("The link must start with https:// and point straight to the video file."); return; }
+    data.reviews.push({ src: url, poster: "", title: "" }); render(); refreshBar(); return;
+  }
+});
+
+boot();
+</script>
+</body>
+</html>

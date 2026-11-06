@@ -495,6 +495,59 @@ const WA = "https://wa.me/201279125006";
 // Top banner under the hero. image: file path, href: where a click goes (a page like "#shop", "#offers", or a full https link).
 const BANNER = { image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop" };
 
+/* ---------- Live data from the dashboard (/admin) ----------
+   The dashboard saves one JSON file to Supabase Storage. It is read at runtime and replaces the values above.
+   If it cannot be loaded (offline, missing or invalid), the values above are used unchanged. */
+const STORE_URL = "https://ppqgtzujpoyhglxsykdw.supabase.co/storage/v1/object/public/media/site/storefront.json";
+const okHref = h => typeof h === "string" && /^(#[\w-]*|https?:\/\/[^\s"'<>]+)$/.test(h);
+const okSrc = s => typeof s === "string" && /^(https:\/\/[^\s"'<>]+|(demo|brand)\/[\w.\-\/]+)$/.test(s);
+const okNum = n => typeof n === "number" && isFinite(n) && n >= 0;
+function cleanProduct(x) {
+  if (!x || typeof x !== "object") return null;
+  if (typeof x.slug !== "string" || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(x.slug)) return null;
+  if (typeof x.name !== "string" || !x.name.trim() || !okSrc(x.img)) return null;
+  const p = { slug: x.slug, name: x.name.trim(), ref: typeof x.ref === "string" ? x.ref.trim() : "", cat: x.cat === "women" ? "women" : "men",
+    img: x.img, img2: okSrc(x.img2) ? x.img2 : x.img, prices: {}, available: {} };
+  if (x.featured) p.featured = true;
+  for (const s of SIZES) {
+    const P = x.prices && x.prices[s];
+    if (!P || !okNum(P.now)) return null;
+    p.prices[s] = { before: okNum(P.before) ? P.before : P.now, now: P.now };
+    p.available[s] = !(x.available && x.available[s] === false);
+  }
+  return p;
+}
+function applyStore(d) {
+  if (!d || typeof d !== "object") return false;
+  if (Array.isArray(d.products)) {
+    const list = d.products.map(cleanProduct).filter(Boolean).filter((p, i, a) => a.findIndex(q => q.slug === p.slug) === i);
+    if (list.length) {
+      PRODUCTS.splice(0, PRODUCTS.length, ...list);
+      Object.keys(BY).forEach(k => delete BY[k]);
+      PRODUCTS.forEach(p => { BY[p.slug] = p; });
+    }
+  }
+  if (Array.isArray(d.offers)) NOW_OFFERS.splice(0, NOW_OFFERS.length, ...d.offers.filter(s => typeof s === "string" && BY[s]));
+  // Videos added in the dashboard replace the empty slots. With no videos, the placeholder slots stay as designed.
+  const vids = Array.isArray(d.reviews) ? d.reviews.filter(v => v && okSrc(v.src))
+    .map((v, i) => ({ src: v.src, poster: okSrc(v.poster) ? v.poster : "", title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : `Review ${i + 1}` })) : [];
+  if (vids.length) REVIEW_VIDEOS.splice(0, REVIEW_VIDEOS.length, ...vids);
+  if (d.banner && okSrc(d.banner.image)) {
+    BANNER.image = d.banner.image;
+    if (okHref(d.banner.href)) BANNER.href = d.banner.href;
+    if (typeof d.banner.alt === "string") BANNER.alt = d.banner.alt;
+  }
+  return true;
+}
+function loadStore(ms) {
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = ctl && setTimeout(() => ctl.abort(), ms);
+  return fetch(`${STORE_URL}?v=${Date.now()}`, { cache: "no-store", signal: ctl ? ctl.signal : undefined })
+    .then(r => (r.ok ? r.json() : null))
+    .catch(() => null)
+    .finally(() => clearTimeout(timer));
+}
+
 /* ---------- Strings (EN / AR) ---------- */
 const I18N = {
   en: {
@@ -1086,15 +1139,24 @@ document.addEventListener("keydown", e => {
 window.addEventListener("hashchange", route);
 window.addEventListener("scroll", () => { $(".hdr").classList.toggle("sc", window.scrollY > 160); }, { passive: true });
 
-/* Restore saved state */
-cart = load("mawja-cart", []).filter(l => l && (l.bundle || (BY[l.slug] && BY[l.slug].prices[l.ml])));
-wish = load("mawja-wish", []);
-if (!Array.isArray(cart)) cart = [];
-if (!Array.isArray(wish)) wish = [];
+/* Restore saved state. Cart lines for a product or size that no longer exists, or is unavailable, are dropped. */
+function restoreState() {
+  const c = load("mawja-cart", []), w = load("mawja-wish", []);
+  cart = (Array.isArray(c) ? c : []).filter(l => l && (l.bundle || (BY[l.slug] && BY[l.slug].prices[l.ml] && BY[l.slug].available[l.ml])));
+  wish = (Array.isArray(w) ? w : []).filter(s => BY[s]);
+}
 
-/* First paint */
-render();
-route();
+/* First paint: wait briefly for the dashboard data so prices do not flicker.
+   If it is slow, paint with the built-in values and update when the data arrives. */
+let painted = false;
+function firstPaint() { if (painted) return; painted = true; restoreState(); render(); route(); }
+const paintTimer = setTimeout(firstPaint, 1500);
+loadStore(8000).then(d => {
+  const changed = applyStore(d);
+  clearTimeout(paintTimer);
+  if (!painted) return firstPaint();
+  if (changed) { restoreState(); render(); if (!$("#cartOv").hidden) renderCart(); }
+});
 </script>
 </body>
 </html>
