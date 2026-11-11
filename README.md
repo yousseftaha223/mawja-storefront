@@ -1,29 +1,23 @@
-# MAWJA Storefront (static)
+# MAWJA Storefront + Admin Dashboard
 
-A single-page storefront. No build step.
+Next.js 14 (App Router) · TypeScript · Tailwind · Supabase (Postgres, Auth, Storage) · Vercel
 
-- `index.html`: the whole site (styles, scripts, product data, text in English and Arabic).
-- `brand/`: logo, icon, beige variants, and the macro banner.
-- `demo/`: product photos (1000x1000 each). Each product has a main photo and a second photo.
+## Setup
+1. Create a Supabase project. In **SQL Editor** run `supabase/schema.sql`, then `supabase/seed.sql` (demo data — prices are placeholders).
+2. **Authentication → Users → Add user** (your admin email + password). Then run:
+   `insert into admins (user_id) select id from auth.users where email = 'YOU@EXAMPLE.COM';`
+3. Copy `.env.example` → `.env.local` and fill the 3 values (Project Settings → API).
+4. `npm install && npm run dev` → site at `/`, dashboard at `/admin`.
+5. Push to GitHub, import in Vercel, add the same 3 env vars. `SUPABASE_SERVICE_ROLE_KEY` must stay server-only (never `NEXT_PUBLIC_`).
 
-## Where things live (all in index.html)
-- `SIZES`, `DEFAULT_PRICES`: sizes (55, 35, 10 ml) and placeholder prices (EGP, before/now).
-- `PRODUCTS`: name, reference, category, photos (`img`, `img2`), `prices` and `available` per product.
-- `NOW_OFFERS`: slugs shown on the Now's offers page.
-- `REVIEW_VIDEOS`: review video slots (src is empty until videos are added).
-- `BANNER`: image and link of the banner under the hero.
-- `BUNDLE`: the Winter Duo item (currently not shown on the page).
-- `I18N`: all text, English and Arabic.
-- `WA`: WhatsApp number used for order requests.
+## How it connects
+Dashboard (Server Actions, signed-in admin session + RLS) → Supabase DB/Storage → public site.
+Every save calls `revalidateTag`, so changes are live immediately; pages also revalidate every 60s (keeps scheduled start/end dates accurate).
+Demo images live in `public/demo`; uploads from the dashboard go to the `media` Storage bucket. Remove demo data when real content is in.
 
-## Deploy
-Static files. Deploy the folder to Vercel as a static site (no framework, no build command, output directory = root).
+## Checkout
+Customers submit an **order request** (name, phone, address). The server re-prices every line from the database and stores it in `orders`; it appears in **/admin → Orders** with a status. No payment is taken — a payment gateway (Paymob/Fawry) is a separate integration.
 
-## Dashboard (/admin)
-- `admin.html` (served at `/admin`): sign in with the Supabase admin account (listed in the `admins` table).
-- Edits the banner (image + link), products (name, reference, two photos, 55/35/10 ml before/now prices, availability per size), Now's offers, and review videos.
-- Saving writes one JSON file to Supabase Storage: `media/site/storefront.json` (plus a dated copy in `media/site/history/`).
-- `index.html` reads that file at runtime. If it cannot be loaded, the values written in `index.html` are used.
-
-## Vercel
-`vercel.json`: clean URLs (`/admin`), security headers, and a fallback that serves `/demo` and `/brand` from this repo if a deployment was uploaded without them.
+## Open items
+- Shellstone HEX was not supplied, so it is not used anywhere.
+- Footer policy links are URLs set in the dashboard (no policy pages built).

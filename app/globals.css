@@ -1,0 +1,134 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+html { scroll-behavior: smooth; scroll-padding-top: 7rem; }
+body { @apply bg-ivory text-navy font-sans antialiased; }
+:focus-visible { outline: 2px solid #244C85; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+@layer components {
+  .btn { @apply inline-flex items-center justify-center rounded-full px-7 py-3.5 text-sm font-medium tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-sand { @apply bg-sand text-navy hover:bg-sand2; }
+  .btn-navy { @apply bg-navy text-swan hover:bg-royal; }
+  .btn-line { @apply border border-swan/70 text-swan hover:bg-swan/10; }
+}
+
+/* ===== New storefront design (scoped to .site so the admin dashboard keeps its own look) ===== */
+.site{--ocean:#062F43;--ocean2:#0A3E52;--sand:#E7D5BB;--teal:#0C6F70;--ink:#172B32;--mute:rgba(231,213,187,.74);--line:rgba(231,213,187,.16);
+  background:var(--ocean);color:var(--sand);min-height:100vh;font-size:16px;line-height:1.6}
+.site a{color:inherit;text-decoration:none}
+.site button,.site input,.site textarea{font:inherit;color:inherit}
+.site .serif{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500}
+.site :focus-visible{outline:2px solid var(--sand);outline-offset:3px}
+.site .wrap{max-width:1280px;margin:0 auto;padding:0 20px;width:100%}
+.site .kicker{font-size:12px;letter-spacing:.22em;text-transform:uppercase}
+.site .sbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 26px;border-radius:4px;border:1px solid transparent;font-weight:500;font-size:15px;letter-spacing:.02em;transition:background .2s,color .2s,transform .2s;cursor:pointer}
+.site .sbtn:disabled{opacity:.5;cursor:not-allowed}
+.site .sbtn-teal{background:var(--teal);color:var(--sand)}.site .sbtn-teal:hover:not(:disabled){background:#0a5c5d}
+.site .sbtn-sand{background:var(--sand);color:var(--ocean)}.site .sbtn-sand:hover:not(:disabled){background:#fff2dc}
+.site .sbtn-line{border-color:var(--sand);color:var(--sand);background:transparent}.site .sbtn-line:hover{background:rgba(231,213,187,.1)}
+.site .sbtn-block{width:100%}
+/* marquee */
+.ann{background:var(--ocean2);color:var(--sand);font-size:13px;letter-spacing:.06em;overflow:hidden;white-space:nowrap}
+.ann .track{display:flex;width:max-content;padding:9px 0;animation:marq 24s linear infinite}
+.ann .grp{display:flex;flex-shrink:0}.ann .grp span{display:inline-block;padding:0 2rem}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* header */
+.hdr{position:sticky;top:0;z-index:40;background:var(--ocean);color:var(--sand);border-bottom:1px solid var(--line)}
+.hdr-in{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px;height:72px;max-width:1280px;margin:0 auto;padding:0 16px}
+.logo{position:relative;display:inline-block;width:166px;height:40px}
+.logo img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:opacity .22s ease}
+.logo .lw{height:26px;width:auto;opacity:1}.logo .li{height:34px;width:auto;opacity:0}
+.hdr.sc .logo .lw{opacity:0}.hdr.sc .logo .li{opacity:1}
+.nav{display:none;gap:30px;font-size:15px;letter-spacing:.02em}
+.nav a{padding:6px 0;border-bottom:1px solid transparent}.nav a:hover{border-bottom-color:var(--sand)}
+@media(min-width:900px){.nav{display:flex}.menu-b{display:none!important}}
+.ib{position:relative;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;background:none;border:0;cursor:pointer}
+.ib:hover{background:rgba(231,213,187,.08)}.ib svg{width:22px;height:22px}
+.tools{justify-self:end}.menu-b{justify-self:start}
+.badge{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--sand);color:var(--ocean);font-size:11px;font-weight:600;line-height:18px;text-align:center}
+@media(max-width:480px){.logo{width:140px;height:36px}.logo .lw{height:22px}.logo .li{height:30px}}
+/* overlay panels */
+.ov{position:fixed;inset:0;z-index:70}
+.scrim{position:absolute;inset:0;background:rgba(6,47,67,.6);border:0;cursor:default}
+.panel{position:absolute;top:0;height:100%;background:var(--ocean2);color:var(--sand);display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,0,0,.35)}
+.panel-r{right:0;width:100%;max-width:440px}.panel-l{left:0;width:min(340px,88%)}
+.phead{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.phead h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:30px;line-height:1}
+.pbody{flex:1;overflow-y:auto;padding:0 20px}.pfoot{border-top:1px solid var(--line);padding:16px 20px}
+.mnav a{display:block;padding:14px 0;border-bottom:1px solid var(--line);font-family:"Cormorant Garamond",Georgia,serif;font-size:26px}
+/* hero */
+.hero2{background:var(--ocean)}
+.hero2 .hero-in{display:grid;grid-template-columns:40% minmax(0,1fr);gap:clamp(14px,3vw,48px);align-items:center;max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,48px) 16px}
+.hero2 .ph img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:4px;background:var(--ocean2)}
+.hero2 h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:clamp(28px,4.4vw,60px);line-height:1.05;margin-top:10px;text-wrap:balance}
+.hero2 .lede{margin-top:14px;color:var(--mute);font-size:clamp(14px,1.5vw,17px)}
+.hero2 .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+@media(max-width:480px){.hero2 .ctas{flex-direction:column}.hero2 .ctas .sbtn{width:100%}}
+.macro{display:block;width:100%;height:clamp(300px,50vw,620px);object-fit:cover;object-position:center 40%}
+/* sticky strip */
+.strip{position:sticky;top:72px;z-index:38;display:flex;justify-content:center;flex-wrap:wrap;gap:clamp(18px,4vw,56px);padding:14px 16px;background:var(--ocean);border-bottom:1px solid var(--line);font-size:13px;font-weight:500;letter-spacing:.18em;text-transform:uppercase}
+.strip a{opacity:.65;padding:6px 0;border-bottom:2px solid transparent;transition:opacity .2s,border-color .2s}.strip a:hover{opacity:1;border-bottom-color:var(--sand)}
+/* sections / cards */
+.sec{padding:72px 20px}.sec-in{max-width:1280px;margin:0 auto}
+.sec h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:clamp(38px,4.6vw,58px);line-height:1.05}
+.sec .sub{margin-top:12px;max-width:56ch;opacity:.85}.sec-head{margin-bottom:36px}
+.alt{background:var(--ocean2)}
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 16px}
+@media(min-width:720px){.pgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:44px 24px}}
+@media(min-width:1100px){.pgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.pc .im{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:var(--ocean)}
+.alt .pc .im{background:var(--ocean)}
+.pc .im img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .45s ease}
+.pc .im img.b{opacity:0}
+@media(hover:hover){.pc .im:hover img.b{opacity:1}.pc .im:hover img.a{opacity:0}}
+.pc h3{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:500;font-size:27px;line-height:1.1;margin-top:12px}
+.pc .ref{font-size:14px;opacity:.78}.pc .pr{margin-top:6px;font-weight:500}.pc .pr s{opacity:.55;font-weight:400;font-size:14px;margin-left:6px}
+.pc .sz{font-size:13px;opacity:.7}
+.tag{position:absolute;top:10px;left:10px;z-index:2;background:var(--sand);color:var(--ocean);font-size:12px;padding:3px 10px;border-radius:999px}
+.pc .qa{display:flex;align-items:center;justify-content:center;margin-top:12px;min-height:44px;background:var(--teal);color:var(--sand);border-radius:4px;font-size:14px;font-weight:500}
+.pc .qa:hover{background:#0a5c5d}
+.bund{display:grid;gap:0;border-radius:4px;overflow:hidden;background:var(--ocean)}
+@media(min-width:800px){.bund.one{grid-template-columns:1fr 1fr;align-items:center}}
+.bund img{width:100%;aspect-ratio:1/1;object-fit:contain;background:var(--ocean2)}
+.bund .body{padding:24px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.bund h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;line-height:1.05;font-weight:500}
+/* product page */
+.pp{max-width:1280px;margin:0 auto;padding:28px 20px 56px;display:grid;gap:36px}
+@media(min-width:900px){.pp{grid-template-columns:1.05fr 1fr;gap:72px;padding:48px 20px 72px;align-items:start}}
+.gal{position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:var(--ocean2)}
+.gal img{width:100%;height:100%;object-fit:contain}
+.thumbs{display:flex;gap:8px;margin-top:10px}
+.thumbs button{width:72px;height:72px;border:1px solid var(--line);border-radius:4px;background:var(--ocean2);overflow:hidden;padding:0;cursor:pointer}
+.thumbs button[aria-current=true]{border-color:var(--sand)}
+.thumbs img{width:100%;height:100%;object-fit:contain}
+.pp h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:clamp(46px,5.4vw,68px);line-height:1;margin-top:12px}
+.opt-label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.szb{min-width:150px;min-height:58px;padding:10px 16px;border:1px solid var(--sand);border-radius:4px;text-align:left;display:flex;flex-direction:column;background:none;cursor:pointer}
+.szb[aria-checked=true]{background:var(--sand);color:var(--ocean)}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:4px;min-height:52px}
+.qty button{width:48px;min-height:50px;font-size:18px;background:none;border:0;cursor:pointer}.qty button:hover{background:rgba(231,213,187,.1)}
+.qty span{min-width:30px;text-align:center}
+/* cart + checkout */
+.cl{display:grid;grid-template-columns:72px 1fr auto;gap:14px;padding:18px 0;border-bottom:1px solid var(--line);align-items:start}
+.cl img{width:72px;height:72px;object-fit:contain;border-radius:4px;background:var(--ocean)}
+.cl .nm{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:22px;line-height:1.1}
+.cl .qty{min-height:38px}.cl .qty button{width:38px;min-height:36px}
+.sum{display:flex;justify-content:space-between;font-size:17px;font-weight:500;margin-bottom:8px}
+.fine-txt{font-size:13px;color:var(--mute)}
+.field{width:100%;border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:16px;margin-bottom:10px;background:var(--ocean);color:var(--sand);outline:none}
+.field:focus{border-color:var(--teal)}.field::placeholder{color:rgba(231,213,187,.45)}
+.flabel{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+.err{margin:6px 0 10px;padding:10px 12px;border-radius:4px;background:rgba(180,40,40,.25);color:#ffd5d0;font-size:14px}
+.osum{font-size:14px;border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin:6px 0 18px}
+.osum li{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+/* footer */
+.foot{background:var(--ocean);color:var(--sand);padding:64px 20px 26px;border-top:1px solid var(--line)}
+.foot-in{max-width:1280px;margin:0 auto;display:grid;gap:36px}
+@media(min-width:860px){.foot-in{grid-template-columns:1.4fr 1fr 1.2fr}}
+.foot h4{font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px;font-weight:600}
+.foot ul{list-style:none;display:grid;gap:10px;font-size:15px;padding:0;margin:0}
+.foot ul a:hover,.foot address a:hover{text-decoration:underline;text-underline-offset:4px}
+.foot .statement{font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;line-height:1.2;max-width:22ch;margin-top:18px}
+.foot .soc{display:flex;gap:10px;margin-top:20px}
+.foot .soc a{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.foot .soc a:hover{border-color:var(--sand)}
+.foot .fine{max-width:1280px;margin:44px auto 0;border-top:1px solid var(--line);padding-top:18px;font-size:13px;color:var(--mute);text-align:center}
+@media(prefers-reduced-motion:reduce){.ann .track{animation:none}}
