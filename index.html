@@ -355,6 +355,32 @@ button.qa:disabled{opacity:.45;cursor:not-allowed}
 .slogan .ctas .offers-btn{margin-top:0}
 @media (max-width:480px){.slogan .ctas{flex-direction:column;width:100%}.slogan .ctas .offers-btn,.slogan .ctas .hero-line{width:100%}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+/* Product page: two-photo gallery with thumbnails (no hover swap here, the thumbnails and swipe control it) */
+.swap.nohover:hover img.b{opacity:0}
+.swap.nohover:hover img.a{opacity:1}
+.swap.nohover.on:hover img.b{opacity:1}
+.swap.nohover.on:hover img.a{opacity:0}
+.thumbs{display:flex;gap:10px;margin-top:12px}
+.th{width:72px;height:72px;border:1px solid var(--line-lt);border-radius:4px;overflow:hidden;background:var(--ocean);opacity:.7;transition:opacity .2s,border-color .2s}
+.th img{width:100%;height:100%;object-fit:contain}
+.th[aria-pressed=true]{border-color:var(--sand);opacity:1}
+.gal-note{margin-top:10px;font-size:13px;color:var(--lt-mute)}
+/* Checkout form */
+.flab{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--lt-mute);margin:14px 0 6px}
+textarea.field{min-height:92px;resize:vertical;line-height:1.5}
+.field:focus{border-color:var(--teal)}
+.field.bad{border-color:#ffb4a8}
+.ferr{font-size:13px;color:#ffb4a8;margin:-2px 0 6px}
+.hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+.srow{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:6px}
+.srow.tot{font-size:17px;font-weight:600;margin-bottom:12px}
+.cust{margin-top:20px;border-top:1px solid var(--line-lt);padding-top:14px;display:grid;gap:4px;font-size:14px;color:var(--lt-mute)}
+.cust b{color:var(--sand);font-weight:500}
+.cust p{white-space:pre-line;overflow-wrap:anywhere}
+.cerr{margin-top:16px;padding:12px 14px;border:1px solid #ffb4a8;border-radius:4px;color:#ffb4a8;font-size:14px}
+.cerr a{text-decoration:underline;text-underline-offset:3px}
+/* Review photos */
+.vslide .rimg{width:100%;height:100%;object-fit:contain;display:block;background:var(--ocean)}
 </style>
 </head>
 <body>
@@ -386,6 +412,7 @@ button.qa:disabled{opacity:.45;cursor:not-allowed}
       <a href="#shop" data-close data-i18n="nShop">Shop</a>
       <a href="#men" data-close data-i18n="nMen">Men</a>
       <a href="#women" data-close data-i18n="nWomen">Women</a>
+      <a href="#unisex" data-close data-i18n="nUnisex">Unisex</a>
       <a href="#story" data-close data-i18n="nStory">Our Story</a>
       <a href="#wishlist" data-close data-i18n="wish">Wishlist</a>
     </nav>
@@ -436,6 +463,7 @@ button.qa:disabled{opacity:.45;cursor:not-allowed}
         <li><a href="#shop" data-i18n="nShop">Shop</a></li>
         <li><a href="#men" data-i18n="nMen">Men</a></li>
         <li><a href="#women" data-i18n="nWomen">Women</a></li>
+        <li><a href="#unisex" data-i18n="nUnisex">Unisex</a></li>
         <li><a href="#story" data-i18n="nStory">Our Story</a></li>
       </ul>
     </div>
@@ -477,9 +505,12 @@ const PRODUCTS = [
 PRODUCTS.forEach(p => { p.img2 = p.img; });
 // Per-product pricing and availability. Prices are placeholders until the real per-product prices are supplied.
 // Set available[size] = false to mark a size unavailable: it shows as unavailable and cannot be selected or bought.
-PRODUCTS.forEach(p => {
+PRODUCTS.forEach((p, i) => {
   p.prices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
   p.available = { 55: true, 35: true, 10: true };
+  p.notes = "";        // Perfume notes (English). Edited per product in the dashboard.
+  p.notesAr = "";      // Perfume notes (Arabic, optional). Falls back to English when empty.
+  p.priority = i + 1;  // Display priority: lower number shows first. Default = the order above.
 });
 const NOW_OFFERS = ["ecstasy", "gentle-knight", "fluffy", "banaya"];
 // Review videos. Add the video file path in src (and a poster image if wanted). Empty slots show a placeholder.
@@ -492,6 +523,10 @@ const REVIEW_VIDEOS = [
 const BY = Object.fromEntries(PRODUCTS.map(p => [p.slug, p]));
 const BUNDLE = { key: "bundle-winter-duo", name: "Winter Duo", price: 850, was: 1000, img: "demo/honey.jpg" };
 const WA = "https://wa.me/201279125006";
+const SHIPPING_FEE = 90;           // flat shipping fee (EGP), added to every order. The server applies the same fee.
+const HOME_PAGE_SIZE = 4;          // products shown on the homepage grid; "See more" reveals this many more each time
+const ORDER_API = "/api/order";    // Vercel serverless function (api/order.js): saves the order and notifies Telegram
+const CATS = ["men", "women", "unisex"];
 // Top banner under the hero. image: file path, href: where a click goes (a page like "#shop", "#offers", or a full https link).
 const BANNER = { image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop" };
 
@@ -506,8 +541,11 @@ function cleanProduct(x) {
   if (!x || typeof x !== "object") return null;
   if (typeof x.slug !== "string" || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(x.slug)) return null;
   if (typeof x.name !== "string" || !x.name.trim() || !okSrc(x.img)) return null;
-  const p = { slug: x.slug, name: x.name.trim(), ref: typeof x.ref === "string" ? x.ref.trim() : "", cat: x.cat === "women" ? "women" : "men",
-    img: x.img, img2: okSrc(x.img2) ? x.img2 : x.img, prices: {}, available: {} };
+  const p = { slug: x.slug, name: x.name.trim(), ref: typeof x.ref === "string" ? x.ref.trim() : "", cat: CATS.includes(x.cat) ? x.cat : "men",
+    img: x.img, img2: okSrc(x.img2) ? x.img2 : x.img, prices: {}, available: {},
+    notes: typeof x.notes === "string" ? x.notes.trim().slice(0, 1000) : "",
+    notesAr: typeof x.notesAr === "string" ? x.notesAr.trim().slice(0, 1000) : "",
+    priority: okNum(x.priority) ? x.priority : null };
   if (x.featured) p.featured = true;
   for (const s of SIZES) {
     const P = x.prices && x.prices[s];
@@ -522,15 +560,18 @@ function applyStore(d) {
   if (Array.isArray(d.products)) {
     const list = d.products.map(cleanProduct).filter(Boolean).filter((p, i, a) => a.findIndex(q => q.slug === p.slug) === i);
     if (list.length) {
+      // Old saved data has no priority: keep the saved order (position + 1). Then order by priority (stable, so ties keep the saved order).
+      list.forEach((p, i) => { if (p.priority == null) p.priority = i + 1; });
+      list.sort((a, b) => a.priority - b.priority);
       PRODUCTS.splice(0, PRODUCTS.length, ...list);
       Object.keys(BY).forEach(k => delete BY[k]);
       PRODUCTS.forEach(p => { BY[p.slug] = p; });
     }
   }
   if (Array.isArray(d.offers)) NOW_OFFERS.splice(0, NOW_OFFERS.length, ...d.offers.filter(s => typeof s === "string" && BY[s]));
-  // Videos added in the dashboard replace the empty slots. With no videos, the placeholder slots stay as designed.
+  // Photos and videos added in the dashboard replace the empty slots. With none, the placeholder slots stay as designed.
   const vids = Array.isArray(d.reviews) ? d.reviews.filter(v => v && okSrc(v.src))
-    .map((v, i) => ({ src: v.src, poster: okSrc(v.poster) ? v.poster : "", title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : `Review ${i + 1}` })) : [];
+    .map((v, i) => ({ type: v.type === "image" ? "image" : "video", src: v.src, poster: okSrc(v.poster) ? v.poster : "", title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : `Review ${i + 1}` })) : [];
   if (vids.length) REVIEW_VIDEOS.splice(0, REVIEW_VIDEOS.length, ...vids);
   if (d.banner && okSrc(d.banner.image)) {
     BANNER.image = d.banner.image;
@@ -558,11 +599,11 @@ const I18N = {
     heroCta: "Shop the collection", heroCta2: "Best sellers",
     catTitle: "Shop by collection", catMen: "Men's fragrances", catWomen: "Women's fragrances", catBest: "Best sellers",
     bsTitle: "Our perfumes", bsSub: "A curated selection to start with.", viewAll: "View all",
-    rvTitle: "Customer reviews", rvSlot: "Review video slot. The video is added from the dashboard.", prev: "Previous", next: "Next", playVideo: "Play video",
+    rvTitle: "Customer reviews", rvSlot: "Review slot. A photo or video is added from the dashboard.", prev: "Previous", next: "Next", playVideo: "Play video",
     storyKicker: "Our story", storyTitle: "Remember yourself.", storyBody: "MAWJA means “wave” in Arabic. We create premium fragrances inspired by globally loved scents, for the everyday moods and memories that belong to you.", storyPull: "Mawja is not just a perfume. It's a lifestyle.",
     exploreTitle: "Explore more", exploreBundleTitle: "Winter Duo", exploreBundleBody: "Two signature scents, one limited-time price.", exploreAllTitle: "Shop all fragrances", exploreAllBody: "Every MAWJA fragrance, in 10 ml, 35 ml and 55 ml.",
     faqTitle: "Questions",
-    fq1: "How do I order?", fa1: "Add your fragrances to the cart and send your request on WhatsApp. Our team contacts you to confirm the order and delivery.",
+    fq1: "How do I order?", fa1: "Add your fragrances to the cart and place your order. Our team contacts you to confirm the order and delivery.",
     fq2: "What sizes are available?", fa2: "Each fragrance is available in 10 ml, 35 ml and 55 ml.",
     fq3: "Are the prices final?", fa3: "Yes. The prices shown on the site are final.",
     fq4: "What are the fragrances inspired by?", fa4: "Each MAWJA fragrance is inspired by a globally loved scent, named under its title.",
@@ -574,11 +615,21 @@ const I18N = {
     notes: "Fragrance notes", notesBody: "Notes will appear here once they are verified.",
     related: "You may also like", bundleAdd: "Add bundle to cart",
     cartEmpty: "Your cart is empty.", subtotal: "Subtotal", checkout: "Checkout", back2cart: "Back to cart",
-    checkoutTitle: "Send your order", checkoutNote: "Online payment is not connected yet. Send your order request on WhatsApp and our team will confirm it with you.", sendWa: "Send order request on WhatsApp", remove: "Remove",
+    checkoutTitle: "Send your order", checkoutNote: "Enter your delivery details. You will see the full order, including shipping, before you confirm. Online payment is not connected yet.", sendWa: "Send order request on WhatsApp", remove: "Remove",
     fShop: "Shop", fHelp: "Help", fContact: "Contact", footStatement: "Mawja is not just a perfume. It's a lifestyle.",
     ship: "Shipping policy (coming soon)", ret: "Return policy (coming soon)", priv: "Privacy policy (coming soon)", terms: "Terms and conditions (coming soon)",
     copy: "© 2026 Mawjafragrances. All Rights Reserved",
-    cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", stripMen: "Men's", stripWomen: "Women's", stripBest: "Best sellers", seeMore: "See more"
+    cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", stripMen: "Men's", stripWomen: "Women's", stripBest: "Best sellers", seeMore: "See more",
+    nUnisex: "Unisex", catUnisex: "Unisex fragrances", stripUnisex: "Unisex", fCat: "Category", fAll: "All",
+    photos: "Photos", photoN: "Photo {n}", photosNote: "This fragrance has 2 photos. Tap a thumbnail or swipe the image to switch.",
+    shipLabel: "Shipping", total: "Total", shipNote: "Shipping ({fee}) is added at checkout.",
+    custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
+    phName: "First and last name", phAddress: "Governorate, city, street, building, floor, apartment",
+    eName: "Enter your full name (first and last).", ePhone: "Enter a valid phone number.", eAddress: "Enter your full address with details.",
+    reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", sending: "Sending…", editDetails: "Edit details",
+    doneTitle: "Order received", doneBody: "Your order has been received. We will contact you shortly to confirm it.", orderNo: "Order number", continueShop: "Continue shopping",
+    eSend: "We could not send your order. Please try again, or contact us on WhatsApp.", eUnavail: "One of the items is no longer available. Please review your cart and try again.",
+    eWait: "An order was just sent from this phone number. Please wait a moment and try again.", contactWa: "Contact us on WhatsApp"
   },
   ar: {
     winter: "مجموعة الشتاء متاحة الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
@@ -588,11 +639,11 @@ const I18N = {
     heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا",
     catTitle: "تسوق حسب المجموعة", catMen: "عطور رجالي", catWomen: "عطور نسائي", catBest: "الأكثر مبيعًا",
     bsTitle: "عطورنا", bsSub: "مجموعة مختارة لتبدأ بها.", viewAll: "عرض الكل",
-    rvTitle: "آراء العملاء", rvSlot: "مكان فيديو الرأي. يُضاف الفيديو من لوحة التحكم.", prev: "السابق", next: "التالي", playVideo: "تشغيل الفيديو",
+    rvTitle: "آراء العملاء", rvSlot: "مكان رأي العميل. تُضاف الصورة أو الفيديو من لوحة التحكم.", prev: "السابق", next: "التالي", playVideo: "تشغيل الفيديو",
     storyKicker: "قصتنا", storyTitle: "تذكّر نفسك.", storyBody: "«موجة» بالعربية. نصنع عطورًا راقية مستوحاة من روائح يحبها العالم، لمزاجك وذكرياتك اليومية أنت.", storyPull: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
     exploreTitle: "اكتشف المزيد", exploreBundleTitle: "ثنائي الشتاء", exploreBundleBody: "عطران مميزان بسعر واحد لفترة محدودة.", exploreAllTitle: "تسوق كل العطور", exploreAllBody: "كل عطور موجة بحجم 10 مل و35 مل و55 مل.",
     faqTitle: "الأسئلة الشائعة",
-    fq1: "إزاي أطلب؟", fa1: "أضف العطور للسلة وأرسل طلبك عبر واتساب. فريقنا هيتواصل معك لتأكيد الطلب والتوصيل.",
+    fq1: "إزاي أطلب؟", fa1: "أضف العطور للسلة وأتمّ طلبك. فريقنا هيتواصل معك لتأكيد الطلب والتوصيل.",
     fq2: "إيه الأحجام المتاحة؟", fa2: "كل عطر متاح بحجم 10 مل و35 مل و55 مل.",
     fq3: "هل الأسعار نهائية؟", fa3: "نعم. الأسعار المعروضة على الموقع نهائية.",
     fq4: "العطور مستوحاة من إيه؟", fa4: "كل عطر من موجة مستوحى من رائحة يحبها العالم، ومكتوب اسمها تحت عنوان العطر.",
@@ -604,22 +655,39 @@ const I18N = {
     notes: "نوتات العطر", notesBody: "ستظهر النوتات هنا بعد التحقق منها.",
     related: "قد يعجبك أيضًا", bundleAdd: "أضف الثنائي للسلة",
     cartEmpty: "سلتك فارغة.", subtotal: "المجموع الفرعي", checkout: "إتمام الطلب", back2cart: "رجوع للسلة",
-    checkoutTitle: "أرسل طلبك", checkoutNote: "الدفع الإلكتروني غير مفعّل بعد. أرسل طلبك عبر واتساب وسيؤكده معك فريقنا.", sendWa: "أرسل الطلب عبر واتساب", remove: "إزالة",
+    checkoutTitle: "أرسل طلبك", checkoutNote: "أدخل بيانات التوصيل. ستراجع الطلب كاملًا شاملًا الشحن قبل التأكيد. الدفع الإلكتروني غير مفعّل بعد.", sendWa: "أرسل الطلب عبر واتساب", remove: "إزالة",
     fShop: "تسوق", fHelp: "مساعدة", fContact: "تواصل", footStatement: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
     ship: "سياسة الشحن (قريبًا)", ret: "سياسة الاسترجاع (قريبًا)", priv: "سياسة الخصوصية (قريبًا)", terms: "الشروط والأحكام (قريبًا)",
     copy: "© 2026 Mawjafragrances. جميع الحقوق محفوظة",
-    cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", stripMen: "رجالي", stripWomen: "نسائي", stripBest: "الأكثر مبيعاً", seeMore: "شوف المزيد"
+    cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", stripMen: "رجالي", stripWomen: "نسائي", stripBest: "الأكثر مبيعاً", seeMore: "شوف المزيد",
+    nUnisex: "للجنسين", catUnisex: "عطور للجنسين", stripUnisex: "للجنسين", fCat: "الفئة", fAll: "الكل",
+    photos: "الصور", photoN: "الصورة {n}", photosNote: "لهذا العطر صورتان. اضغط على الصورة المصغّرة أو اسحب الصورة للتبديل.",
+    shipLabel: "الشحن", total: "الإجمالي", shipNote: "يُضاف الشحن ({fee}) عند إتمام الطلب.",
+    custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
+    phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
+    eName: "اكتب اسمك الكامل (الاسم الأول والأخير).", ePhone: "اكتب رقم هاتف صحيح.", eAddress: "اكتب عنوانك كاملًا بالتفصيل.",
+    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
+    doneTitle: "تم استلام طلبك", doneBody: "تم استلام طلبك، وسنتواصل معك قريبًا لتأكيده.", orderNo: "رقم الطلب", continueShop: "متابعة التسوق",
+    eSend: "تعذّر إرسال طلبك. حاول مرة أخرى، أو تواصل معنا على واتساب.", eUnavail: "أحد المنتجات لم يعد متاحًا. راجع السلة وحاول مرة أخرى.",
+    eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب"
   }
 };
 
 /* ---------- State ---------- */
 let lang = "en";
 let view = { name: "home", arg: null };
-let filt = { sort: "feat" };
-let pick = { qty: 1 };
+let filt = { sort: "feat", cat: "all" };
+let pick = { qty: 1, photo: 0 };
 let cart = [];
 let wish = [];
-let cartStep = "cart";
+let cartStep = "cart";   // cart -> checkout (details) -> review (summary) -> done
+let customer = { name: "", phone: "", address: "", website: "" };   // "website" is a hidden honeypot field for bots
+let custErr = {};
+let orderRef = null;
+let submitting = false;
+let submitErr = "";
+let orderDone = null;
+let homeShown = HOME_PAGE_SIZE;
 let searchQ = "";
 let vIndex = 0;
 
@@ -698,7 +766,9 @@ function reviewsHTML() {
       <div class="vc" id="vc">
         <div class="vwin"><div class="vtrack" id="vtrack">
           ${REVIEW_VIDEOS.map((v, i) => `<div class="vslide" data-i="${i}">
-            ${v.src
+            ${v.src && v.type === "image"
+              ? `<img class="rimg" src="${esc(v.src)}" alt="${esc(v.title)}" loading="lazy" draggable="false">`
+              : v.src
               ? `<video playsinline preload="metadata" ${v.poster ? `poster="${esc(v.poster)}"` : ""} src="${esc(v.src)}" aria-label="${esc(v.title)}"></video>
                  <button class="vplay" data-act="vplay" aria-label="${t("playVideo")}"><span>${ICON_PLAY}</span></button>`
               : `<div class="ph">${t("rvSlot")}</div>`}
@@ -744,6 +814,7 @@ function renderHome() {
   <nav class="strip" aria-label="Sections">
     <a href="#men" data-i18n="stripMen">Men's</a>
     <a href="#women" data-i18n="stripWomen">Women's</a>
+    <a href="#unisex" data-i18n="stripUnisex">Unisex</a>
     <a href="#best" data-i18n="stripBest">Best sellers</a>
   </nav>
   <section class="hero2" id="hero">
@@ -764,8 +835,8 @@ function renderHome() {
       <div class="sec-head">
         <div><h2 id="bsTitle">${t("bsTitle")}</h2><p class="sub">${t("bsSub")}</p></div>
       </div>
-      <div class="pgrid">${PRODUCTS.map(card).join("")}</div>
-      <div class="more"><a class="btn btn-ivory" href="#shop">${t("seeMore")}</a></div>
+      <div class="pgrid" id="homeGrid">${PRODUCTS.slice(0, homeShown).map(card).join("")}</div>
+      ${homeShown < PRODUCTS.length ? `<div class="more" id="homeMore"><button class="btn btn-ivory" type="button" data-act="seeMore">${t("seeMore")}</button></div>` : ""}
     </div>
   </section>
 
@@ -789,6 +860,8 @@ function listItems() {
   let list = PRODUCTS.filter(p => {
     if (view.name === "men" && p.cat !== "men") return false;
     if (view.name === "women" && p.cat !== "women") return false;
+    if (view.name === "unisex" && p.cat !== "unisex") return false;
+    if (filt.cat && filt.cat !== "all" && p.cat !== filt.cat) return false;
     if (view.name === "wishlist" && !isWish(p.slug)) return false;
     if (view.name === "offers" && !NOW_OFFERS.includes(p.slug)) return false;
     if (view.name === "best" && !p.featured) return false;
@@ -803,13 +876,16 @@ function listItems() {
 /* Only controls that change the result are shown. */
 function controlsHTML() {
   const chip = (group, val, label) => `<button class="chip" data-act="filt" data-group="${group}" data-v="${val}" aria-pressed="${filt[group] === val}">${label}</button>`;
+  const catChips = ["shop", "offers", "best", "wishlist"].includes(view.name)
+    ? `<p class="ctrl-title">${t("fCat")}</p>
+    <div class="ctrl">${chip("cat", "all", t("fAll"))}${chip("cat", "men", t("nMen"))}${chip("cat", "women", t("nWomen"))}${chip("cat", "unisex", t("nUnisex"))}</div>` : "";
   return `
     <p class="ctrl-title">${t("sortTitle")}</p>
-    <div class="ctrl">${chip("sort", "feat", t("sFeat"))}${chip("sort", "name", t("sName"))}</div>`;
+    <div class="ctrl">${chip("sort", "feat", t("sFeat"))}${chip("sort", "name", t("sName"))}</div>${catChips}`;
 }
 
 function renderList() {
-  const titles = { shop: t("nShop"), men: t("catMen"), women: t("catWomen"), wishlist: t("wish"), offers: t("nowTitle"), best: t("bsTitle") };
+  const titles = { shop: t("nShop"), men: t("catMen"), women: t("catWomen"), unisex: t("catUnisex"), wishlist: t("wish"), offers: t("nowTitle"), best: t("bsTitle") };
   const subs = { shop: t("bsSub"), offers: t("nowSub"), best: t("bsSub") };
   const list = listItems();
   const emptyMsg = view.name === "wishlist" && !wish.length ? t("emptyWish") : t("noResults");
@@ -834,7 +910,21 @@ function renderProduct(slug) {
   const cur = selSize(p);
   const P = cur ? p.prices[cur] : null;
   const related = PRODUCTS.filter(x => x.cat === p.cat && x.slug !== p.slug).slice(0, 4);
-  const back = p.cat === "men" ? "men" : "women";
+  const back = p.cat;
+  const catName = { men: t("nMen"), women: t("nWomen"), unisex: t("nUnisex") }[p.cat];
+  const two = !!p.img2 && p.img2 !== p.img;
+  const notesTxt = (lang === "ar" && p.notesAr) ? p.notesAr : p.notes;
+  const altMain = `${p.name} — ${t("inspired", { x: p.ref })}`;
+  const galHTML = two
+    ? `<div class="galwrap">
+        <div class="gal"><span class="swap nohover${pick.photo ? " on" : ""}" data-swap data-gal>
+          <img class="a" src="${p.img}" alt="${esc(altMain)}" width="1000" height="1000" draggable="false">
+          <img class="b" src="${p.img2}" alt="${esc(`${p.name} — ${t("photoN", { n: 2 })}`)}" width="1000" height="1000" draggable="false">
+        </span></div>
+        <div class="thumbs" role="group" aria-label="${t("photos")}">${[p.img, p.img2].map((src, n) => `<button class="th" type="button" data-act="gphoto" data-n="${n}" aria-pressed="${(pick.photo || 0) === n}" aria-label="${t("photoN", { n: n + 1 })}"><img src="${src}" alt="" width="144" height="144" draggable="false"></button>`).join("")}</div>
+        <p class="gal-note">${t("photosNote")}</p>
+      </div>`
+    : `<div class="gal">${swapHTML(p, altMain, 1000, 1000)}</div>`;
   const szHTML = SIZES.map(s => {
     const ok = p.available[s];
     return `<button class="szb" role="radio" data-act="psize" data-ml="${s}" aria-checked="${s === cur}" ${ok ? "" : "disabled"}>
@@ -843,9 +933,9 @@ function renderProduct(slug) {
   }).join("");
   return `
   <section class="pp">
-    <div class="gal">${swapHTML(p, `${p.name} — ${t("inspired", { x: p.ref })}`, 1000, 1000)}</div>
+    ${galHTML}
     <div>
-      <p class="crumb"><a href="#${back}">${p.cat === "men" ? t("nMen") : t("nWomen")}</a> / ${esc(p.name)}</p>
+      <p class="crumb"><a href="#${back}">${catName}</a> / ${esc(p.name)}</p>
       <h1>${esc(p.name)}</h1>
       <p class="ref">${esc(t("inspired", { x: p.ref }))}</p>
       <p class="price">${P
@@ -864,7 +954,7 @@ function renderProduct(slug) {
         <button class="btn btn-teal" data-act="padd" data-slug="${p.slug}" ${cur ? "" : "disabled"}>${t("addCart")}</button>
       </div>
       <div class="acc">
-        <details><summary>${t("notes")}</summary><p>${t("notesBody")}</p></details>
+        <details><summary>${t("notes")}</summary>${notesTxt ? `<p style="white-space:pre-line">${esc(notesTxt)}</p>` : `<p>${t("notesBody")}</p>`}</details>
         <details><summary>${t("ordering")}</summary><p>${t("orderingBody")}</p></details>
       </div>
       <p style="margin-top:22px"><a class="link-u" href="#${back}">${t("back")}</a></p>
@@ -914,16 +1004,16 @@ function renderCounts() {
 /* ---------- Routing (plain #names only) ---------- */
 function route() {
   const h = decodeURIComponent(location.hash.replace(/^#/, ""));
-  if (h === "shop" || h === "men" || h === "women" || h === "wishlist" || h === "offers" || h === "best") {
+  if (h === "shop" || h === "men" || h === "women" || h === "unisex" || h === "wishlist" || h === "offers" || h === "best") {
     view = { name: h, arg: null };
-    filt = { sort: filt.sort };
+    filt = { sort: filt.sort, cat: "all" };
     render();
     window.scrollTo({ top: 0, behavior: "auto" });
     return;
   }
   if (h.startsWith("product-")) {
     view = { name: "product", arg: h.slice(8) };
-    pick = { qty: 1 };
+    pick = { qty: 1, photo: 0 };
     render();
     window.scrollTo({ top: 0, behavior: "auto" });
     return;
@@ -946,6 +1036,7 @@ function addToCart(slug, ml, qty) {
   if (line) line.qty = Math.min(20, line.qty + qty);
   else cart.push({ key, slug, ml, qty });
   save("mawja-cart", cart);
+  orderDone = null;
   renderCounts();
   toast(t("added"));
 }
@@ -965,6 +1056,7 @@ function lineInfo(l) {
 }
 function openCart() {
   cartStep = "cart";
+  submitErr = "";
   $("#cartOv").hidden = false;
   renderCart();
   sync();
@@ -973,24 +1065,83 @@ function sync() {
   const open = ["#menuOv", "#searchOv", "#filterOv", "#cartOv"].some(id => !$(id).hidden);
   document.body.style.overflow = open ? "hidden" : "";
 }
+const normDigits = v => String(v || "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+function customerClean() {
+  return {
+    name: customer.name.trim().replace(/\s+/g, " "),
+    phone: normDigits(customer.phone).replace(/[\s\-().]/g, ""),
+    address: customer.address.trim(),
+  };
+}
+function validateCustomer() {
+  const c = customerClean(), e = {};
+  if (c.name.length < 5 || c.name.split(" ").filter(Boolean).length < 2) e.name = true;
+  if (!/^\+?\d{9,15}$/.test(c.phone)) e.phone = true;
+  if (c.address.length < 10) e.address = true;
+  return e;
+}
+const linesHTML = () => `<ul style="list-style:none;margin-top:20px;display:grid;gap:8px">${cart.map(l => { const i = lineInfo(l); return `<li style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span>${esc(i.name)} · ${i.label} × ${l.qty}</span><span>${money(i.price * l.qty)}</span></li>`; }).join("")}</ul>`;
+const totalsHTML = () => `<div class="srow"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
+  <div class="srow"><span>${t("shipLabel")}</span><span>${money(SHIPPING_FEE)}</span></div>
+  <div class="srow tot"><span>${t("total")}</span><span>${money(cartTotal() + SHIPPING_FEE)}</span></div>`;
+
 function renderCart() {
   const body = $("#cartBody"), foot = $("#cartFoot");
+  if (cartStep === "done" && orderDone) {
+    body.innerHTML = `<div style="padding:56px 0;text-align:center">
+      <h3 class="serif" style="font-size:36px;line-height:1.1">${t("doneTitle")}</h3>
+      <p style="margin-top:16px">${t("doneBody")}</p>
+      ${orderDone.no ? `<p class="fine-txt" style="margin-top:16px">${t("orderNo")}: #${esc(orderDone.no)}</p>` : ""}
+    </div>`;
+    foot.innerHTML = `<button class="btn btn-teal btn-block" data-close>${t("continueShop")}</button>`;
+    return;
+  }
   if (!cart.length) {
     body.innerHTML = `<p class="empty" style="padding:56px 0">${t("cartEmpty")}</p>`;
     foot.innerHTML = `<button class="btn btn-teal btn-block" data-close>${t("nShop")}</button>`;
     return;
   }
   if (cartStep === "checkout") {
-    const lines = cart.map(l => { const i = lineInfo(l); return `• ${i.name} – ${i.label} × ${l.qty} = ${money(i.price * l.qty)}`; }).join("\n");
-    const msg = encodeURIComponent(`${t("checkoutTitle")}\n${lines}\n${t("subtotal")}: ${money(cartTotal())}`);
+    const bad = k => (custErr[k] ? ' bad" aria-invalid="true' : "");
+    const err = (k, key) => (custErr[k] ? `<p class="ferr" role="alert">${t(key)}</p>` : "");
     body.innerHTML = `<div style="padding:24px 0">
       <h3 class="serif" style="font-size:32px;line-height:1.1">${t("checkoutTitle")}</h3>
       <p class="fine-txt" style="margin-top:12px">${t("checkoutNote")}</p>
-      <ul style="list-style:none;margin-top:20px;display:grid;gap:8px">${cart.map(l => { const i = lineInfo(l); return `<li style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span>${esc(i.name)} · ${i.label} × ${l.qty}</span><span>${money(i.price * l.qty)}</span></li>`; }).join("")}</ul>
+      <form id="custForm" novalidate autocomplete="on">
+        <label class="flab" for="cName">${t("fName")}</label>
+        <input class="field${bad("name")}" id="cName" data-f="name" name="name" type="text" autocomplete="name" dir="auto" maxlength="100" placeholder="${esc(t("phName"))}" value="${esc(customer.name)}">
+        ${err("name", "eName")}
+        <label class="flab" for="cPhone">${t("fPhone")}</label>
+        <input class="field${bad("phone")}" id="cPhone" data-f="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="20" placeholder="01XXXXXXXXX" value="${esc(customer.phone)}">
+        ${err("phone", "ePhone")}
+        <label class="flab" for="cAddress">${t("fAddress")}</label>
+        <textarea class="field${bad("address")}" id="cAddress" data-f="address" name="address" autocomplete="street-address" dir="auto" maxlength="500" placeholder="${esc(t("phAddress"))}">${esc(customer.address)}</textarea>
+        ${err("address", "eAddress")}
+        <div class="hp" aria-hidden="true"><label>Website<input type="text" data-f="website" name="website" tabindex="-1" autocomplete="off" value="${esc(customer.website)}"></label></div>
+      </form>
+      ${linesHTML()}
     </div>`;
-    foot.innerHTML = `<div class="sum"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
-      <a class="btn btn-teal btn-block" href="${WA}?text=${msg}" target="_blank" rel="noopener noreferrer">${t("sendWa")}</a>
+    foot.innerHTML = `${totalsHTML()}
+      <button class="btn btn-teal btn-block" data-act="toReview">${t("reviewOrder")}</button>
       <button class="btn btn-line btn-block" data-act="cartStep" data-v="cart" style="margin-top:10px">${t("back2cart")}</button>`;
+    return;
+  }
+  if (cartStep === "review") {
+    const c = customerClean();
+    body.innerHTML = `<div style="padding:24px 0">
+      <h3 class="serif" style="font-size:32px;line-height:1.1">${t("reviewTitle")}</h3>
+      ${linesHTML()}
+      <div class="cust">
+        <b>${t("custTitle")}</b>
+        <p>${esc(c.name)}</p>
+        <p dir="ltr" style="text-align:start">${esc(c.phone)}</p>
+        <p>${esc(c.address)}</p>
+      </div>
+      ${submitErr ? `<div class="cerr" role="alert">${t(submitErr)}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${t("contactWa")}</a></div>` : ""}
+    </div>`;
+    foot.innerHTML = `${totalsHTML()}
+      <button class="btn btn-teal btn-block" data-act="confirmOrder" ${submitting ? "disabled" : ""}>${submitting ? t("sending") : t("confirmOrder")}</button>
+      <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px" ${submitting ? "disabled" : ""}>${t("editDetails")}</button>`;
     return;
   }
   body.innerHTML = cart.map(l => { const i = lineInfo(l); return `<div class="cl">
@@ -1006,8 +1157,47 @@ function renderCart() {
       <p class="lp">${money(i.price * l.qty)}</p>
     </div>`; }).join("");
   foot.innerHTML = `<div class="sum"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
-    <p class="fine-txt" style="margin-bottom:12px">${t("ordering")} · ${t("orderingBody")}</p>
+    <p class="fine-txt" style="margin-bottom:12px">${t("shipNote", { fee: money(SHIPPING_FEE) })} ${t("ordering")} · ${t("orderingBody")}</p>
     <button class="btn btn-teal btn-block" data-act="cartStep" data-v="checkout">${t("checkout")}</button>`;
+}
+
+/* Sends the order to the server (api/order.js). The cart is cleared only after the server confirms it saved the order. */
+async function submitOrder() {
+  if (submitting) return;
+  const c = customerClean();
+  custErr = validateCustomer();
+  if (Object.keys(custErr).length) { cartStep = "checkout"; renderCart(); return; }
+  submitting = true; submitErr = ""; renderCart();
+  orderRef = orderRef || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
+  const payload = {
+    clientRef: orderRef, lang,
+    customer: { name: c.name, phone: c.phone, address: c.address },
+    website: customer.website,
+    items: cart.map(l => l.bundle
+      ? { bundle: true, qty: l.qty }
+      : { slug: l.slug, ml: l.ml, qty: l.qty, name: BY[l.slug].name, price: BY[l.slug].prices[l.ml].now }),
+  };
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = ctl && setTimeout(() => ctl.abort(), 25000);
+  try {
+    const r = await fetch(ORDER_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: ctl ? ctl.signal : undefined });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (!r.ok || !j || !j.ok) {
+      const code = j && j.error;
+      submitErr = code === "unavailable" ? "eUnavail" : code === "too_many" ? "eWait" : "eSend";
+    } else {
+      orderDone = { no: j.orderNo };
+      cart = []; save("mawja-cart", cart); renderCounts();
+      orderRef = null; cartStep = "done";
+      if ($("#cartOv").hidden) { $("#cartOv").hidden = false; sync(); }
+    }
+  } catch (e) {
+    submitErr = "eSend";
+  } finally {
+    if (timer) clearTimeout(timer);
+    submitting = false;
+    renderCart();
+  }
 }
 
 /* ---------- Search ---------- */
@@ -1032,6 +1222,7 @@ function toast(msg) {
 /* ---------- Two-photo swipe ---------- */
 let sw = null;
 let swipedAt = 0;
+function syncThumbs() { document.querySelectorAll(".th").forEach(b => b.setAttribute("aria-pressed", String(Number(b.dataset.n) === pick.photo))); }
 // Stop the browser's native image/link drag, which would otherwise cancel the swipe.
 document.addEventListener("dragstart", e => { if (e.target.closest && e.target.closest(".im, .gal, [data-swap]")) e.preventDefault(); });
 document.addEventListener("pointerdown", e => {
@@ -1041,7 +1232,10 @@ document.addEventListener("pointerdown", e => {
 document.addEventListener("pointerup", e => {
   if (!sw) return;
   const dx = e.clientX - sw.x;
-  if (Math.abs(dx) > 30) sw.el.classList.toggle("on");
+  if (Math.abs(dx) > 30) {
+    sw.el.classList.toggle("on");
+    if (sw.el.hasAttribute("data-gal")) { pick.photo = sw.el.classList.contains("on") ? 1 : 0; syncThumbs(); }
+  }
   if (Math.abs(dx) > 12) swipedAt = Date.now();
   sw = null;
 });
@@ -1072,7 +1266,7 @@ document.addEventListener("click", e => {
   if (close) {
     const ov = close.closest(".ov");
     if (ov) { ov.hidden = true; sync(); }
-    if (close.closest("#cartOv")) cartStep = "cart";
+    if (close.closest("#cartOv")) { cartStep = "cart"; orderDone = null; }
     return;
   }
 
@@ -1086,7 +1280,33 @@ document.addEventListener("click", e => {
   if (a === "cart") return openCart();
   if (a === "lang") { lang = lang === "en" ? "ar" : "en"; render(); if (!$("#cartOv").hidden) renderCart(); renderSearch(); return; }
   if (a === "filterSheet") { renderFilterSheet(); $("#filterOv").hidden = false; sync(); return; }
-  if (a === "filt") { filt.sort = act.dataset.v; render(); return; }
+  if (a === "filt") { filt[act.dataset.group || "sort"] = act.dataset.v; render(); return; }
+  if (a === "seeMore") {
+    // Reveal more products in place: no navigation, no re-render, so the page keeps its scroll position.
+    const grid = $("#homeGrid"); if (!grid) return;
+    const from = homeShown;
+    homeShown = Math.min(PRODUCTS.length, homeShown + HOME_PAGE_SIZE);
+    grid.insertAdjacentHTML("beforeend", PRODUCTS.slice(from, homeShown).map(card).join(""));
+    if (homeShown >= PRODUCTS.length) { const m = $("#homeMore"); if (m) m.remove(); }
+    const first = grid.children[from], link = first && first.querySelector(".im");
+    if (link) link.focus({ preventScroll: true });
+    return;
+  }
+  if (a === "gphoto") {
+    pick.photo = Number(act.dataset.n) === 1 ? 1 : 0;
+    const g = document.querySelector("[data-gal]"); if (g) g.classList.toggle("on", pick.photo === 1);
+    syncThumbs(); return;
+  }
+  if (a === "toReview") {
+    custErr = validateCustomer();
+    if (Object.keys(custErr).length) {
+      renderCart();
+      const f = document.querySelector(`[data-f="${Object.keys(custErr)[0]}"]`); if (f) f.focus();
+      return;
+    }
+    cartStep = "review"; submitErr = ""; renderCart(); return;
+  }
+  if (a === "confirmOrder") { submitOrder(); return; }
   if (a === "wish") {
     const s = act.dataset.slug;
     if (isWish(s)) { wish = wish.filter(x => x !== s); toast(t("wishRemoved")); }
@@ -1107,7 +1327,7 @@ document.addEventListener("click", e => {
     save("mawja-cart", cart); renderCounts(); renderCart(); return;
   }
   if (a === "crm") { cart = cart.filter(l => l.key !== act.dataset.key); save("mawja-cart", cart); renderCounts(); renderCart(); return; }
-  if (a === "cartStep") { cartStep = act.dataset.v; renderCart(); return; }
+  if (a === "cartStep") { cartStep = act.dataset.v; submitErr = ""; if (cartStep !== "review") orderRef = null; renderCart(); return; }
   if (a === "bundle") { addBundle(); return; }
   if (a === "vprev") { vGo(vIndex - 1, false); return; }
   if (a === "vnext") { vGo(vIndex + 1, false); return; }
@@ -1126,12 +1346,25 @@ document.addEventListener("keydown", e => {
   }
 });
 
-document.addEventListener("submit", e => { e.preventDefault(); });
+document.addEventListener("submit", e => {
+  e.preventDefault();
+  if (e.target && e.target.id === "custForm") { const b = document.querySelector('[data-act="toReview"]'); if (b) b.click(); }
+});
+document.addEventListener("input", e => {
+  const el = e.target, f = el && el.dataset && el.dataset.f;
+  if (!f) return;
+  customer[f] = el.value;
+  if (custErr[f]) {
+    delete custErr[f]; el.classList.remove("bad"); el.removeAttribute("aria-invalid");
+    const er = el.nextElementSibling; if (er && er.classList.contains("ferr")) er.remove();
+  }
+});
 
 $("#sq").addEventListener("input", e => { searchQ = e.target.value; renderSearch(); });
 
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
+  if (!$("#cartOv").hidden) { cartStep = "cart"; orderDone = null; }
   ["#menuOv", "#searchOv", "#filterOv", "#cartOv"].forEach(id => { if (!$(id).hidden) $(id).hidden = true; });
   sync();
 });
