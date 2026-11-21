@@ -11,7 +11,7 @@
 "use strict";
 
 const DEFAULT_SUPABASE_URL = "https://ppqgtzujpoyhglxsykdw.supabase.co";
-const SHIPPING_FEE = 90;                       // flat shipping (EGP). Keep equal to SHIPPING_FEE in index.html
+const SHIPPING_FEE = 90;                       // flat fallback (EGP), used only when no governorates are set in the dashboard. Keep equal to SHIPPING_FEE in index.html
 const SIZES = [55, 35, 10];
 const BUNDLE = { name: "Winter Duo", price: 850 };   // same as BUNDLE in index.html
 const COOLDOWN_SECONDS = 30;                   // same phone cannot submit a different order within this time
@@ -51,7 +51,10 @@ async function loadCatalog(url) {
     if (!d || !Array.isArray(d.products)) return null;
     const by = {};
     d.products.forEach((p) => { if (p && typeof p.slug === "string") by[p.slug] = p; });
-    return by;
+    const zones = Array.isArray(d.shipping)
+      ? d.shipping.filter((z) => z && typeof z.name === "string" && z.name.trim() && typeof z.fee === "number" && z.fee >= 0 && z.fee <= 100000)
+      : [];
+    return { by, zones };
   } catch (e) {
     return null;
   } finally { t.done(); }
@@ -105,6 +108,7 @@ function telegramText(o) {
     "",
     `👤 <b>الاسم:</b> ${esc(o.customer_name)}`,
     `📞 <b>الهاتف:</b> ${esc(o.phone)}${wa ? ` (https://wa.me/${wa})` : ""}`,
+    o.governorate ? `🗺 <b>المحافظة:</b> ${esc(o.governorate)}` : "",
     `📍 <b>العنوان:</b> ${esc(o.address)}`,
     "",
     lines,
@@ -156,9 +160,24 @@ module.exports = async (req, res) => {
   if (address.length < 10) return json(res, 400, { ok: false, error: "invalid" });
   if (!/^[\w-]{8,80}$/.test(clientRef)) return json(res, 400, { ok: false, error: "invalid" });
 
-  const catalog = await loadCatalog(sbUrl);
+  const store = await loadCatalog(sbUrl);
+  const catalog = store && store.by;
   const built = buildItems(body.items, catalog);
   if (built.error) return json(res, built.error === "unavailable" ? 409 : 400, { ok: false, error: built.error });
+
+  // Shipping: by governorate when the dashboard has a list; flat fallback when it has none.
+  let shipping = SHIPPING_FEE, governorate = null;
+  const govIn = clean(body.governorate, 60);
+  if (store && store.zones.length) {
+    const z = store.zones.find((x) => x.name.trim() === govIn);
+    if (!z) return json(res, 409, { ok: false, error: "shipping" });
+    shipping = z.fee; governorate = z.name.trim();
+  } else if (!store) {
+    // Dashboard data unreachable: use what the page sent (sanity-checked). The order is flagged price_source=client below.
+    const f = Number(body.shippingFee);
+    if (Number.isFinite(f) && f >= 0 && f <= 1000) shipping = Math.round(f);
+    governorate = govIn || null;
+  }
 
   const subtotal = built.items.reduce((n, i) => n + i.line_total, 0);
   const row = {
@@ -166,10 +185,11 @@ module.exports = async (req, res) => {
     customer_name: name,
     phone,
     address,
+    governorate,
     items: built.items,
     subtotal,
-    shipping: SHIPPING_FEE,
-    total: subtotal + SHIPPING_FEE,
+    shipping,
+    total: subtotal + shipping,
     price_source: built.verified ? "server" : "client",
     lang: body.lang === "ar" ? "ar" : "en",
     status: "new",
@@ -186,10 +206,23 @@ module.exports = async (req, res) => {
       if (Array.isArray(rows) && rows.length && rows[0].client_ref !== clientRef) return json(res, 429, { ok: false, error: "too_many" });
     }
 
-    const t1 = withTimeout(10000);
-    const ins = await fetch(`${sbUrl}/rest/v1/orders`, {
-      method: "POST", headers: supaHeaders(key, { Prefer: "return=representation" }), body: JSON.stringify(row), signal: t1.signal,
-    }).finally(t1.done);
+    const insert = async (r) => {
+      const t1 = withTimeout(10000);
+      return fetch(`${sbUrl}/rest/v1/orders`, {
+        method: "POST", headers: supaHeaders(key, { Prefer: "return=representation" }), body: JSON.stringify(r), signal: t1.signal,
+      }).finally(t1.done);
+    };
+    let ins = await insert(row);
+    if (!ins.ok && ins.status !== 409 && row.governorate) {
+      // The "governorate" column is missing (supabase/002 not run yet): save without it and keep the governorate inside the address.
+      const msg = await (typeof ins.clone === "function" ? ins.clone() : ins).text().catch(() => "");
+      if (/governorate/i.test(msg)) {
+        delete row.governorate;
+        row.address = `${governorate} - ${address}`.slice(0, 600);
+        ins = await insert(row);
+        row.governorate = governorate;
+      }
+    }
 
     if (ins.status === 409) {
       // Same clientRef already saved (customer retried after a timeout): return the existing order, do not notify again.
@@ -204,7 +237,7 @@ module.exports = async (req, res) => {
     }
     const saved = (await ins.json())[0];
 
-    const tg = await sendTelegram({ ...row, order_no: saved.order_no });
+    const tg = await sendTelegram({ ...row, address, order_no: saved.order_no });
     const t3 = withTimeout(8000);
     await fetch(`${sbUrl}/rest/v1/orders?id=eq.${saved.id}`, {
       method: "PATCH", headers: supaHeaders(key), signal: t3.signal,

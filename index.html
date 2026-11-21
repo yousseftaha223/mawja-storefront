@@ -370,6 +370,8 @@ button.qa:disabled{opacity:.45;cursor:not-allowed}
 textarea.field{min-height:92px;resize:vertical;line-height:1.5}
 .field:focus{border-color:var(--teal)}
 .field.bad{border-color:#ffb4a8}
+select.field{appearance:auto;cursor:pointer}
+select.field option{background:var(--ocean2);color:var(--sand)}
 .ferr{font-size:13px;color:#ffb4a8;margin:-2px 0 6px}
 .hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
 .srow{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:6px}
@@ -523,7 +525,8 @@ const REVIEW_VIDEOS = [
 const BY = Object.fromEntries(PRODUCTS.map(p => [p.slug, p]));
 const BUNDLE = { key: "bundle-winter-duo", name: "Winter Duo", price: 850, was: 1000, img: "demo/honey.jpg" };
 const WA = "https://wa.me/201279125006";
-const SHIPPING_FEE = 90;           // flat shipping fee (EGP), added to every order. The server applies the same fee.
+const SHIPPING_FEE = 90;           // flat fallback fee (EGP), used ONLY while no governorates are set in the dashboard (Shipping tab).
+const SHIP_ZONES = [];             // [{ name, fee }] from the dashboard. When not empty, the customer picks a governorate and its fee applies.
 const HOME_PAGE_SIZE = 4;          // products shown on the homepage grid; "See more" reveals this many more each time
 const ORDER_API = "/api/order";    // Vercel serverless function (api/order.js): saves the order and notifies Telegram
 const CATS = ["men", "women", "unisex"];
@@ -567,6 +570,13 @@ function applyStore(d) {
       Object.keys(BY).forEach(k => delete BY[k]);
       PRODUCTS.forEach(p => { BY[p.slug] = p; });
     }
+  }
+  if (Array.isArray(d.shipping)) {
+    const zones = d.shipping.filter(z => z && typeof z.name === "string" && z.name.trim() && okNum(z.fee))
+      .map(z => ({ name: z.name.trim().slice(0, 60), fee: z.fee }))
+      .filter((z, i, a) => a.findIndex(q => q.name === z.name) === i);
+    SHIP_ZONES.splice(0, SHIP_ZONES.length, ...zones);
+    if (customer.gov && !zones.some(z => z.name === customer.gov)) customer.gov = "";
   }
   if (Array.isArray(d.offers)) NOW_OFFERS.splice(0, NOW_OFFERS.length, ...d.offers.filter(s => typeof s === "string" && BY[s]));
   // Photos and videos added in the dashboard replace the empty slots. With none, the placeholder slots stay as designed.
@@ -629,7 +639,10 @@ const I18N = {
     reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", sending: "Sending…", editDetails: "Edit details",
     doneTitle: "Order received", doneBody: "Your order has been received. We will contact you shortly to confirm it.", orderNo: "Order number", continueShop: "Continue shopping",
     eSend: "We could not send your order. Please try again, or contact us on WhatsApp.", eUnavail: "One of the items is no longer available. Please review your cart and try again.",
-    eWait: "An order was just sent from this phone number. Please wait a moment and try again.", contactWa: "Contact us on WhatsApp"
+    eWait: "An order was just sent from this phone number. Please wait a moment and try again.", contactWa: "Contact us on WhatsApp",
+    fGov: "Governorate", selGov: "Select governorate", eGov: "Select your governorate.", shipPick: "Select governorate",
+    shipNote2: "Shipping is calculated at checkout by governorate.",
+    eShip: "Shipping for this governorate has changed. Please review your details and try again."
   },
   ar: {
     winter: "مجموعة الشتاء متاحة الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
@@ -669,7 +682,10 @@ const I18N = {
     reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
     doneTitle: "تم استلام طلبك", doneBody: "تم استلام طلبك، وسنتواصل معك قريبًا لتأكيده.", orderNo: "رقم الطلب", continueShop: "متابعة التسوق",
     eSend: "تعذّر إرسال طلبك. حاول مرة أخرى، أو تواصل معنا على واتساب.", eUnavail: "أحد المنتجات لم يعد متاحًا. راجع السلة وحاول مرة أخرى.",
-    eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب"
+    eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب",
+    fGov: "المحافظة", selGov: "اختر المحافظة", eGov: "اختر المحافظة.", shipPick: "اختر المحافظة",
+    shipNote2: "يُحسب الشحن عند إتمام الطلب حسب المحافظة.",
+    eShip: "تغيّرت تكلفة الشحن لهذه المحافظة. راجع بياناتك وحاول مرة أخرى."
   }
 };
 
@@ -681,7 +697,7 @@ let pick = { qty: 1, photo: 0 };
 let cart = [];
 let wish = [];
 let cartStep = "cart";   // cart -> checkout (details) -> review (summary) -> done
-let customer = { name: "", phone: "", address: "", website: "" };   // "website" is a hidden honeypot field for bots
+let customer = { name: "", phone: "", gov: "", address: "", website: "" };   // "website" is a hidden honeypot field for bots
 let custErr = {};
 let orderRef = null;
 let submitting = false;
@@ -1070,6 +1086,7 @@ function customerClean() {
   return {
     name: customer.name.trim().replace(/\s+/g, " "),
     phone: normDigits(customer.phone).replace(/[\s\-().]/g, ""),
+    gov: customer.gov,
     address: customer.address.trim(),
   };
 }
@@ -1077,13 +1094,23 @@ function validateCustomer() {
   const c = customerClean(), e = {};
   if (c.name.length < 5 || c.name.split(" ").filter(Boolean).length < 2) e.name = true;
   if (!/^\+?\d{9,15}$/.test(c.phone)) e.phone = true;
+  if (SHIP_ZONES.length && !SHIP_ZONES.some(z => z.name === c.gov)) e.gov = true;
   if (c.address.length < 10) e.address = true;
   return e;
 }
 const linesHTML = () => `<ul style="list-style:none;margin-top:20px;display:grid;gap:8px">${cart.map(l => { const i = lineInfo(l); return `<li style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span>${esc(i.name)} · ${i.label} × ${l.qty}</span><span>${money(i.price * l.qty)}</span></li>`; }).join("")}</ul>`;
-const totalsHTML = () => `<div class="srow"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
-  <div class="srow"><span>${t("shipLabel")}</span><span>${money(SHIPPING_FEE)}</span></div>
-  <div class="srow tot"><span>${t("total")}</span><span>${money(cartTotal() + SHIPPING_FEE)}</span></div>`;
+// Shipping: the fee of the governorate picked at checkout. With no governorates set in the dashboard, the flat fallback fee applies.
+const shipFee = () => {
+  if (!SHIP_ZONES.length) return SHIPPING_FEE;
+  const z = SHIP_ZONES.find(x => x.name === customer.gov);
+  return z ? z.fee : null;
+};
+const totalsHTML = () => {
+  const f = shipFee();
+  return `<div class="srow"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
+  <div class="srow"><span>${t("shipLabel")}</span><span>${f == null ? t("shipPick") : money(f)}</span></div>
+  <div class="srow tot"><span>${t("total")}</span><span>${f == null ? "—" : money(cartTotal() + f)}</span></div>`;
+};
 
 function renderCart() {
   const body = $("#cartBody"), foot = $("#cartFoot");
@@ -1114,6 +1141,11 @@ function renderCart() {
         <label class="flab" for="cPhone">${t("fPhone")}</label>
         <input class="field${bad("phone")}" id="cPhone" data-f="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="20" placeholder="01XXXXXXXXX" value="${esc(customer.phone)}">
         ${err("phone", "ePhone")}
+        ${SHIP_ZONES.length ? `<label class="flab" for="cGov">${t("fGov")}</label>
+        <select class="field${bad("gov")}" id="cGov" data-f="gov" name="state" autocomplete="address-level1">
+          <option value="">${t("selGov")}</option>${SHIP_ZONES.map(z => `<option value="${esc(z.name)}" ${customer.gov === z.name ? "selected" : ""}>${esc(z.name)}</option>`).join("")}
+        </select>
+        ${err("gov", "eGov")}` : ""}
         <label class="flab" for="cAddress">${t("fAddress")}</label>
         <textarea class="field${bad("address")}" id="cAddress" data-f="address" name="address" autocomplete="street-address" dir="auto" maxlength="500" placeholder="${esc(t("phAddress"))}">${esc(customer.address)}</textarea>
         ${err("address", "eAddress")}
@@ -1121,7 +1153,7 @@ function renderCart() {
       </form>
       ${linesHTML()}
     </div>`;
-    foot.innerHTML = `${totalsHTML()}
+    foot.innerHTML = `<div id="totalsBox">${totalsHTML()}</div>
       <button class="btn btn-teal btn-block" data-act="toReview">${t("reviewOrder")}</button>
       <button class="btn btn-line btn-block" data-act="cartStep" data-v="cart" style="margin-top:10px">${t("back2cart")}</button>`;
     return;
@@ -1135,6 +1167,7 @@ function renderCart() {
         <b>${t("custTitle")}</b>
         <p>${esc(c.name)}</p>
         <p dir="ltr" style="text-align:start">${esc(c.phone)}</p>
+        ${SHIP_ZONES.length ? `<p>${esc(c.gov)}</p>` : ""}
         <p>${esc(c.address)}</p>
       </div>
       ${submitErr ? `<div class="cerr" role="alert">${t(submitErr)}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${t("contactWa")}</a></div>` : ""}
@@ -1157,7 +1190,7 @@ function renderCart() {
       <p class="lp">${money(i.price * l.qty)}</p>
     </div>`; }).join("");
   foot.innerHTML = `<div class="sum"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
-    <p class="fine-txt" style="margin-bottom:12px">${t("shipNote", { fee: money(SHIPPING_FEE) })} ${t("ordering")} · ${t("orderingBody")}</p>
+    <p class="fine-txt" style="margin-bottom:12px">${SHIP_ZONES.length ? t("shipNote2") : t("shipNote", { fee: money(SHIPPING_FEE) })} ${t("ordering")} · ${t("orderingBody")}</p>
     <button class="btn btn-teal btn-block" data-act="cartStep" data-v="checkout">${t("checkout")}</button>`;
 }
 
@@ -1172,6 +1205,8 @@ async function submitOrder() {
   const payload = {
     clientRef: orderRef, lang,
     customer: { name: c.name, phone: c.phone, address: c.address },
+    governorate: SHIP_ZONES.length ? c.gov : "",
+    shippingFee: shipFee(),   // used by the server only if it cannot read the dashboard data; otherwise the server uses its own fee
     website: customer.website,
     items: cart.map(l => l.bundle
       ? { bundle: true, qty: l.qty }
@@ -1184,7 +1219,7 @@ async function submitOrder() {
     let j = null; try { j = await r.json(); } catch (e) {}
     if (!r.ok || !j || !j.ok) {
       const code = j && j.error;
-      submitErr = code === "unavailable" ? "eUnavail" : code === "too_many" ? "eWait" : "eSend";
+      submitErr = code === "unavailable" ? "eUnavail" : code === "too_many" ? "eWait" : code === "shipping" ? "eShip" : "eSend";
     } else {
       orderDone = { no: j.orderNo };
       cart = []; save("mawja-cart", cart); renderCounts();
@@ -1354,6 +1389,7 @@ document.addEventListener("input", e => {
   const el = e.target, f = el && el.dataset && el.dataset.f;
   if (!f) return;
   customer[f] = el.value;
+  if (f === "gov") { const b = $("#totalsBox"); if (b) b.innerHTML = totalsHTML(); }
   if (custErr[f]) {
     delete custErr[f]; el.classList.remove("bad"); el.removeAttribute("aria-invalid");
     const er = el.nextElementSibling; if (er && er.classList.contains("ferr")) er.remove();

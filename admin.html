@@ -163,6 +163,7 @@ table.oi td.n,table.oi th.n{text-align:end;white-space:nowrap}
       <button class="tab" role="tab" data-tab="products">Products</button>
       <button class="tab" role="tab" data-tab="offers">Now's offers</button>
       <button class="tab" role="tab" data-tab="reviews">Reviews</button>
+      <button class="tab" role="tab" data-tab="shipping">Shipping</button>
       <button class="tab" role="tab" data-tab="orders">Orders<span class="badge" id="ordersBadge" hidden>0</span></button>
     </nav></div>
   </header>
@@ -190,6 +191,7 @@ const STORE_URL = `${SB_URL}/storage/v1/object/public/${BUCKET}/${STORE_PATH}`;
 const SIZES = [55, 35, 10];
 const PAGES = [["#shop", "Shop (all fragrances)"], ["#offers", "Now's offers"], ["#men", "Men"], ["#women", "Women"], ["#unisex", "Unisex"], ["#best", "Best sellers"], ["#reviews", "Customer reviews"], ["#story", "Our story"]];
 
+const GOVERNORATES = ["القاهرة", "الجيزة", "الإسكندرية", "القليوبية", "الشرقية", "الدقهلية", "الغربية", "المنوفية", "البحيرة", "كفر الشيخ", "دمياط", "بورسعيد", "الإسماعيلية", "السويس", "الفيوم", "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح", "شمال سيناء", "جنوب سيناء"];
 const CAT_LABEL = { men: "Men", women: "Women", unisex: "Unisex" };
 const catOf = c => (c === "women" || c === "unisex" ? c : "men");
 const STATUSES = [["new", "New", "جديد"], ["confirming", "Confirming", "جارٍ التأكيد"], ["confirmed", "Confirmed", "مؤكد"], ["completed", "Completed", "مكتمل"], ["cancelled", "Cancelled", "ملغي"]];
@@ -291,6 +293,8 @@ function normalize(d) {
     version: 1,
     banner: { image: String(b.image || ""), alt: String(b.alt || ""), href: String(b.href || "#shop") },
     products,
+    shipping: (Array.isArray(d.shipping) ? d.shipping : []).filter(z => z && typeof z.name === "string")
+      .map(z => ({ name: z.name, fee: typeof z.fee === "number" && isFinite(z.fee) && z.fee >= 0 ? z.fee : null })),
     offers: (Array.isArray(d.offers) ? d.offers : []).filter(s => products.some(p => p.slug === s)),
     reviews: (Array.isArray(d.reviews) ? d.reviews : []).filter(v => v && v.src).map(v => ({ type: v.type === "image" ? "image" : "video", src: String(v.src), poster: String(v.poster || ""), title: String(v.title || "") })),
   };
@@ -331,6 +335,14 @@ function validate() {
       if (P.before != null && !(P.before >= 0)) errs.push(`${n} ${s} ml: the "before" price is not valid.`);
     });
   });
+  const seen = new Set();
+  data.shipping.forEach((z, i) => {
+    const n = z.name.trim();
+    if (!n) errs.push(`Shipping row ${i + 1}: enter the governorate name.`);
+    else if (seen.has(n.toLowerCase())) errs.push(`Shipping: "${n}" is listed twice.`);
+    else seen.add(n.toLowerCase());
+    if (typeof z.fee !== "number" || !(z.fee >= 0)) errs.push(`Shipping ${n || "row " + (i + 1)}: enter the shipping cost (0 for free).`);
+  });
   data.reviews.forEach((v, i) => { if (!okSrc(v.src)) errs.push(`Review ${i + 1}: the ${v.type === "image" ? "photo" : "video"} link must start with https://`); });
   return errs;
 }
@@ -339,6 +351,7 @@ async function save() {
   if (errs.length) { alert("Please fix these before saving:\n\n• " + errs.join("\n• ")); return; }
   sortProducts();
   const out = clone(data);
+  out.shipping = out.shipping.map(z => ({ name: z.name.trim(), fee: z.fee }));
   out.products.forEach(p => { if (!p.img2) p.img2 = p.img; SIZES.forEach(s => { if (p.prices[s].before == null) p.prices[s].before = p.prices[s].now; }); if (!p.featured) delete p.featured; });
   out.updatedAt = new Date().toISOString();
   const body = JSON.stringify(out, null, 1); // sent as a raw JSON body (not a form upload)
@@ -403,6 +416,7 @@ function render() {
   else if (tab === "products") P.innerHTML = productsView();
   else if (tab === "offers") P.innerHTML = offersView();
   else if (tab === "orders") P.innerHTML = ordersView();
+  else if (tab === "shipping") P.innerHTML = shippingView();
   else P.innerHTML = reviewsView();
 }
 
@@ -514,6 +528,22 @@ function reviewsView() {
     </div>`).join("") || `<p class="hint">Nothing yet. The site shows the empty review slots until you add a photo or video.</p>`}</div>`;
 }
 
+/* ---------- Shipping (cost per governorate) ---------- */
+function shippingView() {
+  const rows = data.shipping.map((z, i) => `<tr>
+      <td><input class="in" value="${esc(z.name)}" data-k="shipping.${i}.name" aria-label="Governorate name"></td>
+      <td><input class="in" type="number" min="0" step="1" inputmode="numeric" value="${z.fee ?? ""}" data-k="shipping.${i}.fee" data-num aria-label="Shipping cost (EGP)"></td>
+      <td><button class="btn btn-danger btn-sm" type="button" data-act="delShip" data-i="${i}">Delete</button></td>
+    </tr>`).join("");
+  return `<div class="sec-h"><div><h2>Shipping</h2><p>Shipping cost per governorate (EGP). Customers pick their governorate at checkout and the cost is added to the order. Write the name exactly as customers should see it. Until you add at least one governorate, the website keeps charging the flat default (90 EGP) with no governorate list. Remember to press “Save &amp; publish”.</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sand" type="button" data-act="addShip">+ Add governorate</button>
+      <button class="btn btn-line" type="button" data-act="addAllShip">Add all Egyptian governorates</button>
+    </div></div>
+  ${data.shipping.length ? `<div class="card" style="overflow-x:auto"><table class="sz"><thead><tr><th>Governorate</th><th>Shipping cost (EGP)</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    : `<p class="hint">No governorates yet. The website currently charges the flat default shipping.</p>`}`;
+}
+
 /* ---------- Orders ---------- */
 const money = n => `${Number(n).toLocaleString("en-US")} EGP`;
 function waLink(phone) {
@@ -568,6 +598,7 @@ function orderCard(o) {
         <div class="stack">
           <div class="kv"><span class="k">Customer</span><span>${esc(o.customer_name)}</span></div>
           <div class="kv"><span class="k">Phone</span><span dir="ltr" style="text-align:start"><a href="tel:${esc(String(o.phone).replace(/[^\d+]/g, ""))}">${esc(o.phone)}</a>${wa ? ` · <a href="${esc(wa)}" target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>` : ""}</span></div>
+          ${o.governorate ? `<div class="kv"><span class="k">Governorate</span><span>${esc(o.governorate)}</span></div>` : ""}
           <div class="kv"><span class="k">Address</span><span class="addr">${esc(o.address)}</span></div>
         </div>
         <div class="stack">
@@ -689,6 +720,13 @@ $("#panel").addEventListener("click", e => {
   if (a === "move") { keepOpen(); const [p] = data.products.splice(i, 1); data.products.splice(i + d, 0, p); data.products.forEach((q, k) => { q.priority = k + 1; }); render(); refreshBar(); return; }
   if (a === "vmove") { const [v] = data.reviews.splice(i, 1); data.reviews.splice(i + d, 0, v); render(); refreshBar(); return; }
   if (a === "refreshOrders") { loadOrders(false); return; }
+  if (a === "addShip") { data.shipping.push({ name: "", fee: null }); render(); refreshBar(); const r = document.querySelectorAll("table.sz tbody tr"); if (r.length) r[r.length - 1].querySelector("input").focus(); return; }
+  if (a === "addAllShip") {
+    const have = new Set(data.shipping.map(z => z.name.trim()));
+    GOVERNORATES.forEach(n => { if (!have.has(n)) data.shipping.push({ name: n, fee: null }); });
+    render(); refreshBar(); return;
+  }
+  if (a === "delShip") { data.shipping.splice(i, 1); render(); refreshBar(); return; }
   if (a === "delVideo") { if (confirm("Remove this item from the carousel?")) { data.reviews.splice(i, 1); render(); refreshBar(); } return; }
   if (a === "clearPoster") { data.reviews[i].poster = ""; render(); refreshBar(); return; }
   if (a === "addVideoUrl") {
