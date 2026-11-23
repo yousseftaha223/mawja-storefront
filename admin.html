@@ -391,6 +391,7 @@ async function upload(file, kind) {
 
 /* ---------- Views ---------- */
 function setTab(t) {
+  pendingReviewRemoval = null;
   tab = t;
   document.querySelectorAll("#tabs .tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
   render();
@@ -499,6 +500,7 @@ function offersView() {
   <p class="hint" style="margin-top:12px">${data.offers.length} selected.</p>`;
 }
 
+let pendingReviewRemoval = null;
 function reviewsView() {
   return `<div class="sec-h"><div><h2>Reviews</h2><p>Photos and videos in the Customer reviews carousel on the homepage. With none added, the carousel shows its empty placeholder slots. Photos up to 8 MB (JPG, PNG, WebP); videos up to 50 MB (MP4 works on every phone).</p></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -513,7 +515,7 @@ function reviewsView() {
       <div class="stack">
         <div><span class="badge">${v.type === "image" ? "Photo" : "Video"}</span></div>
         <label class="f"><span>${v.type === "image" ? "Description (read by screen readers)" : "Title (read by screen readers)"}</span><input class="in" value="${esc(v.title)}" placeholder="Review ${i + 1}" data-k="reviews.${i}.title"></label>
-        ${v.type === "image" ? "" : `<div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        ${v.type === "image" ? `<div class="row"><span class="btn btn-line btn-sm upl">Replace photo<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="reviews.${i}.src" data-kind="img" aria-label="Replace review ${i + 1} photo"></span></div>` : `<div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <span class="btn btn-line btn-sm upl">${v.poster ? "Change cover image" : "Add cover image"}<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="reviews.${i}.poster" data-kind="img"></span>
           ${v.poster ? `<button class="btn btn-line btn-sm" type="button" data-act="clearPoster" data-i="${i}">Remove cover</button>` : ""}
         </div>`}
@@ -522,7 +524,7 @@ function reviewsView() {
             <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""}>↑</button>
             <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="1" ${i === data.reviews.length - 1 ? "disabled" : ""}>↓</button>
           </div>
-          <button class="btn btn-danger btn-sm" type="button" data-act="delVideo" data-i="${i}">Remove ${v.type === "image" ? "photo" : "video"}</button>
+          ${pendingReviewRemoval === i ? `<div role="group" aria-label="Confirm removal of review ${i + 1}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span>Remove review ${i + 1}? It stays live until you save.</span><button class="btn btn-line btn-sm" type="button" data-act="cancelReviewRemoval" data-i="${i}">Keep review</button><button class="btn btn-danger btn-sm" type="button" data-act="confirmReviewRemoval" data-i="${i}">Yes, remove review</button></div>` : `<button class="btn btn-danger btn-sm" type="button" data-act="delVideo" data-i="${i}">Remove ${v.type === "image" ? "photo" : "video"}</button>`}
         </div>
       </div>
     </div>`).join("") || `<p class="hint">Nothing yet. The site shows the empty review slots until you add a photo or video.</p>`}</div>`;
@@ -718,7 +720,7 @@ $("#panel").addEventListener("click", e => {
     keepOpen(); render(); refreshBar(); return;
   }
   if (a === "move") { keepOpen(); const [p] = data.products.splice(i, 1); data.products.splice(i + d, 0, p); data.products.forEach((q, k) => { q.priority = k + 1; }); render(); refreshBar(); return; }
-  if (a === "vmove") { const [v] = data.reviews.splice(i, 1); data.reviews.splice(i + d, 0, v); render(); refreshBar(); return; }
+  if (a === "vmove") { pendingReviewRemoval = null; const [v] = data.reviews.splice(i, 1); data.reviews.splice(i + d, 0, v); render(); refreshBar(); return; }
   if (a === "refreshOrders") { loadOrders(false); return; }
   if (a === "addShip") { data.shipping.push({ name: "", fee: null }); render(); refreshBar(); const r = document.querySelectorAll("table.sz tbody tr"); if (r.length) r[r.length - 1].querySelector("input").focus(); return; }
   if (a === "addAllShip") {
@@ -727,7 +729,9 @@ $("#panel").addEventListener("click", e => {
     render(); refreshBar(); return;
   }
   if (a === "delShip") { data.shipping.splice(i, 1); render(); refreshBar(); return; }
-  if (a === "delVideo") { if (confirm("Remove this item from the carousel?")) { data.reviews.splice(i, 1); render(); refreshBar(); } return; }
+  if (a === "delVideo") { pendingReviewRemoval = i; render(); const keep = document.querySelector(`[data-act="cancelReviewRemoval"][data-i="${i}"]`); keep?.focus(); keep?.scrollIntoView({ block: "center" }); return; }
+  if (a === "cancelReviewRemoval") { pendingReviewRemoval = null; render(); document.querySelector(`[data-act="delVideo"][data-i="${i}"]`)?.focus(); return; }
+  if (a === "confirmReviewRemoval") { if (pendingReviewRemoval !== i || !data.reviews[i]) return; data.reviews.splice(i, 1); pendingReviewRemoval = null; render(); refreshBar(); document.querySelector(`[data-act="delVideo"][data-i="${Math.min(i, data.reviews.length - 1)}"]`)?.focus(); return; }
   if (a === "clearPoster") { data.reviews[i].poster = ""; render(); refreshBar(); return; }
   if (a === "addVideoUrl") {
     const url = (prompt("Link to a photo (.jpg/.png/.webp) or a video (.mp4/.webm) starting with https://:") || "").trim(); if (!url) return;
