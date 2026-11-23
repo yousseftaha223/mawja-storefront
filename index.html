@@ -746,7 +746,7 @@ const sel = {};
 function selSize(p) {
   const want = sel[p.slug];
   if (want && p.available[want]) return want;
-  return SIZES.find(s => p.available[s]) ?? null;
+  return [10, 35, 55].find(s => p.available[s]) ?? null;
 }
 function priceHTML(p, ml) {
   const P = p.prices[ml];
