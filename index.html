@@ -579,10 +579,10 @@ function applyStore(d) {
     if (customer.gov && !zones.some(z => z.name === customer.gov)) customer.gov = "";
   }
   if (Array.isArray(d.offers)) NOW_OFFERS.splice(0, NOW_OFFERS.length, ...d.offers.filter(s => typeof s === "string" && BY[s]));
-  // Photos and videos added in the dashboard replace the empty slots. With none, the placeholder slots stay as designed.
+  // Empty saved reviews clear the defaults; only real media should be shown.
   const vids = Array.isArray(d.reviews) ? d.reviews.filter(v => v && okSrc(v.src))
     .map((v, i) => ({ type: v.type === "image" ? "image" : "video", src: v.src, poster: okSrc(v.poster) ? v.poster : "", title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : `Review ${i + 1}` })) : [];
-  if (vids.length) REVIEW_VIDEOS.splice(0, REVIEW_VIDEOS.length, ...vids);
+  REVIEW_VIDEOS.splice(0, REVIEW_VIDEOS.length, ...vids);
   if (d.banner && okSrc(d.banner.image)) {
     BANNER.image = d.banner.image;
     if (okHref(d.banner.href)) BANNER.href = d.banner.href;
@@ -776,6 +776,7 @@ function updateCard(slug) {
 
 /* ---------- Review videos ---------- */
 function reviewsHTML() {
+  if (!REVIEW_VIDEOS.some(v => v && okSrc(v.src))) return "";
   return `<section class="sec bg-ivory" id="reviews" aria-labelledby="rvTitle">
     <div class="sec-in">
       <div class="sec-head"><h2 id="rvTitle">${t("rvTitle")}</h2></div>
@@ -894,7 +895,7 @@ function controlsHTML() {
   const chip = (group, val, label) => `<button class="chip" data-act="filt" data-group="${group}" data-v="${val}" aria-pressed="${filt[group] === val}">${label}</button>`;
   const catChips = ["shop", "offers", "best", "wishlist"].includes(view.name)
     ? `<p class="ctrl-title">${t("fCat")}</p>
-    <div class="ctrl">${chip("cat", "all", t("fAll"))}${chip("cat", "men", t("nMen"))}${chip("cat", "women", t("nWomen"))}${chip("cat", "unisex", t("nUnisex"))}</div>` : "";
+    <div class="ctrl">${chip("cat", "all", t("fAll"))}${chip("cat", "men", t("nMen"))}${chip("cat", "women", t("nWomen"))}${PRODUCTS.some(p => p.cat === "unisex") ? chip("cat", "unisex", t("nUnisex")) : ""}</div>` : "";
   return `
     <p class="ctrl-title">${t("sortTitle")}</p>
     <div class="ctrl">${chip("sort", "feat", t("sFeat"))}${chip("sort", "name", t("sName"))}</div>${catChips}`;
@@ -929,7 +930,7 @@ function renderProduct(slug) {
   const back = p.cat;
   const catName = { men: t("nMen"), women: t("nWomen"), unisex: t("nUnisex") }[p.cat];
   const two = !!p.img2 && p.img2 !== p.img;
-  const notesTxt = (lang === "ar" && p.notesAr) ? p.notesAr : p.notes;
+  const notesTxt = ((lang === "ar" ? p.notesAr || p.notes : p.notes || p.notesAr) || "").trim();
   const altMain = `${p.name} — ${t("inspired", { x: p.ref })}`;
   const galHTML = two
     ? `<div class="galwrap">
@@ -970,7 +971,7 @@ function renderProduct(slug) {
         <button class="btn btn-teal" data-act="padd" data-slug="${p.slug}" ${cur ? "" : "disabled"}>${t("addCart")}</button>
       </div>
       <div class="acc">
-        <details><summary>${t("notes")}</summary>${notesTxt ? `<p style="white-space:pre-line">${esc(notesTxt)}</p>` : `<p>${t("notesBody")}</p>`}</details>
+        ${notesTxt ? `<details><summary>${t("notes")}</summary><p style="white-space:pre-line">${esc(notesTxt)}</p></details>` : ""}
         <details><summary>${t("ordering")}</summary><p>${t("orderingBody")}</p></details>
       </div>
       <p style="margin-top:22px"><a class="link-u" href="#${back}">${t("back")}</a></p>
@@ -993,6 +994,10 @@ function render() {
 function renderFilterSheet() { $("#filterBody").innerHTML = controlsHTML(); }
 
 function applyStatic() {
+  const hasUnisex = PRODUCTS.some(p => p.cat === "unisex");
+  document.querySelectorAll('a[href="#unisex"]').forEach(el => {
+    (el.parentElement.tagName === "LI" ? el.parentElement : el).hidden = !hasUnisex;
+  });
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const k = el.getAttribute("data-i18n");
     if (I18N[lang][k] !== undefined) el.textContent = I18N[lang][k];
