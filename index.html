@@ -382,6 +382,11 @@ select.field option{background:var(--ocean2);color:var(--sand)}
 .cerr{margin-top:16px;padding:12px 14px;border:1px solid #ffb4a8;border-radius:4px;color:#ffb4a8;font-size:14px}
 .cerr a{text-decoration:underline;text-underline-offset:3px}
 /* Review photos */
+.review-open{display:block;width:100%;height:100%;cursor:zoom-in}
+.review-dialog{width:min(96vw,960px);max-height:94dvh;margin:auto;padding:0;border:1px solid var(--line-dk);border-radius:8px;background:var(--ocean);color:var(--sand);overflow:auto;overscroll-behavior:contain}
+.review-dialog::backdrop{background:rgba(0,0,0,.85)}
+.review-dialog-head{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--ocean)}
+.review-dialog img{width:100%;height:auto;display:block}
 .vslide .rimg{width:100%;height:100%;object-fit:contain;display:block;background:var(--ocean)}
 </style>
 </head>
@@ -452,6 +457,10 @@ select.field option{background:var(--ocean2);color:var(--sand)}
   </aside>
 </div>
 
+<dialog class="review-dialog" id="reviewDialog" aria-labelledby="reviewDialogTitle">
+  <div class="review-dialog-head"><span id="reviewDialogTitle" data-i18n="reviewFull">Customer review</span><button class="close" type="button" id="reviewDialogClose" aria-label="Close" data-i18n-attr="aria-label:reviewClose">✕</button></div>
+  <img id="reviewDialogImage" alt="">
+</dialog>
 <main id="top"><div id="view"></div></main>
 
 <footer class="foot">
@@ -609,6 +618,7 @@ const I18N = {
     heroCta: "Shop the collection", heroCta2: "Best sellers",
     catTitle: "Shop by collection", catMen: "Men's fragrances", catWomen: "Women's fragrances", catBest: "Best sellers",
     bsTitle: "Our perfumes", bsSub: "A curated selection to start with.", viewAll: "View all",
+    reviewFull: "Customer review", reviewClose: "Close review", reviewOpen: "Enlarge customer review",
     rvTitle: "Customer reviews", rvSlot: "Review slot. A photo or video is added from the dashboard.", prev: "Previous", next: "Next", playVideo: "Play video",
     storyKicker: "Our story", storyTitle: "Remember yourself.", storyBody: "MAWJA means “wave” in Arabic. We create premium fragrances inspired by globally loved scents, for the everyday moods and memories that belong to you.", storyPull: "Mawja is not just a perfume. It's a lifestyle.",
     exploreTitle: "Explore more", exploreBundleTitle: "Winter Duo", exploreBundleBody: "Two signature scents, one limited-time price.", exploreAllTitle: "Shop all fragrances", exploreAllBody: "Every MAWJA fragrance, in 10 ml, 35 ml and 55 ml.",
@@ -652,6 +662,7 @@ const I18N = {
     heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا",
     catTitle: "تسوق حسب المجموعة", catMen: "عطور رجالي", catWomen: "عطور نسائي", catBest: "الأكثر مبيعًا",
     bsTitle: "عطورنا", bsSub: "مجموعة مختارة لتبدأ بها.", viewAll: "عرض الكل",
+    reviewFull: "رأي عميل", reviewClose: "إغلاق الرأي", reviewOpen: "تكبير رأي العميل",
     rvTitle: "آراء العملاء", rvSlot: "مكان رأي العميل. تُضاف الصورة أو الفيديو من لوحة التحكم.", prev: "السابق", next: "التالي", playVideo: "تشغيل الفيديو",
     storyKicker: "قصتنا", storyTitle: "تذكّر نفسك.", storyBody: "«موجة» بالعربية. نصنع عطورًا راقية مستوحاة من روائح يحبها العالم، لمزاجك وذكرياتك اليومية أنت.", storyPull: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
     exploreTitle: "اكتشف المزيد", exploreBundleTitle: "ثنائي الشتاء", exploreBundleBody: "عطران مميزان بسعر واحد لفترة محدودة.", exploreAllTitle: "تسوق كل العطور", exploreAllBody: "كل عطور موجة بحجم 10 مل و35 مل و55 مل.",
@@ -784,7 +795,7 @@ function reviewsHTML() {
         <div class="vwin"><div class="vtrack" id="vtrack">
           ${REVIEW_VIDEOS.map((v, i) => `<div class="vslide" data-i="${i}">
             ${v.src && v.type === "image"
-              ? `<img class="rimg" src="${esc(v.src)}" alt="${esc(v.title)}" loading="lazy" draggable="false">`
+              ? `<button class="review-open" type="button" data-act="reviewZoom" data-i="${i}" aria-label="${t("reviewOpen")}" tabindex="${i === vIndex ? "0" : "-1"}"><img class="rimg" src="${esc(v.src)}" alt="${esc(v.title)}" loading="lazy" draggable="false"></button>`
               : v.src
               ? `<video playsinline preload="metadata" ${v.poster ? `poster="${esc(v.poster)}"` : ""} src="${esc(v.src)}" aria-label="${esc(v.title)}"></video>
                  <button class="vplay" data-act="vplay" aria-label="${t("playVideo")}"><span>${ICON_PLAY}</span></button>`
@@ -808,6 +819,7 @@ function setTrack(play) {
   vIndex = (vIndex + n) % n;
   document.querySelectorAll("#vtrack video").forEach(v => v.pause());
   document.querySelectorAll("#vtrack .vplay").forEach(b => { b.hidden = false; });
+  document.querySelectorAll("#vtrack .review-open").forEach((button, i) => { button.tabIndex = Number(button.dataset.i) === vIndex ? 0 : -1; });
   const shift = lang === "ar" ? vIndex * 100 : -vIndex * 100;
   $("#vtrack").style.transform = `translateX(${shift}%)`;
   document.querySelectorAll("#vdots .vdot").forEach((d, k) => d.setAttribute("aria-current", String(k === vIndex)));
@@ -1083,7 +1095,7 @@ function openCart() {
   sync();
 }
 function sync() {
-  const open = ["#menuOv", "#searchOv", "#filterOv", "#cartOv"].some(id => !$(id).hidden);
+  const open = $("#reviewDialog").open || ["#menuOv", "#searchOv", "#filterOv", "#cartOv"].some(id => !$(id).hidden);
   document.body.style.overflow = open ? "hidden" : "";
 }
 const normDigits = v => String(v || "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
@@ -1286,7 +1298,13 @@ document.addEventListener("click", e => {
 }, true);
 
 /* ---------- Review carousel swipe: next video plays on swipe ---------- */
-let vsw = null;
+let vsw = null, reviewSwipedAt = 0;
+const reviewDialog = $("#reviewDialog");
+let reviewOpener = null;
+$("#reviewDialogClose").addEventListener("click", () => reviewDialog.close());
+reviewDialog.addEventListener("keydown", e => { if (e.key === "Tab") { e.preventDefault(); $("#reviewDialogClose").focus(); } });
+reviewDialog.addEventListener("close", () => { $("#reviewDialogImage").removeAttribute("src"); sync(); if (reviewOpener && reviewOpener.isConnected) reviewOpener.focus({ preventScroll: true }); });
+
 document.addEventListener("pointerdown", e => {
   if (e.target.closest && e.target.closest("#vc")) vsw = { x: e.clientX };
 });
@@ -1295,6 +1313,7 @@ document.addEventListener("pointerup", e => {
   const dx = e.clientX - vsw.x;
   vsw = null;
   if (Math.abs(dx) < 40) return;
+  reviewSwipedAt = Date.now();
   vGo(dx < 0 ? vIndex + 1 : vIndex - 1, true);
 });
 
@@ -1315,6 +1334,16 @@ document.addEventListener("click", e => {
   e.preventDefault();
   const a = act.dataset.act;
 
+  if (a === "reviewZoom") {
+    if (Date.now() - reviewSwipedAt < 400) return;
+    const review = REVIEW_VIDEOS[Number(act.dataset.i)];
+    if (!review || review.type !== "image" || !okSrc(review.src)) return;
+    reviewOpener = act;
+    $("#reviewDialogImage").src = review.src;
+    $("#reviewDialogImage").alt = review.title || t("reviewFull");
+    reviewDialog.showModal(); reviewDialog.scrollTop = 0; sync();
+    $("#reviewDialogClose").focus(); return;
+  }
   if (a === "menu") { $("#menuOv").hidden = false; sync(); return; }
   if (a === "search") { $("#searchOv").hidden = false; sync(); $("#sq").focus(); renderSearch(); return; }
   if (a === "cart") return openCart();
