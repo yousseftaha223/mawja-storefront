@@ -156,7 +156,7 @@ module.exports = async (req, res) => {
   const address = clean(c.address, 500);
   const clientRef = clean(body.clientRef, 80);
   if (name.length < 5 || name.split(" ").filter(Boolean).length < 2) return json(res, 400, { ok: false, error: "invalid" });
-  if (!/^\+?\d{9,15}$/.test(phone)) return json(res, 400, { ok: false, error: "invalid" });
+  if (!/^01\d{9}$/.test(phone)) return json(res, 400, { ok: false, error: "invalid" });
   if (address.length < 10) return json(res, 400, { ok: false, error: "invalid" });
   if (!/^[\w-]{8,80}$/.test(clientRef)) return json(res, 400, { ok: false, error: "invalid" });
 
