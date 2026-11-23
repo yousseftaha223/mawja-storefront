@@ -283,6 +283,8 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .related{background:var(--ocean);padding:60px 20px 72px}
 
 /* Cart */
+#cartOv .phead,#cartOv .pfoot{flex-shrink:0}
+#cartBody{flex:1 1 0;min-height:0}
 .cl{display:grid;grid-template-columns:72px 1fr auto;gap:14px;padding:18px 0;border-bottom:1px solid var(--line-lt);align-items:start}
 .cl img{width:72px;height:72px;object-fit:contain;border-radius:4px;background:var(--ocean)}
 .cl .nm{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.1}
@@ -451,7 +453,7 @@ select.field option{background:var(--ocean2);color:var(--sand)}
 <div class="ov" id="cartOv" hidden>
   <div class="scrim" data-close></div>
   <aside class="panel panel-r" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-    <div class="phead"><h2 id="cartTitle">Your cart</h2><button class="close" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="phead"><h2 id="cartTitle" data-i18n="cartTitle">Your cart</h2><button class="close" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="pbody" id="cartBody"></div>
     <div class="pfoot" id="cartFoot"></div>
   </aside>
@@ -627,14 +629,14 @@ const I18N = {
     fq2: "What sizes are available?", fa2: "Each fragrance is available in 10 ml, 35 ml and 55 ml.",
     fq3: "Are the prices final?", fa3: "Yes. The prices shown on the site are final.",
     fq4: "What are the fragrances inspired by?", fa4: "Each MAWJA fragrance is inspired by a globally loved scent, named under its title.",
-    listCount: "{n} fragrances", sortTitle: "Sort", sFeat: "Featured", sName: "Name A–Z",
+    listCount: "{n} fragrances", listCountOne: "{n} fragrance", sortTitle: "Sort", sFeat: "Featured", sName: "Name A–Z",
     noResults: "No fragrances match these choices.", emptyWish: "Your wishlist is empty. Tap the heart on any fragrance to save it.",
     inspired: "Inspired by {x}", viewProduct: "View product", from: "From",
     back: "Back to list", size: "Size", qty: "Quantity", addCart: "Add to cart", added: "Added to your cart", wishAdded: "Saved to wishlist", wishRemoved: "Removed from wishlist",
     ordering: "Ordering & delivery", orderingBody: "Send your request from the cart. Our team contacts you to confirm the order and delivery. Prices shown are final.",
     notes: "Fragrance notes", notesBody: "Notes will appear here once they are verified.",
     related: "You may also like", bundleAdd: "Add bundle to cart",
-    cartEmpty: "Your cart is empty.", subtotal: "Subtotal", checkout: "Checkout", back2cart: "Back to cart",
+    cartTitle: "Your cart", cartEmpty: "Your cart is empty.", subtotal: "Subtotal", checkout: "Checkout", back2cart: "Back to cart",
     checkoutTitle: "Send your order", checkoutNote: "Enter your delivery details. You will see the full order, including shipping, before you confirm. Online payment is not connected yet.", sendWa: "Send order request on WhatsApp", remove: "Remove",
     fShop: "Shop", fHelp: "Help", fContact: "Contact", footStatement: "Mawja is not just a perfume. It's a lifestyle.",
     ship: "Shipping policy (coming soon)", ret: "Return policy (coming soon)", priv: "Privacy policy (coming soon)", terms: "Terms and conditions (coming soon)",
@@ -645,7 +647,7 @@ const I18N = {
     shipLabel: "Shipping", total: "Total", shipNote: "Shipping ({fee}) is added at checkout.",
     custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
     phName: "First and last name", phAddress: "Governorate, city, street, building, floor, apartment",
-    eName: "Enter your full name (first and last).", ePhone: "Enter a valid phone number.", eAddress: "Enter your full address with details.",
+    eName: "Enter your full name (first and last).", ePhone: "Enter an 11-digit Egyptian mobile number starting with 01.", eAddress: "Enter your full address with details.",
     reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", sending: "Sending…", editDetails: "Edit details",
     doneTitle: "Order received", doneBody: "Your order has been received. We will contact you shortly to confirm it.", orderNo: "Order number", continueShop: "Continue shopping",
     eSend: "We could not send your order. Please try again, or contact us on WhatsApp.", eUnavail: "One of the items is no longer available. Please review your cart and try again.",
@@ -678,7 +680,7 @@ const I18N = {
     ordering: "الطلب والتوصيل", orderingBody: "أرسل طلبك من السلة. فريقنا هيتواصل معك لتأكيد الطلب والتوصيل. الأسعار المعروضة نهائية.",
     notes: "نوتات العطر", notesBody: "ستظهر النوتات هنا بعد التحقق منها.",
     related: "قد يعجبك أيضًا", bundleAdd: "أضف الثنائي للسلة",
-    cartEmpty: "سلتك فارغة.", subtotal: "المجموع الفرعي", checkout: "إتمام الطلب", back2cart: "رجوع للسلة",
+    cartTitle: "سلة التسوق", cartEmpty: "سلتك فارغة.", subtotal: "المجموع الفرعي", checkout: "إتمام الطلب", back2cart: "رجوع للسلة",
     checkoutTitle: "أرسل طلبك", checkoutNote: "أدخل بيانات التوصيل. ستراجع الطلب كاملًا شاملًا الشحن قبل التأكيد. الدفع الإلكتروني غير مفعّل بعد.", sendWa: "أرسل الطلب عبر واتساب", remove: "إزالة",
     fShop: "تسوق", fHelp: "مساعدة", fContact: "تواصل", footStatement: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
     ship: "سياسة الشحن (قريبًا)", ret: "سياسة الاسترجاع (قريبًا)", priv: "سياسة الخصوصية (قريبًا)", terms: "الشروط والأحكام (قريبًا)",
@@ -689,7 +691,7 @@ const I18N = {
     shipLabel: "الشحن", total: "الإجمالي", shipNote: "يُضاف الشحن ({fee}) عند إتمام الطلب.",
     custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
     phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
-    eName: "اكتب اسمك الكامل (الاسم الأول والأخير).", ePhone: "اكتب رقم هاتف صحيح.", eAddress: "اكتب عنوانك كاملًا بالتفصيل.",
+    eName: "اكتب اسمك الكامل (الاسم الأول والأخير).", ePhone: "اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.", eAddress: "اكتب عنوانك كاملًا بالتفصيل.",
     reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
     doneTitle: "تم استلام طلبك", doneBody: "تم استلام طلبك، وسنتواصل معك قريبًا لتأكيده.", orderNo: "رقم الطلب", continueShop: "متابعة التسوق",
     eSend: "تعذّر إرسال طلبك. حاول مرة أخرى، أو تواصل معنا على واتساب.", eUnavail: "أحد المنتجات لم يعد متاحًا. راجع السلة وحاول مرة أخرى.",
@@ -701,7 +703,7 @@ const I18N = {
 };
 
 /* ---------- State ---------- */
-let lang = "en";
+let lang = load("mawja-lang", "en") === "ar" ? "ar" : "en";
 let view = { name: "home", arg: null };
 let filt = { sort: "feat", cat: "all" };
 let pick = { qty: 1, photo: 0 };
@@ -924,7 +926,7 @@ function renderList() {
       <p>${subs[view.name] || ""}</p>
     </section>
     <div class="lbar">
-      <span class="lcount">${t("listCount", { n: list.length })}</span>
+      <span class="lcount">${t(list.length === 1 && lang === "en" ? "listCountOne" : "listCount", { n: list.length })}</span>
       <button class="fbtn" data-act="filterSheet">${t("filterSort")}</button>
       <div class="inline-tools">${controlsHTML()}</div>
     </div>
@@ -1110,7 +1112,7 @@ function customerClean() {
 function validateCustomer() {
   const c = customerClean(), e = {};
   if (c.name.length < 5 || c.name.split(" ").filter(Boolean).length < 2) e.name = true;
-  if (!/^\+?\d{9,15}$/.test(c.phone)) e.phone = true;
+  if (!/^01\d{9}$/.test(c.phone)) e.phone = true;
   if (SHIP_ZONES.length && !SHIP_ZONES.some(z => z.name === c.gov)) e.gov = true;
   if (c.address.length < 10) e.address = true;
   return e;
@@ -1347,7 +1349,7 @@ document.addEventListener("click", e => {
   if (a === "menu") { $("#menuOv").hidden = false; sync(); return; }
   if (a === "search") { $("#searchOv").hidden = false; sync(); $("#sq").focus(); renderSearch(); return; }
   if (a === "cart") return openCart();
-  if (a === "lang") { lang = lang === "en" ? "ar" : "en"; render(); if (!$("#cartOv").hidden) renderCart(); renderSearch(); return; }
+  if (a === "lang") { lang = lang === "en" ? "ar" : "en"; save("mawja-lang", lang); render(); if (!$("#cartOv").hidden) renderCart(); renderSearch(); return; }
   if (a === "filterSheet") { renderFilterSheet(); $("#filterOv").hidden = false; sync(); return; }
   if (a === "filt") { filt[act.dataset.group || "sort"] = act.dataset.v; render(); return; }
   if (a === "seeMore") {
