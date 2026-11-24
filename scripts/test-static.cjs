@@ -9,7 +9,7 @@ await page.goto('http://127.0.0.1:8742/#product-gentle-knight');if(await page.ev
 const href=await page.locator(`#cartFoot a[href^="${WA}?text="]`).getAttribute('href');assert.ok(href,'prefilled wa.me link missing');assert.ok(href.length<=1900,'link too long: '+href.length);const msg=decodeURIComponent(href.split('?text=')[1]);
 for(const needle of ['Gentle Knight','1 ×','10',lang==='ar'?'الشحن':'Shipping',lang==='ar'?'الحساب':'Total','Test Customer','01000000000','الغربيه','Preview only. No delivery. & #'])assert.ok(msg.includes(needle),'message missing: '+needle);
 if(lang==='ar')assert.ok(msg.includes('طلب جديد من موقع Mawja'),'Arabic heading missing');else assert.ok(msg.includes('New order from Mawja website'),'English heading missing');
-assert.ok(await page.locator('#cartFoot [data-act="waCopy"]').count(),'copy button missing');
+assert.equal(await page.locator('#cartFoot [data-act="waCopy"]').count(),0,'copy button should be hidden when prefilled link exists');
 fs.writeFileSync(`/downloads/wa-message-${lang}.txt`,msg);await page.screenshot({path:`/downloads/wa-prefill-${width}-${lang}.png`});
 // Long cart: prefilled link falls back to copy + plain contact link
 await page.evaluate(()=>{cart=[];for(const p of PRODUCTS)for(const ml of [55,35,10])cart.push({key:p.slug+'-'+ml,slug:p.slug,ml,qty:1});renderCart()});await page.waitForTimeout(200);
