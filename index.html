@@ -606,6 +606,7 @@ const BANNER = { image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop" };
 /* ---------- Live data from the dashboard (/admin) ----------
    The dashboard saves one JSON file to Supabase Storage. It is read at runtime and replaces the values above.
    If it cannot be loaded (offline, missing or invalid), the values above are used unchanged. */
+const LIVE_CATALOG = new URLSearchParams(location.search).has("live");   // visitors use the built-in catalog (zero Supabase requests). ?live=1 reads the dashboard copy, for checking edits before a refresh.
 const STORE_URL = "https://ppqgtzujpoyhglxsykdw.supabase.co/storage/v1/object/public/media/site/storefront.json";
 const okHref = h => typeof h === "string" && /^(#[\w-]*|https?:\/\/[^\s"'<>]+)$/.test(h);
 const okSrc = s => typeof s === "string" && /^(https:\/\/[^\s"'<>]+|(demo|brand|media)\/[\w.\-\/]+)$/.test(s);
@@ -1680,7 +1681,7 @@ if (STORE_BACKUP) applyStore(STORE_BACKUP);   // backup first, live data replace
 let painted = false;
 function firstPaint() { if (painted) return; painted = true; restoreState(); render(); route(); }
 const paintTimer = setTimeout(firstPaint, 1500);
-loadStore(8000).then(d => {
+(LIVE_CATALOG ? loadStore(8000) : Promise.resolve(null)).then(d => {
   const changed = applyStore(d);
   clearTimeout(paintTimer);
   if (!painted) return firstPaint();

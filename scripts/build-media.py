@@ -103,6 +103,7 @@ def main():
     html, n2 = re.subn(r"/\*STORE_BACKUP_START\*/.*?/\*STORE_BACKUP_END\*/", lambda m: block2, html, flags=re.S)
     assert n2 == 1, "STORE_BACKUP markers missing in index.html"
     html_path.write_text(html)
+    (ROOT / "site-data" / "storefront.json").write_text(json.dumps(store, ensure_ascii=False, separators=(",", ":")))   # same-site copy: the order API reads it too
     print(f"{len(mp)} images, {before/1024:.0f} KB -> {after/1024:.0f} KB")
 
 main()
