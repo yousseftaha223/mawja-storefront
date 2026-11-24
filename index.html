@@ -431,6 +431,7 @@ html,body{overscroll-behavior-x:none}
 .swap.nohover:not(.on):hover + .pdots i:last-child{background:transparent}
 .swap{container-type:inline-size}
 .swap .lbl{position:absolute;transform:translate(-50%,-50%);font-family:var(--serif);font-style:italic;font-weight:600;font-size:max(11px,5.2cqw);line-height:1;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.75);letter-spacing:.02em;pointer-events:none;opacity:0;transition:opacity .45s ease;white-space:nowrap}
+.swap:not([data-gal]) .lbl{font-size:max(9px,5.2cqw);transform:translate(-50%,calc(-50% - 5px))}
 .swap.on .lbl{opacity:1}
 @media (hover:hover){.swap:hover .lbl{opacity:1}}
 .swap.nohover:not(.on):hover .lbl{opacity:0}
