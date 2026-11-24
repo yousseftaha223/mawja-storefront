@@ -1223,8 +1223,7 @@ function renderCart() {
       const link = waOrderLink();
       foot.innerHTML = `${totalsHTML()}
       <p class="fine-txt" style="margin:10px 0">${t("waNote")}${link ? "" : " " + t("waLong")}</p>
-      ${link ? `<a class="btn btn-teal btn-block" href="${link}" target="_blank" rel="noopener noreferrer">${t("waOpen")}</a>` : ""}
-      <button class="btn ${link ? "btn-line" : "btn-teal"} btn-block" data-act="waCopy" style="margin-top:10px">${t("waCopy")}</button>
+      ${link ? `<a class="btn btn-teal btn-block" href="${link}" target="_blank" rel="noopener noreferrer">${t("waOpen")}</a>` : `<button class="btn btn-teal btn-block" data-act="waCopy" style="margin-top:10px">${t("waCopy")}</button>`}
       ${link ? "" : `<a class="btn btn-line btn-block" href="${WA}" target="_blank" rel="noopener noreferrer" style="margin-top:10px">${t("contactWa")}</a>`}
       <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px">${t("editDetails")}</button>`;
       return;
