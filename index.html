@@ -539,6 +539,8 @@ const WA = "https://wa.me/201279125006";
 const SHIPPING_FEE = 90;           // flat fallback fee (EGP), used ONLY while no governorates are set in the dashboard (Shipping tab).
 const SHIP_ZONES = [];             // [{ name, fee }] from the dashboard. When not empty, the customer picks a governorate and its fee applies.
 const HOME_PAGE_SIZE = 4;          // products shown on the homepage grid; "See more" reveals this many more each time
+const WA_ORDER_MODE = true;   // temporary: orders go through WhatsApp instead of /api/order
+const WA_MAX_URL = 1900;
 const ORDER_API = "/api/order";    // Vercel serverless function (api/order.js): saves the order and notifies Telegram
 const CATS = ["men", "women", "unisex"];
 // Top banner under the hero. image: file path, href: where a click goes (a page like "#shop", "#offers", or a full https link).
@@ -648,7 +650,7 @@ const I18N = {
     custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
     phName: "First and last name", phAddress: "Governorate, city, street, building, floor, apartment",
     eName: "Enter your full name (first and last).", ePhone: "Enter an 11-digit Egyptian mobile number starting with 01.", eAddress: "Enter your full address with details.",
-    reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", sending: "Sending…", editDetails: "Edit details",
+    reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", waOpen: "Open WhatsApp with my order", waCopy: "Copy order message", waCopied: "Order message copied", waNote: "Temporary: online ordering is paused. Your order is NOT placed yet. Press the button, then press Send in WhatsApp. We confirm it when we reply. Opening WhatsApp alone sends nothing.", waLong: "Your cart is long, so the message could not be prefilled. Copy it, open WhatsApp, and paste it.", sending: "Sending…", editDetails: "Edit details",
     doneTitle: "Order received", doneBody: "Your order has been received. We will contact you shortly to confirm it.", orderNo: "Order number", continueShop: "Continue shopping",
     eSend: "We could not send your order. Please try again, or contact us on WhatsApp.", eUnavail: "One of the items is no longer available. Please review your cart and try again.",
     eWait: "An order was just sent from this phone number. Please wait a moment and try again.", contactWa: "Contact us on WhatsApp",
@@ -692,7 +694,7 @@ const I18N = {
     custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
     phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
     eName: "اكتب اسمك الكامل (الاسم الأول والأخير).", ePhone: "اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.", eAddress: "اكتب عنوانك كاملًا بالتفصيل.",
-    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
+    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", waOpen: "افتح واتساب برسالة الطلب", waCopy: "انسخ رسالة الطلب", waCopied: "تم نسخ رسالة الطلب", waNote: "مؤقتًا: الطلب أونلاين متوقف. طلبك لم يتم بعد. اضغط الزر ثم اضغط إرسال في واتساب. نأكد الطلب عند الرد عليك. فتح واتساب وحده لا يرسل شيئًا.", waLong: "السلة كبيرة فلم نستطع تجهيز الرسالة تلقائيًا. انسخ الرسالة وافتح واتساب والصقها.", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
     doneTitle: "تم استلام طلبك", doneBody: "تم استلام طلبك، وسنتواصل معك قريبًا لتأكيده.", orderNo: "رقم الطلب", continueShop: "متابعة التسوق",
     eSend: "تعذّر إرسال طلبك. حاول مرة أخرى، أو تواصل معنا على واتساب.", eUnavail: "أحد المنتجات لم يعد متاحًا. راجع السلة وحاول مرة أخرى.",
     eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب",
@@ -1131,6 +1133,32 @@ const totalsHTML = () => {
   <div class="srow tot"><span>${t("total")}</span><span>${f == null ? "—" : money(cartTotal() + f)}</span></div>`;
 };
 
+
+/* Temporary WhatsApp order mode: builds the order message and a wa.me click-to-chat link. Nothing is sent or saved by the site. */
+function waOrderText() {
+  const c = customerClean(), f = shipFee(), ar = lang === "ar";
+  const L = ar
+    ? { hi: "طلب جديد من موقع Mawja", items: "المنتجات", addr: "العنوان", name: "الاسم", ph: "الهاتف", gov: "المحافظة", ship: "الشحن", tot: "الحساب (الإجمالي)", sub: "المجموع الفرعي" }
+    : { hi: "New order from Mawja website", items: "Items", addr: "Address", name: "Name", ph: "Phone", gov: "Governorate", ship: "Shipping", tot: "Total", sub: "Subtotal" };
+  const lines = cart.map(l => { const i = lineInfo(l); return l.bundle ? `${l.qty} × ${i.name} (${i.label}) = ${money(i.price * l.qty)}` : `${l.qty} × ${l.ml}${ar ? " مل" : "ml"} ${i.name} = ${money(i.price * l.qty)}`; });
+  return [L.hi, "", L.items + ":", ...lines, "", `${L.sub}: ${money(cartTotal())}`, `${L.ship}: ${f == null ? "-" : money(f)}`, `${L.tot}: ${f == null ? "-" : money(cartTotal() + f)}`, "",
+    `${L.name}: ${c.name}`, `${L.ph}: ${c.phone}`, ...(SHIP_ZONES.length ? [`${L.gov}: ${c.gov}`] : []), `${L.addr}: ${c.address}`].join("\n");
+}
+function waOrderLink() {
+  const url = `${WA}?text=${encodeURIComponent(waOrderText())}`;
+  return url.length <= WA_MAX_URL ? url : null;   // too long for a safe link: caller falls back to copy
+}
+function waCopy() {
+  const txt = waOrderText();
+  const done = () => toast(t("waCopied"));
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, () => waCopyFallback(txt, done));
+  else waCopyFallback(txt, done);
+}
+function waCopyFallback(txt, done) {
+  const ta = document.createElement("textarea"); ta.value = txt; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
+}
+
 function renderCart() {
   const body = $("#cartBody"), foot = $("#cartFoot");
   if (cartStep === "done" && orderDone) {
@@ -1191,6 +1219,16 @@ function renderCart() {
       </div>
       ${submitErr ? `<div class="cerr" role="alert">${t(submitErr)}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${t("contactWa")}</a></div>` : ""}
     </div>`;
+    if (WA_ORDER_MODE) {
+      const link = waOrderLink();
+      foot.innerHTML = `${totalsHTML()}
+      <p class="fine-txt" style="margin:10px 0">${t("waNote")}${link ? "" : " " + t("waLong")}</p>
+      ${link ? `<a class="btn btn-teal btn-block" href="${link}" target="_blank" rel="noopener noreferrer">${t("waOpen")}</a>` : ""}
+      <button class="btn ${link ? "btn-line" : "btn-teal"} btn-block" data-act="waCopy" style="margin-top:10px">${t("waCopy")}</button>
+      ${link ? "" : `<a class="btn btn-line btn-block" href="${WA}" target="_blank" rel="noopener noreferrer" style="margin-top:10px">${t("contactWa")}</a>`}
+      <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px">${t("editDetails")}</button>`;
+      return;
+    }
     foot.innerHTML = `${totalsHTML()}
       <button class="btn btn-teal btn-block" data-act="confirmOrder" ${submitting ? "disabled" : ""}>${submitting ? t("sending") : t("confirmOrder")}</button>
       <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px" ${submitting ? "disabled" : ""}>${t("editDetails")}</button>`;
@@ -1377,7 +1415,8 @@ document.addEventListener("click", e => {
     }
     cartStep = "review"; submitErr = ""; renderCart(); return;
   }
-  if (a === "confirmOrder") { submitOrder(); return; }
+  if (a === "waCopy") { waCopy(); return; }
+  if (a === "confirmOrder") { if (WA_ORDER_MODE) return; submitOrder(); return; }
   if (a === "wish") {
     const s = act.dataset.slug;
     if (isWish(s)) { wish = wish.filter(x => x !== s); toast(t("wishRemoved")); }
