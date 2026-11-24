@@ -417,6 +417,8 @@ select.field option{background:var(--ocean2);color:var(--sand)}
 .fab-ig svg{width:24px;height:24px}
 [dir=rtl] .sec h2{line-height:1.3}
 #story h2{margin-bottom:10px}
+[dir=rtl] #bsTitle{text-align:right}
+.hero2 .ctas{justify-content:center}
 </style>
 </head>
 <body>
@@ -655,7 +657,7 @@ const I18N = {
     heroTitle: "Not just a perfume. It's a lifestyle.", heroLede: "Remember yourself, a gift from MAWJA.",
     heroCta: "Shop the collection", heroCta2: "Best sellers", stripOffers: "Offers", followTitle: "Follow Mawja on Instagram", followSub: "New scents, real customer reviews and offers, first on Instagram.", followBtn: "Follow @mawja_fragrances", waFloat: "Order on WhatsApp", igFloat: "Instagram",
     catTitle: "Shop by collection", catMen: "Men's fragrances", catWomen: "Women's fragrances", catBest: "Best sellers",
-    bsTitle: "Our perfumes", bsSub: "A curated selection to start with.", viewAll: "View all",
+    bsTitle: "Our perfumes", bsSub: "A carefully selected collection to start with.", viewAll: "View all",
     reviewFull: "Customer review", reviewClose: "Close review", reviewOpen: "Enlarge customer review",
     rvTitle: "Customer reviews", rvSlot: "Review slot. A photo or video is added from the dashboard.", prev: "Previous", next: "Next", playVideo: "Play video",
     storyKicker: "Our story", storyTitle: "Remember yourself.", storyBody: "Mawja is the most beautiful gift you can give yourself.", storyBody2: "We create premium fragrances inspired by globally loved scents, for the everyday moods and memories that belong to you.", storyPull: "Mawja is not just a perfume. It's a lifestyle.",
@@ -695,11 +697,11 @@ const I18N = {
   ar: {
     winter: "مجموعة الشتاء متاحة الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
     search: "بحث", searchPh: "ابحث عن عطر", wish: "المفضلة", cart: "السلة", menu: "القائمة", filterSort: "ترتيب", showResults: "عرض النتائج",
-    nowTitle: "Now's offers", nowSub: "عطور مختارة، عليها عرض الآن.",
+    nowTitle: "العروض الحالية", nowSub: "عطور مختارة، عليها عرض الآن.",
     
     heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا", stripOffers: "العروض", followTitle: "تابع موجة على انستجرام", followSub: "عطور جديدة وآراء عملاء حقيقية وعروض، تلاقيها الأول على انستجرام.", followBtn: "تابعنا @mawja_fragrances", waFloat: "اطلب على واتساب", igFloat: "انستجرام",
     catTitle: "تسوق حسب المجموعة", catMen: "عطور رجالي", catWomen: "عطور نسائي", catBest: "الأكثر مبيعًا",
-    bsTitle: "عطورنا", bsSub: "مجموعة مختارة لتبدأ بها.", viewAll: "عرض الكل",
+    bsSub: "مجموعة مختارة بعناية لتبدأ بها", viewAll: "عرض الكل",
     reviewFull: "رأي عميل", reviewClose: "إغلاق الرأي", reviewOpen: "تكبير رأي العميل",
     rvTitle: "آراء العملاء", rvSlot: "مكان رأي العميل. تُضاف الصورة أو الفيديو من لوحة التحكم.", prev: "السابق", next: "التالي", playVideo: "تشغيل الفيديو",
     storyKicker: "قصتنا", storyTitle: "افتكر نفسك بحاجة حلوة...", storyBody: "\"موچة\" هي أحسن هدية تقدر تقدمها لنفسك وسط زحمة يومك وتغير بيها مودك للأحسن", storyBody2: "عطور مستوحاة من أشهر وأفضل العطور العالمية بجودة عالية وخامات مستوردة وثبات يدوم بالأيام.", storyPull: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
@@ -757,6 +759,7 @@ let searchQ = "";
 let vIndex = 0;
 
 const $ = s => document.querySelector(s);
+const hasOffers = () => NOW_OFFERS.some(slug => BY[slug]);
 const t = (k, vars) => { let s = (I18N[lang][k] ?? I18N.en[k] ?? k); if (vars) for (const v in vars) s = s.replace(`{${v}}`, vars[v]); return s; };
 const money = n => `${Number(n).toLocaleString("en-US")} ${t("cur")}`;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -879,7 +882,7 @@ function renderHome() {
   const offers = NOW_OFFERS.map(s => BY[s]);
   return `
   <nav class="strip" aria-label="Sections">
-    <a href="#offers" data-i18n="stripOffers">Offers</a>
+    ${hasOffers() ? `<a href="#offers" data-i18n="stripOffers">Offers</a>` : ""}
     <a href="#men" data-i18n="stripMen">Men's</a>
     <a href="#women" data-i18n="stripWomen">Women's</a>
     <a href="#unisex" data-i18n="stripUnisex">Unisex</a>
@@ -893,6 +896,7 @@ function renderHome() {
       <p class="lede" lang="en" dir="ltr">${t("heroLede")}</p>
       <div class="ctas">
         <a class="offers-btn" href="#shop">${t("heroCta")}</a>
+        ${hasOffers() ? `<a class="btn btn-line hero-line" href="#offers">${t("nowTitle")}</a>` : ""}
       </div>
     </div>
   </section>
@@ -900,7 +904,7 @@ function renderHome() {
   <section class="sec sec-light" id="bestsellers" aria-labelledby="bsTitle" style="padding-top:24px">
     <div class="sec-in">
       <div class="sec-head">
-        <div><h2 id="bsTitle">${t("bsTitle")}</h2><p class="sub">${t("bsSub")}</p></div>
+        <div><h2 id="bsTitle" lang="en" dir="ltr">${t("bsTitle")}</h2><p class="sub">${t("bsSub")}</p></div>
       </div>
       <div class="pgrid" id="homeGrid">${PRODUCTS.slice(0, homeShown).map(card).join("")}</div>
       ${homeShown < PRODUCTS.length ? `<div class="more" id="homeMore"><button class="btn btn-dark" type="button" data-act="seeMore">${t("seeMore")}</button></div>` : ""}
