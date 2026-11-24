@@ -8,6 +8,10 @@ Use Cloudflare Pages Free for the static storefront and current product/review i
 
 Moving media stops future storage bandwidth from those images; it does not clear the 17.373GB already counted this cycle. Supabase may restrict the project after the 26 November grace deadline. Its FAQ says restrictions lift after the next quota refill, with a possible delay. The dashboard reports the current cycle ends 5 December 2026. Existing checkout, dashboard authentication and orders can still fail during that gap.
 
+## Update (24 Nov, later)
+
+The temporary WhatsApp order mode now lives in `index.html` behind `WA_ORDER_MODE` (set to `true`; flip to `false` to restore normal checkout). The review step shows a prefilled wa.me click-to-chat link to +20 127 912 5006 (items, shipping, total, name, phone, governorate, address), a copy fallback, and a copy-only fallback for long carts (link over 1900 chars). The notice wording is the owner's: the order is confirmed once the store replies, and opening WhatsApp alone sends nothing. No `/api/order` call and no Supabase order is created in this mode; the cart is untouched. `scripts/test-static.cjs` covers EN/AR at 390/1280: prefill link, message contents, long-cart fallback, zero Supabase and zero order requests, no overflow. The earlier copy-only override (`scripts/whatsapp-mode.js`) is removed.
+
 ## What this branch prepares
 
 - A fresh snapshot of the published catalog from Supabase, with17 products,22 shipping zones and15 reviews.
