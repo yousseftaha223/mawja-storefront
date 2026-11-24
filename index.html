@@ -419,12 +419,16 @@ select.field option{background:var(--ocean2);color:var(--sand)}
 #story h2{margin-bottom:10px}
 [dir=rtl] #bsTitle{text-align:right}
 .hero2 .ctas{justify-content:center}
-.pdots{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:7px;padding:5px 8px;border-radius:12px;background:rgba(245,241,234,.78);z-index:2;pointer-events:none}
+.pdots{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:7px;padding:8px 12px;border-radius:14px;background:rgba(245,241,234,.78);z-index:2;pointer-events:auto;cursor:pointer}
 .pdots i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--teal);background:transparent;transition:background .25s}
 .pdots i:first-child{background:var(--teal)}
 .swap.on + .pdots i:first-child{background:transparent}
 .swap.on + .pdots i:last-child{background:var(--teal)}
 @media (hover:hover){.swap:hover + .pdots i:first-child{background:transparent}.swap:hover + .pdots i:last-child{background:var(--teal)}}
+html,body{overscroll-behavior-x:none}
+.swap{touch-action:pan-y;overscroll-behavior:contain}
+.swap.nohover:not(.on):hover + .pdots i:first-child{background:var(--teal)}
+.swap.nohover:not(.on):hover + .pdots i:last-child{background:transparent}
 </style>
 </head>
 <body>
@@ -810,7 +814,7 @@ function card(p) {
   return `<article class="pc" data-card="${p.slug}">
     <a class="im" href="#product-${p.slug}" draggable="false" aria-label="${esc(p.name)}">
       ${swapHTML(p, `${p.name} — ${t("inspired", { x: p.ref })}`, 600, 600)}
-      ${p.img2 && p.img2 !== p.img ? `<span class="pdots" aria-hidden="true"><i></i><i></i></span>` : ""}
+      ${p.img2 && p.img2 !== p.img ? `<span class="pdots" role="button" aria-label="Next photo"><i></i><i></i></span>` : ""}
     </a>
     <button class="wish" data-act="wish" data-slug="${p.slug}" aria-pressed="${on}" aria-label="${on ? t("wishRemoved") : t("wishAdded")}">${ICON_HEART}</button>
     <h3>${esc(p.name)}</h3>
@@ -1006,7 +1010,7 @@ function renderProduct(slug) {
         <div class="gal"><span class="swap nohover${pick.photo ? " on" : ""}" data-swap data-gal>
           <img class="a" src="${p.img}" alt="${esc(altMain)}" width="1000" height="1000" draggable="false">
           <img class="b" src="${p.img2}" alt="${esc(`${p.name} — ${t("photoN", { n: 2 })}`)}" width="1000" height="1000" draggable="false">
-        </span></div>
+        </span><span class="pdots" role="button" aria-label="Next photo"><i></i><i></i></span></div>
         <div class="thumbs" role="group" aria-label="${t("photos")}">${[p.img, p.img2].map((src, n) => `<button class="th" type="button" data-act="gphoto" data-n="${n}" aria-pressed="${(pick.photo || 0) === n}" aria-label="${t("photoN", { n: n + 1 })}"><img src="${src}" alt="" width="144" height="144" draggable="false"></button>`).join("")}</div>
         <p class="gal-note">${t("photosNote")}</p>
       </div>`
@@ -1376,16 +1380,32 @@ document.addEventListener("pointerdown", e => {
 document.addEventListener("pointerup", e => {
   if (!sw) return;
   const dx = e.clientX - sw.x;
-  if (Math.abs(dx) > 30) {
+  if (Math.abs(dx) > 20) {
     sw.el.classList.toggle("on");
     if (sw.el.hasAttribute("data-gal")) { pick.photo = sw.el.classList.contains("on") ? 1 : 0; syncThumbs(); }
   }
   if (Math.abs(dx) > 12) swipedAt = Date.now();
   sw = null;
 });
+// Horizontal drags on a card photo belong to the photo: stop the browser from treating them as page scroll or history navigation.
+let tStart = null;
+document.addEventListener("touchstart", e => { const t = e.touches[0]; tStart = e.target.closest && e.target.closest("[data-swap]") ? { x: t.clientX, y: t.clientY } : null; }, { passive: true });
+document.addEventListener("touchmove", e => {
+  if (!tStart) return;
+  const t = e.touches[0];
+  if (Math.abs(t.clientX - tStart.x) > Math.abs(t.clientY - tStart.y) && Math.abs(t.clientX - tStart.x) > 6 && e.cancelable) e.preventDefault();
+}, { passive: false });
+document.addEventListener("touchend", () => { tStart = null; }, { passive: true });
 document.addEventListener("pointercancel", () => { sw = null; vsw = null; });
 // After a real swipe on a photo, ignore the click that follows so the product link does not open.
 document.addEventListener("click", e => {
+  const dot = e.target.closest && e.target.closest(".pdots");
+  if (dot) {
+    e.preventDefault(); e.stopPropagation();
+    const sp = dot.parentElement.querySelector("[data-swap]");
+    if (sp) { sp.classList.toggle("on"); if (sp.hasAttribute("data-gal")) { pick.photo = sp.classList.contains("on") ? 1 : 0; syncThumbs(); } }
+    return;
+  }
   if (Date.now() - swipedAt < 400 && e.target.closest && e.target.closest("[data-swap]")) { e.preventDefault(); e.stopPropagation(); }
 }, true);
 
