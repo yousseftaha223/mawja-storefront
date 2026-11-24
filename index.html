@@ -597,6 +597,7 @@ const HOME_PAGE_SIZE = 8;          // products shown on the homepage grid; "See 
 const WA_ORDER_MODE = false;  // false = normal online order (saved + Telegram). Set true to force WhatsApp-only. When the order API fails, the review step switches to the WhatsApp message automatically (waFallback).
 let waFallback = false;
 const WA_MAX_URL = 1900;
+const WA_NOTIFY_API = "/api/wa-notify";   // forwards a tapped WhatsApp order to the owner's Telegram (works without Supabase)
 const ORDER_API = "/api/order";    // Vercel serverless function (api/order.js): saves the order and notifies Telegram
 const CATS = ["men", "women", "unisex"];
 // Top banner under the hero. image: file path, href: where a click goes (a page like "#shop", "#offers", or a full https link).
@@ -1433,6 +1434,31 @@ async function submitOrder() {
 }
 
 document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("[data-track=wa]"); if (a) trackCustom("WhatsAppOrderOpen", { currency: "EGP", value: cartTotal() + (shipFee() || 0), fallback: waFallback }); }, true);
+
+/* When a customer taps a WhatsApp order button (open WhatsApp / copy order message), also tell the owner's Telegram.
+   Fire and forget: it never blocks or changes the WhatsApp link, and a failure is ignored. */
+function notifyWaOrder() {
+  try {
+    if (!cart.length || Object.keys(validateCustomer()).length) return;
+    const c = customerClean();
+    orderRef = orderRef || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
+    const payload = {
+      clientRef: orderRef, lang,
+      customer: { name: c.name, phone: c.phone, address: c.address },
+      governorate: SHIP_ZONES.length ? c.gov : "",
+      shippingFee: shipFee(),
+      website: customer.website,
+      items: cart.map(l => l.bundle
+        ? { bundle: true, qty: l.qty }
+        : { slug: l.slug, ml: l.ml, qty: l.qty, name: BY[l.slug].name, price: BY[l.slug].prices[l.ml].now }),
+    };
+    fetch(WA_NOTIFY_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
+  } catch (e) {}
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest && e.target.closest("[data-track=wa], [data-act=waCopy]");
+  if (el) notifyWaOrder();
+}, true);
 
 /* ---------- Search ---------- */
 function renderSearch() {
