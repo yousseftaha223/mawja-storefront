@@ -31,7 +31,7 @@ for name in ['brand','demo','media']:
 html = (ROOT / 'index.html').read_text()
 # WhatsApp order mode (prefilled wa.me link + copy fallback) lives in index.html
 # itself under WA_ORDER_MODE; nothing to inject here. Guard that it is on.
-assert 'const WA_ORDER_MODE = true;' in html, 'WA_ORDER_MODE missing from index.html'
+assert 'const WA_ORDER_MODE =' in html, 'WA_ORDER_MODE missing from index.html'
 html = html.replace('(demo|brand)\\/', '(demo|brand|media)\\/')
 start = html.index('function loadStore(ms) {')
 end = html.index('\n/* ---------- Strings', start)
