@@ -592,7 +592,8 @@ function applyStore(d) {
   if (Array.isArray(d.offers)) NOW_OFFERS.splice(0, NOW_OFFERS.length, ...d.offers.filter(s => typeof s === "string" && BY[s]));
   // Empty saved reviews clear the defaults; only real media should be shown.
   const vids = Array.isArray(d.reviews) ? d.reviews.filter(v => v && okSrc(v.src))
-    .map((v, i) => ({ type: v.type === "image" ? "image" : "video", src: v.src, poster: okSrc(v.poster) ? v.poster : "", title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : `Review ${i + 1}` })) : [];
+    .map((v, i) => ({ type: v.type === "image" ? "image" : "video", src: v.src, poster: okSrc(v.poster) ? v.poster : "", title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : `Review ${i + 1}`, priorityReview: v.priorityReview === true }))
+    .sort((a, b) => ((a.type === "image" ? 2 : 0) + (a.priorityReview ? 0 : 1)) - ((b.type === "image" ? 2 : 0) + (b.priorityReview ? 0 : 1))) : [];
   REVIEW_VIDEOS.splice(0, REVIEW_VIDEOS.length, ...vids);
   if (d.banner && okSrc(d.banner.image)) {
     BANNER.image = d.banner.image;
