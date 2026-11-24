@@ -790,9 +790,26 @@ const ICON_HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_PLAY = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
 
 /* ---------- Cards ---------- */
-const PHOTO_LABELS = {"gentle-knight":[[29,22],[49,22],[75,34]]}; // sample only; other products are added after owner approval
+const PHOTO_LABELS = {
+  "gentle-knight":[[29,22],[49,22],[75,34]],
+  "banaya":[[29,22],[49,22],[75,34]],
+  "barbie":[[29,22],[49,22],[75,37]],
+  "bestie":[[29,22],[49,22],[75,34]],
+  "glowy":[[29,22],[49,22],[75,34]],
+  "honey":[[29,22],[49,22],[75,34]],
+  "hunter":[[29,22],[49,22],[75,34]],
+  "fluffy":[[29,23],[49,23],[75,34]],
+  "noble":[[29,25],[49,25],[75,34]],
+  "ecstasy":[[29,22],[49,22],[76,34]],
+  "cigaro":[[28,21],[48,19],[75,32]],
+  "cutie":[[28,23],[49,22],[75,34]],
+  "flirty":[[27,22],[48,18],[75,32]],
+  "il-capo":[[27,22.8],[48,20],[75,32]],
+  "italian-prince":[[22.5,23.5],[48,19],[74,31]],
+  "kaas":[[23,21],[42,21],[64,32]]
+}; // [x%, y%] centres of the 10ml / 55ml / 35ml labels, measured per second photo
 // Single-bottle photo (Master): only the 55 ml bottle is shown.
-const PHOTO_LABELS_SINGLE = {};
+const PHOTO_LABELS_SINGLE = {"master":[50,8]};
 function lblHTML(p) {
   if (!p.img2 || p.img2 === p.img) return "";
   const m = PHOTO_LABELS[p.slug], one = PHOTO_LABELS_SINGLE[p.slug];
