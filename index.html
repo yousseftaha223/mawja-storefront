@@ -657,7 +657,7 @@ const I18N = {
     heroTitle: "Not just a perfume. It's a lifestyle.", heroLede: "Remember yourself, a gift from MAWJA.",
     heroCta: "Shop the collection", heroCta2: "Best sellers", stripOffers: "Offers", followTitle: "Follow Mawja on Instagram", followSub: "New scents, real customer reviews and offers, first on Instagram.", followBtn: "Follow @mawja_fragrances", waFloat: "Order on WhatsApp", igFloat: "Instagram",
     catTitle: "Shop by collection", catMen: "Men's fragrances", catWomen: "Women's fragrances", catBest: "Best sellers",
-    bsTitle: "Our perfumes", bsSub: "A carefully selected collection to start with.", viewAll: "View all",
+    bsTitle: "Our perfumes", bestTitle: "Our perfumes", bsSub: "A carefully selected collection to start with.", viewAll: "View all",
     reviewFull: "Customer review", reviewClose: "Close review", reviewOpen: "Enlarge customer review",
     rvTitle: "Customer reviews", rvSlot: "Review slot. A photo or video is added from the dashboard.", prev: "Previous", next: "Next", playVideo: "Play video",
     storyKicker: "Our story", storyTitle: "Remember yourself.", storyBody: "Mawja is the most beautiful gift you can give yourself.", storyBody2: "We create premium fragrances inspired by globally loved scents, for the everyday moods and memories that belong to you.", storyPull: "Mawja is not just a perfume. It's a lifestyle.",
@@ -701,7 +701,7 @@ const I18N = {
     
     heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا", stripOffers: "العروض", followTitle: "تابع موجة على انستجرام", followSub: "عطور جديدة وآراء عملاء حقيقية وعروض، تلاقيها الأول على انستجرام.", followBtn: "تابعنا @mawja_fragrances", waFloat: "اطلب على واتساب", igFloat: "انستجرام",
     catTitle: "تسوق حسب المجموعة", catMen: "عطور رجالي", catWomen: "عطور نسائي", catBest: "الأكثر مبيعًا",
-    bsSub: "مجموعة مختارة بعناية لتبدأ بها", viewAll: "عرض الكل",
+    bestTitle: "عطورنا", bsSub: "مجموعة مختارة بعناية لتبدأ بها", viewAll: "عرض الكل",
     reviewFull: "رأي عميل", reviewClose: "إغلاق الرأي", reviewOpen: "تكبير رأي العميل",
     rvTitle: "آراء العملاء", rvSlot: "مكان رأي العميل. تُضاف الصورة أو الفيديو من لوحة التحكم.", prev: "السابق", next: "التالي", playVideo: "تشغيل الفيديو",
     storyKicker: "قصتنا", storyTitle: "افتكر نفسك بحاجة حلوة...", storyBody: "\"موچة\" هي أحسن هدية تقدر تقدمها لنفسك وسط زحمة يومك وتغير بيها مودك للأحسن", storyBody2: "عطور مستوحاة من أشهر وأفضل العطور العالمية بجودة عالية وخامات مستوردة وثبات يدوم بالأيام.", storyPull: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
@@ -964,7 +964,7 @@ function controlsHTML() {
 }
 
 function renderList() {
-  const titles = { shop: t("nShop"), men: t("catMen"), women: t("catWomen"), unisex: t("catUnisex"), wishlist: t("wish"), offers: t("nowTitle"), best: t("bsTitle") };
+  const titles = { shop: t("nShop"), men: t("catMen"), women: t("catWomen"), unisex: t("catUnisex"), wishlist: t("wish"), offers: t("nowTitle"), best: t("bestTitle") };
   const subs = { shop: t("bsSub"), offers: t("nowSub"), best: t("bsSub") };
   const list = listItems();
   const emptyMsg = view.name === "wishlist" && !wish.length ? t("emptyWish") : t("noResults");
