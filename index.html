@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAWJA Fragrances</title>
+<meta name="description" content="MAWJA موجة: premium fragrances inspired by globally loved scents. عطور راقية مستوحاة من روائح يحبها العالم.">
+<meta property="og:title" content="MAWJA Fragrances">
+<meta property="og:description" content="Premium fragrances inspired by globally loved scents. Remember yourself.">
+<meta property="og:type" content="website">
+<link rel="icon" href="brand/mawja-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Tokens from the MAWJA brief.
+   Primary: Deep Ocean Blue #062F43. Secondary: Ocean Shadow #0A3E52. Light: Soft Ivory #F5F1EA.
+   Warm neutral: Coastal Sand #E7D5BB. Accent: MAWJA Teal #0C6F70 (small, controlled).
+   Layout: winter marquee bar, Now's offers, deep-blue hero, ivory product grids,
+   review videos, a story band, a sand band, and a footer. */
+:root{
+  --ocean:#062F43; --ocean2:#0A3E52; --ivory:#E7D5BB; --sand:#E7D5BB; --teal:#0C6F70; --ink:#172B32;
+  --dk-mute:rgba(231,213,187,.74); --lt-mute:rgba(231,213,187,.72);
+  --line-dk:rgba(231,213,187,.16); --line-lt:rgba(231,213,187,.18);
+  --serif:"Cormorant Garamond","Noto Sans Arabic",Georgia,serif;
+  --sans:"DM Sans","Noto Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{background:var(--ocean);color:var(--sand);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--sand);outline-offset:3px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px;width:100%}
+.kicker{font-size:12px;letter-spacing:.22em;text-transform:uppercase}
+.serif{font-family:var(--serif);font-weight:500}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 26px;border-radius:4px;border:1px solid transparent;font-weight:500;font-size:15px;letter-spacing:.02em;transition:background .2s,color .2s,border-color .2s;cursor:pointer;text-align:center}
+.btn-ivory{background:var(--ivory);color:var(--ocean)}
+.btn-ivory:hover{background:var(--sand)}
+.btn-teal{background:var(--teal);color:var(--sand)}
+.btn-teal:hover{background:#0a5c5d}
+.btn-line{border-color:currentColor;background:transparent;color:inherit}
+.btn-line:hover{background:rgba(127,127,127,.12)}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Winter marquee bar */
+.ann{background:var(--ocean2);color:var(--sand);font-size:13px;letter-spacing:.06em;overflow:hidden;white-space:nowrap}
+.ann .track{display:flex;width:max-content;padding:9px 0;animation:marq 20s linear infinite;will-change:transform}
+.ann .grp{display:flex;flex-shrink:0}
+.ann .grp span{display:inline-block;padding:0 2rem}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* Header */
+.hdr{position:sticky;top:0;z-index:40;background:var(--ocean);color:var(--ivory);border-bottom:1px solid var(--line-dk)}
+.hdr-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;height:72px;max-width:1280px;margin:0 auto;padding:0 16px}
+.logo{position:relative;display:inline-block;width:166px;height:40px;flex-shrink:0;background:none;padding:0}
+.logo img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:opacity .22s ease}
+.logo .lw{height:26px;width:auto;opacity:1}
+.logo .li{height:34px;width:auto;opacity:0}
+.hdr.sc .logo .lw{opacity:0}
+.hdr.sc .logo .li{opacity:1}
+.nav{display:none;gap:30px;font-size:15px;letter-spacing:.02em}
+.nav a{padding:6px 0;border-bottom:1px solid transparent}
+.nav a:hover{border-bottom-color:var(--sand)}
+.tools{display:flex;align-items:center;gap:2px;justify-self:end}
+.menu-b{justify-self:start}
+.ib{position:relative;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;color:var(--ivory)}
+.ib:hover{background:rgba(231,213,187,.08)}
+.ib svg{width:22px;height:22px}
+.badge{position:absolute;top:4px;inset-inline-end:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--sand);color:var(--ocean);font-size:11px;font-weight:600;line-height:18px;text-align:center}
+.lang{font-size:13px;padding:7px 10px;border:1px solid var(--line-dk);border-radius:4px;color:var(--ivory);margin-inline-start:4px;white-space:nowrap}
+.lang:hover{border-color:var(--sand)}
+@media (min-width:481px){.hdr-in{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}}
+@media (max-width:480px){
+  .hdr-in{gap:6px;padding:0 10px}
+  .ib{width:38px;height:40px}
+  .ib svg{width:20px;height:20px}
+  .lang{font-size:12px;padding:6px 8px;margin-inline-start:0}
+  .logo{width:140px;height:36px}
+  .logo .lw{height:22px}
+  .logo .li{height:30px}
+}
+
+/* Overlays */
+.ov{position:fixed;inset:0;z-index:70}
+.scrim{position:absolute;inset:0;background:rgba(6,47,67,.55)}
+.panel{position:absolute;background:var(--ocean2);color:var(--sand);display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,0,0,.25)}
+.panel-r{top:0;inset-inline-end:0;height:100%;width:100%;max-width:440px}
+.panel-l{top:0;inset-inline-start:0;height:100%;width:min(340px,88%)}
+.panel-b{bottom:0;left:0;right:0;max-height:82vh;border-radius:14px 14px 0 0}
+.panel-t{top:0;left:0;right:0;padding:0}
+.phead{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line-lt);gap:12px}
+.phead h2{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1}
+.pbody{flex:1;overflow-y:auto;padding:0 20px}
+.pfoot{border-top:1px solid var(--line-lt);padding:16px 20px}
+.close{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px}
+.close:hover{background:rgba(231,213,187,.1)}
+.mnav a{display:block;padding:14px 0;border-bottom:1px solid var(--line-lt);font-family:var(--serif);font-size:26px}
+.sinput{width:100%;min-height:52px;border:1px solid var(--line-lt);border-radius:4px;padding:12px 14px;font-size:16px;background:var(--ocean);color:var(--sand);outline:none}
+.sinput:focus{border-color:var(--teal)}
+.sres{display:grid;gap:12px;padding:16px 0 24px}
+.sres a{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center}
+.sres img{width:56px;height:56px;object-fit:contain;border-radius:4px;background:var(--ocean)}
+.sres b{font-family:var(--serif);font-style:italic;font-weight:500;font-size:22px}
+.sres span{font-size:14px;color:var(--lt-mute)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:8px 14px;border:1px solid var(--line-lt);border-radius:999px;font-size:14px}
+.chip[aria-pressed=true]{background:var(--sand);color:var(--ocean);border-color:var(--sand)}
+.ctrl-title{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lt-mute);margin:20px 0 10px}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--sand);color:var(--ocean);padding:12px 18px;border-radius:4px;font-size:14px;z-index:90;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* Hero */
+.hero{background:var(--ocean);color:var(--ivory)}
+.hero-in{display:grid;gap:28px;align-items:center;max-width:1280px;margin:0 auto;padding:36px 20px 56px}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(44px,6.4vw,88px);line-height:1;margin-top:14px;text-wrap:balance}
+.hero .lede{margin-top:18px;max-width:40ch;color:var(--dk-mute);font-size:17px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.hero .ph img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;object-position:center;border-radius:4px;background:var(--ocean2)}
+@media (min-width:900px){
+  .hero-in{grid-template-columns:1fr 1fr;gap:64px;padding:64px 20px 88px}
+  .hero .ph img{aspect-ratio:1/1;height:auto;justify-self:end;width:100%;max-width:100%}
+}
+
+/* Sections */
+.sec{padding:72px 20px}
+.sec-in{max-width:1280px;margin:0 auto}
+.sec h2{font-family:var(--serif);font-weight:500;font-size:clamp(38px,4.6vw,58px);line-height:1.05;text-wrap:balance}
+.sec .sub{margin-top:12px;max-width:56ch;opacity:.85}
+.sec-head{margin-bottom:36px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.bg-ivory{background:var(--ocean);color:var(--sand)}
+.bg-ocean{background:var(--ocean);color:var(--ivory)}
+.bg-ocean2{background:var(--ocean2);color:var(--ivory)}
+.bg-sand{background:var(--ocean2);color:var(--sand)}
+.link-u{font-size:14px;text-decoration:underline;text-underline-offset:5px;white-space:nowrap}
+
+/* Two-photo swap: the second photo shows on hover (mouse) or after a horizontal swipe (touch) */
+.swap{position:absolute;inset:0;display:block;overflow:hidden;touch-action:pan-y;user-select:none}
+.swap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;transition:opacity .45s ease}
+.swap img.b{opacity:0}
+.swap.on img.b{opacity:1}
+.swap.on img.a{opacity:0}
+@media (hover:hover){.swap:hover img.b{opacity:1}.swap:hover img.a{opacity:0}}
+
+/* Category cards */
+.cats{display:grid;gap:14px}
+@media (min-width:700px){.cats{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}}
+.cat{position:relative;display:block;overflow:hidden;border-radius:4px;aspect-ratio:1/1;background:var(--ocean)}
+.cat img{width:100%;height:100%;object-fit:contain;object-position:center}
+.cat .cap{position:absolute;inset-inline:14px;bottom:14px;background:var(--ivory);color:var(--ink);padding:12px 16px;border-radius:4px}
+.cat .cap b{display:block;font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.1}
+.cat .cap span{font-size:13px;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+
+/* Product cards */
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 16px}
+@media (min-width:720px){.pgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:44px 24px}}
+@media (min-width:1100px){.pgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.pc{position:relative;display:flex;flex-direction:column}
+.pc .im{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:var(--ocean)}
+.pc .wish{position:absolute;top:10px;inset-inline-end:10px;width:40px;height:40px;border-radius:50%;background:rgba(231,213,187,.94);color:var(--ink);display:flex;align-items:center;justify-content:center;z-index:2}
+.pc .wish[aria-pressed=true] svg{fill:var(--teal);stroke:var(--teal)}
+.pc .wish svg{width:18px;height:18px}
+.pc h3{font-family:var(--serif);font-style:italic;font-weight:500;font-size:27px;line-height:1.1;margin-top:12px}
+.pc .ref{font-size:14px;opacity:.78}
+.pc .pr{margin-top:6px;font-size:16px;font-weight:500}
+.pc .pr s{opacity:.55;font-weight:400;font-size:14px;margin-inline-start:6px}
+.pc .sz{font-size:13px;opacity:.7}
+.pc .qa{display:flex;align-items:center;justify-content:center;margin-top:12px;min-height:44px;background:var(--teal);color:var(--sand);border-radius:4px;font-size:14px;font-weight:500;letter-spacing:.02em}
+.pc .qa:hover{background:#0a5c5d}
+.bg-ocean .pc .qa{background:var(--ivory);color:var(--ocean)}
+.bg-ocean .pc .qa:hover{background:var(--sand)}
+
+/* Story */
+.story{display:grid;gap:36px;align-items:center}
+@media (min-width:900px){.story{grid-template-columns:1fr 1fr;gap:72px}}
+.story img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;object-position:center;border-radius:4px;background:var(--ocean)}
+.story p{margin-top:18px;max-width:52ch;color:var(--dk-mute)}
+.story .pull{margin-top:22px;font-family:var(--serif);font-size:30px;line-height:1.2;color:var(--ivory)}
+
+/* Review videos */
+.vwin{overflow:hidden;border-radius:4px;touch-action:pan-y}
+.vtrack{display:flex;transition:transform .5s ease}
+.vslide{position:relative;flex:0 0 100%;aspect-ratio:4/5;background:var(--ocean);color:var(--ivory)}
+@media (min-width:800px){.vslide{aspect-ratio:16/9}}
+.vslide video{width:100%;height:100%;object-fit:cover;display:block}
+.vslide .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--dk-mute);font-size:15px}
+.vplay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(6,47,67,.25)}
+.vplay span{width:76px;height:76px;border-radius:50%;background:var(--ivory);color:var(--ocean);display:flex;align-items:center;justify-content:center}
+.vplay svg{width:28px;height:28px;fill:currentColor}
+.vctl{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px}
+.vdots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.vdot{width:12px;height:12px;border-radius:50%;background:rgba(231,213,187,.3)}
+.vdot[aria-current=true]{background:var(--sand)}
+.vbtn{width:46px;height:46px;border:1px solid var(--line-lt);border-radius:50%;color:var(--sand);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
+.vbtn:hover{background:rgba(231,213,187,.1)}
+
+/* Explore */
+.explore{display:grid;gap:16px}
+@media (min-width:800px){.explore{grid-template-columns:1fr 1fr;gap:24px}}
+.ecard{position:relative;display:block;overflow:hidden;border-radius:4px;background:var(--ocean);color:var(--ivory);cursor:pointer}
+.ecard img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;object-position:center;background:var(--ocean2)}
+@media (min-width:800px){.ecard{display:grid;grid-template-columns:1fr 1fr;align-items:center}}
+.ecard .body{padding:22px 24px 26px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.ecard h3{font-family:var(--serif);font-weight:500;font-size:34px;line-height:1.05}
+.ecard p{color:var(--dk-mute)}
+.ecard .pr{font-size:18px;font-weight:500}
+.ecard .pr s{opacity:.6;font-weight:400;margin-inline-start:8px;font-size:15px}
+
+/* FAQ */
+.faq{max-width:820px}
+.faq details{border-bottom:1px solid var(--line-lt);padding:20px 0}
+.faq summary{list-style:none;cursor:pointer;font-family:var(--serif);font-size:24px;display:flex;justify-content:space-between;align-items:center;gap:16px;line-height:1.2}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--sans);font-size:22px;color:var(--teal);line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq details p{margin-top:12px;max-width:62ch;color:var(--lt-mute)}
+
+/* Footer */
+.foot{background:var(--ocean);color:var(--ivory);padding:64px 20px 26px}
+.foot-in{max-width:1280px;margin:0 auto;display:grid;gap:36px}
+@media (min-width:860px){.foot-in{grid-template-columns:1.4fr 1fr 1.2fr}}
+.foot h4{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);margin-bottom:14px;font-weight:600}
+.foot ul{list-style:none;display:grid;gap:10px;font-size:15px}
+.foot ul a:hover{text-decoration:underline;text-underline-offset:4px}
+.foot .statement{font-family:var(--serif);font-size:30px;line-height:1.2;max-width:22ch}
+.foot .soc{display:flex;gap:10px;margin-top:20px}
+.foot .soc a{width:44px;height:44px;border:1px solid var(--line-dk);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.foot .soc a:hover{border-color:var(--sand)}
+.foot .soc svg{width:19px;height:19px}
+.foot .fine{max-width:1280px;margin:44px auto 0;border-top:1px solid var(--line-dk);padding-top:18px;font-size:13px;color:var(--dk-mute);text-align:center}
+.muted-dk{color:var(--dk-mute)}
+
+/* List page */
+.lhead{max-width:1280px;margin:0 auto;padding:44px 20px 18px}
+.lhead h1{font-family:var(--serif);font-weight:500;font-size:clamp(44px,6vw,72px);line-height:1}
+.lhead p{margin-top:12px;max-width:58ch;color:var(--lt-mute)}
+.lbar{max-width:1280px;margin:0 auto;padding:16px 20px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line-lt)}
+.lcount{font-size:14px;color:var(--lt-mute)}
+.fbtn{min-height:44px;padding:10px 18px;border:1px solid var(--sand);border-radius:4px;font-size:14px}
+.inline-tools{display:none}
+@media (min-width:900px){.fbtn{display:none}.inline-tools{display:flex;gap:24px;align-items:center;flex-wrap:wrap}}
+.lgrid{max-width:1280px;margin:0 auto;padding:32px 20px 80px}
+.empty{padding:40px 0;color:var(--lt-mute);text-align:center}
+
+/* Product page */
+.pp{max-width:1280px;margin:0 auto;padding:28px 20px 40px;display:grid;gap:36px}
+@media (min-width:900px){.pp{grid-template-columns:1.05fr 1fr;gap:72px;padding:48px 20px 72px;align-items:start}}
+.gal{position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:var(--ocean)}
+.pp .crumb{font-size:13px;color:var(--lt-mute)}
+.pp h1{font-family:var(--serif);font-weight:500;font-size:clamp(46px,5.4vw,68px);line-height:1;margin-top:12px}
+.pp .ref{font-family:var(--serif);font-style:italic;font-size:24px;margin-top:8px;color:var(--lt-mute)}
+.pp .price{margin-top:20px;font-size:24px;font-weight:500}
+.pp .price s{opacity:.55;font-size:18px;font-weight:400;margin-inline-end:10px}
+.opt{margin-top:26px}
+.opt-label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lt-mute);margin-bottom:10px}
+.szs{display:flex;flex-wrap:wrap;gap:10px}
+.szb{min-width:150px;min-height:58px;padding:10px 16px;border:1px solid var(--sand);border-radius:4px;text-align:start;display:flex;flex-direction:column;gap:2px}
+.szb b{font-weight:600}
+.szb span{font-size:14px}
+.szb s{opacity:.55;margin-inline-end:6px}
+.szb[aria-checked=true]{background:var(--sand);color:var(--ocean)}
+.buyrow{display:flex;gap:12px;align-items:stretch;margin-top:28px;flex-wrap:wrap}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line-lt);border-radius:4px;min-height:52px}
+.qty button{width:48px;height:100%;min-height:50px;font-size:18px}
+.qty button:hover{background:rgba(231,213,187,.1)}
+.qty span{min-width:30px;text-align:center}
+.buyrow .btn{flex:1;min-width:200px}
+.acc{margin-top:28px;border-top:1px solid var(--line-lt)}
+.acc details{border-bottom:1px solid var(--line-lt);padding:16px 0}
+.acc summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;font-weight:500}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::after{content:"+";color:var(--teal)}
+.acc details[open] summary::after{content:"–"}
+.acc details p{margin-top:10px;color:var(--lt-mute);font-size:15px}
+.related{background:var(--ocean);padding:60px 20px 72px}
+
+/* Cart */
+#cartOv .phead,#cartOv .pfoot{flex-shrink:0}
+#cartBody{flex:1 1 0;min-height:0}
+.cl{display:grid;grid-template-columns:72px 1fr auto;gap:14px;padding:18px 0;border-bottom:1px solid var(--line-lt);align-items:start}
+.cl img{width:72px;height:72px;object-fit:contain;border-radius:4px;background:var(--ocean)}
+.cl .nm{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.1}
+.cl .meta{font-size:13px;color:var(--lt-mute);margin-top:4px}
+.cl .row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.cl .qty{min-height:38px}
+.cl .qty button{width:38px;min-height:36px}
+.cl .rm{font-size:13px;text-decoration:underline;margin-inline-start:8px;min-height:36px}
+.cl .lp{font-weight:500;font-size:15px;white-space:nowrap}
+.sum{display:flex;justify-content:space-between;font-size:17px;font-weight:500;margin-bottom:8px}
+.fine-txt{font-size:13px;color:var(--lt-mute)}
+.field{width:100%;border:1px solid var(--line-lt);border-radius:4px;padding:12px 14px;font-size:15px;margin-bottom:10px;background:var(--ocean);color:var(--sand);outline:none}
+
+.szr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:12px}
+.szc{min-height:38px;padding:6px 4px;border:1px solid var(--line-lt);border-radius:4px;font-size:13px;font-weight:500;transition:background .25s,color .25s,border-color .25s}
+.szc:hover:not(:disabled){border-color:var(--sand)}
+.szc[aria-checked=true]{background:var(--sand);color:var(--ocean);border-color:var(--sand)}
+.szc:disabled,.szb:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
+.pc .pr .now{font-size:18px;font-weight:600}
+.pc .pr.fade{animation:fi .25s ease}
+@keyframes fi{from{opacity:.35}to{opacity:1}}
+button.qa{width:100%;border:0;cursor:pointer;font-family:inherit}
+button.qa:disabled{opacity:.45;cursor:not-allowed}
+.slogan{background:var(--ocean2);padding:44px 20px;text-align:center}
+.slogan p{font-family:var(--serif);font-weight:500;font-size:clamp(30px,4.2vw,50px);line-height:1.12;color:var(--sand);max-width:22ch;margin:0 auto;text-wrap:balance}
+.story-text{max-width:760px;margin:0 auto;text-align:center}
+.story-text p{margin-left:auto;margin-right:auto}
+@media (max-width:640px){
+  .hero-in{grid-template-columns:40% minmax(0,1fr);gap:14px;padding:24px 16px 36px;align-items:center}
+  .hero h1{font-size:34px;margin-top:8px}
+  .hero .kicker{font-size:10px;letter-spacing:.16em}
+  .hero .ctas{flex-direction:column;gap:8px;margin-top:20px}
+  .hero .ctas .btn{width:100%;min-height:44px;padding:10px 12px;font-size:14px}
+  .hero .ph img{width:100%}
+  .slogan{padding:32px 16px}
+}
+.strip{position:sticky;top:72px;z-index:38;display:flex;justify-content:center;flex-wrap:wrap;gap:clamp(18px,4vw,56px);padding:14px 16px;background:var(--ocean);border-bottom:1px solid var(--line-dk);font-size:13px;font-weight:500;letter-spacing:.18em;text-transform:uppercase}
+.strip a{color:var(--sand);opacity:.6;padding:6px 0;border-bottom:2px solid transparent;transition:opacity .2s,border-color .2s}
+.strip a:hover,.strip a.on{opacity:1;border-bottom-color:var(--sand)}
+.macro-link{display:block}
+.macro{display:block;width:100%;height:clamp(440px,64vw,680px);object-fit:cover;object-position:center 40%}
+.offers-wrap{display:flex;justify-content:center;padding:36px 16px 48px;background:var(--ocean2)}
+.offers-wrap .offers-btn{margin-top:0;min-width:min(100%,420px)}
+.hero2 .slogan{padding:40px 20px 48px}
+.offers-btn{display:inline-flex;align-items:center;justify-content:center;min-height:60px;margin-top:26px;padding:16px 48px;background:var(--sand);color:var(--ocean);font-size:17px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-radius:4px;box-shadow:0 12px 32px rgba(0,0,0,.28);transition:background .2s,color .2s,transform .2s}
+.offers-btn:hover{background:var(--teal);color:var(--sand);transform:translateY(-1px)}
+@media (max-width:480px){.strip{gap:14px;font-size:11px;letter-spacing:.1em;padding:12px 10px}.offers-btn{width:100%;padding:16px 12px;font-size:15px}.hero2 .slogan{padding:32px 16px 36px}}
+.more{display:flex;justify-content:center;margin-top:44px}
+.more .btn{min-width:240px}
+.foot .ci{display:inline-flex;align-items:center;gap:10px}
+.foot .ci svg{width:18px;height:18px;flex-shrink:0}
+/* Hero: one instance, sidebar layout (image column + text column) on every screen size */
+.hero2 .hero-in{display:grid;grid-template-columns:40% minmax(0,1fr);gap:clamp(14px,3vw,48px);align-items:center;max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,48px) 16px}
+.hero2 .hero-in .ph img{width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;object-position:center;border-radius:4px;background:var(--ocean2)}
+.hero2 h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,4.4vw,60px);line-height:1.05;margin-top:10px;text-wrap:balance}
+.hero2 .kicker{font-size:11px;letter-spacing:.2em;color:var(--sand)}
+.hero2 .lede{margin-top:14px;color:var(--dk-mute);font-size:clamp(14px,1.5vw,17px)}
+.hero2 .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.hero2 .ctas .offers-btn{margin-top:0}
+.hero-line{color:var(--sand);border-color:var(--sand)}
+@media (max-width:480px){
+  .hero2 .ctas{flex-direction:column}
+  .hero2 .ctas .offers-btn,.hero2 .ctas .hero-line{width:100%}
+  .hero2 h1{font-size:28px}
+}
+.slogan .kicker{font-family:var(--sans);font-size:11px;letter-spacing:.2em;color:var(--sand);margin-bottom:12px}
+.slogan h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,4.2vw,50px);line-height:1.12;color:var(--sand);max-width:22ch;margin:0 auto;text-wrap:balance}
+.slogan .lede{margin:16px auto 0;color:var(--dk-mute);font-size:clamp(14px,1.5vw,17px);max-width:52ch}
+.slogan .ctas{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:26px}
+.slogan .ctas .offers-btn{margin-top:0}
+@media (max-width:480px){.slogan .ctas{flex-direction:column;width:100%}.slogan .ctas .offers-btn,.slogan .ctas .hero-line{width:100%}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+/* Product page: two-photo gallery with thumbnails (no hover swap here, the thumbnails and swipe control it) */
+.swap.nohover:hover img.b{opacity:0}
+.swap.nohover:hover img.a{opacity:1}
+.swap.nohover.on:hover img.b{opacity:1}
+.swap.nohover.on:hover img.a{opacity:0}
+.thumbs{display:flex;gap:10px;margin-top:12px}
+.th{width:72px;height:72px;border:1px solid var(--line-lt);border-radius:4px;overflow:hidden;background:var(--ocean);opacity:.7;transition:opacity .2s,border-color .2s}
+.th img{width:100%;height:100%;object-fit:contain}
+.th[aria-pressed=true]{border-color:var(--sand);opacity:1}
+.gal-note{margin-top:10px;font-size:13px;color:var(--lt-mute)}
+/* Checkout form */
+.flab{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--lt-mute);margin:14px 0 6px}
+textarea.field{min-height:92px;resize:vertical;line-height:1.5}
+.field:focus{border-color:var(--teal)}
+.field.bad{border-color:#ffb4a8}
+select.field{appearance:auto;cursor:pointer}
+select.field option{background:var(--ocean2);color:var(--sand)}
+.ferr{font-size:13px;color:#ffb4a8;margin:-2px 0 6px}
+.hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+.srow{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:6px}
+.srow.tot{font-size:17px;font-weight:600;margin-bottom:12px}
+.cust{margin-top:20px;border-top:1px solid var(--line-lt);padding-top:14px;display:grid;gap:4px;font-size:14px;color:var(--lt-mute)}
+.cust b{color:var(--sand);font-weight:500}
+.cust p{white-space:pre-line;overflow-wrap:anywhere}
+.cerr{margin-top:16px;padding:12px 14px;border:1px solid #ffb4a8;border-radius:4px;color:#ffb4a8;font-size:14px}
+.cerr a{text-decoration:underline;text-underline-offset:3px}
+/* Review photos */
+.review-open{display:block;width:100%;height:100%;cursor:zoom-in}
+.review-dialog{width:min(96vw,960px);max-height:94dvh;margin:auto;padding:0;border:1px solid var(--line-dk);border-radius:8px;background:var(--ocean);color:var(--sand);overflow:auto;overscroll-behavior:contain}
+.review-dialog::backdrop{background:rgba(0,0,0,.85)}
+.review-dialog-head{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--ocean)}
+.review-dialog img{width:100%;height:auto;display:block}
+.vslide .rimg{width:100%;height:100%;object-fit:contain;display:block;background:var(--ocean)}
+</style>
+</head>
+<body>
+
+<div class="ann" aria-label="Announcement">
+  <div class="track"><div class="grp"><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span></div><div class="grp" aria-hidden="true"><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span></div></div>
+</div>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <button class="ib menu-b" data-act="menu" aria-label="Menu" data-i18n-attr="aria-label:menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 8h18M3 16h18"/></svg>
+    </button>
+    <a class="logo" href="#top" aria-label="MAWJA home"><img class="lw" src="brand/mawja-logo-beige.png" alt="MAWJA" width="988" height="155"><img class="li" src="brand/mawja-icon-beige.png" alt="" width="360" height="166"></a>
+    <div class="tools">
+      <button class="ib" data-act="search" aria-label="Search" data-i18n-attr="aria-label:search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+      <a class="ib" href="#wishlist" aria-label="Wishlist" data-i18n-attr="aria-label:wish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="badge" id="wishCount" hidden>0</span></a>
+      <button class="ib" data-act="cart" aria-label="Cart" data-i18n-attr="aria-label:cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" id="cartCount" hidden>0</span></button>
+      <button class="lang" data-act="lang" id="langBtn">AR</button>
+    </div>
+  </div>
+</header>
+
+<div class="ov" id="menuOv" hidden>
+  <div class="scrim" data-close></div>
+  <aside class="panel panel-l" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="phead"><h2 data-i18n="menu">Menu</h2><button class="close" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <nav class="pbody mnav">
+      <a href="#shop" data-close data-i18n="nShop">Shop</a>
+      <a href="#men" data-close data-i18n="nMen">Men</a>
+      <a href="#women" data-close data-i18n="nWomen">Women</a>
+      <a href="#unisex" data-close data-i18n="nUnisex">Unisex</a>
+      <a href="#story" data-close data-i18n="nStory">Our Story</a>
+      <a href="#wishlist" data-close data-i18n="wish">Wishlist</a>
+    </nav>
+  </aside>
+</div>
+
+<div class="ov" id="searchOv" hidden>
+  <div class="scrim" data-close></div>
+  <div class="panel panel-t" role="dialog" aria-modal="true" aria-label="Search">
+    <div class="pbody" style="padding:18px 20px 24px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <input class="sinput" id="sq" type="search" autocomplete="off" aria-label="Search" data-i18n-attr="placeholder:searchPh">
+        <button class="close" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="sres" id="sres"></div>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="filterOv" hidden>
+  <div class="scrim" data-close></div>
+  <div class="panel panel-b" role="dialog" aria-modal="true" aria-label="Sort">
+    <div class="phead"><h2 data-i18n="filterSort">Sort</h2><button class="close" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="pbody" id="filterBody"></div>
+    <div class="pfoot"><button class="btn btn-teal btn-block" data-close data-i18n="showResults">Show results</button></div>
+  </div>
+</div>
+
+<div class="ov" id="cartOv" hidden>
+  <div class="scrim" data-close></div>
+  <aside class="panel panel-r" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <div class="phead"><h2 id="cartTitle" data-i18n="cartTitle">Your cart</h2><button class="close" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="pbody" id="cartBody"></div>
+    <div class="pfoot" id="cartFoot"></div>
+  </aside>
+</div>
+
+<dialog class="review-dialog" id="reviewDialog" aria-labelledby="reviewDialogTitle">
+  <div class="review-dialog-head"><span id="reviewDialogTitle" data-i18n="reviewFull">Customer review</span><button class="close" type="button" id="reviewDialogClose" aria-label="Close" data-i18n-attr="aria-label:reviewClose">✕</button></div>
+  <img id="reviewDialogImage" alt="">
+</dialog>
+<main id="top"><div id="view"></div></main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <div>
+      <p class="statement" data-i18n="footStatement">Mawja is not just a perfume. It's a lifestyle.</p>
+    </div>
+    <div>
+      <h4 data-i18n="fShop">Shop</h4>
+      <ul>
+        <li><a href="#shop" data-i18n="nShop">Shop</a></li>
+        <li><a href="#men" data-i18n="nMen">Men</a></li>
+        <li><a href="#women" data-i18n="nWomen">Women</a></li>
+        <li><a href="#unisex" data-i18n="nUnisex">Unisex</a></li>
+        <li><a href="#story" data-i18n="nStory">Our Story</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 data-i18n="fContact">Contact</h4>
+      <ul>
+        <li><a class="ci" href="https://www.instagram.com/mawja_fragrances" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>Instagram</a></li>
+        <li><a class="ci" href="https://www.tiktok.com/@mawja_fragrances" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 7.917v4.034a9.948 9.948 0 0 1-5-1.951v4.5a6.5 6.5 0 1 1-8-6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z"/></svg>TikTok</a></li>
+        <li><a class="ci" href="https://wa.me/201279125006" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/></svg>WhatsApp · +20 127 912 5006</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="fine" data-i18n="copy">© 2026 Mawjafragrances. All Rights Reserved</p>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- Data: single source. Prices are placeholders the owner will edit. ---------- */
+// PLACEHOLDER PRICES (EGP): before and now, per size. Edit here when the real prices are set.
+const SIZES = [55, 35, 10];
+// Placeholder prices (EGP). Each product gets its own copy below, so one product's price can change without touching the others.
+const DEFAULT_PRICES = {
+  55: { before: 650, now: 550 },
+  35: { before: 450, now: 380 },
+  10: { before: 170, now: 130 },
+};
+const PRODUCTS = [
+  { slug: "master",        name: "Master",        ref: "Black Afgano",       cat: "men",   img: "demo/master.jpg",        featured: true },
+  { slug: "hunter",        name: "Hunter",        ref: "Althair",            cat: "men",   img: "demo/hunter.jpg",        featured: true },
+  { slug: "gentle-knight", name: "Gentle Knight", ref: "Layton",             cat: "men",   img: "demo/gentle-knight.jpg" },
+  { slug: "ecstasy",       name: "Ecstasy",       ref: "Le Male Elixir",     cat: "men",   img: "demo/ecstasy.jpg" },
+  { slug: "banaya",        name: "بناية",         ref: "Khamra Qahwa",       cat: "men",   img: "demo/banaya.jpg" },
+  { slug: "bestie",        name: "Bestie",        ref: "Erba Pura",          cat: "women", img: "demo/bestie.jpg",        featured: true },
+  { slug: "fluffy",        name: "Fluffy",        ref: "Kayali Marshmallow", cat: "women", img: "demo/fluffy.jpg" },
+  { slug: "honey",         name: "Honey",         ref: "Bianco Latte",       cat: "women", img: "demo/honey.jpg",         featured: true },
+];
+// Second photo per product. Not supplied yet: the same photo is used until the owner adds the real second image in the dashboard.
+PRODUCTS.forEach(p => { p.img2 = p.img; });
+// Per-product pricing and availability. Prices are placeholders until the real per-product prices are supplied.
+// Set available[size] = false to mark a size unavailable: it shows as unavailable and cannot be selected or bought.
+PRODUCTS.forEach((p, i) => {
+  p.prices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
+  p.available = { 55: true, 35: true, 10: true };
+  p.notes = "";        // Perfume notes (English). Edited per product in the dashboard.
+  p.notesAr = "";      // Perfume notes (Arabic, optional). Falls back to English when empty.
+  p.priority = i + 1;  // Display priority: lower number shows first. Default = the order above.
+});
+const NOW_OFFERS = ["ecstasy", "gentle-knight", "fluffy", "banaya"];
+// Review videos. Add the video file path in src (and a poster image if wanted). Empty slots show a placeholder.
+const REVIEW_VIDEOS = [
+  { src: "", poster: "", title: "Review 1" },
+  { src: "", poster: "", title: "Review 2" },
+  { src: "", poster: "", title: "Review 3" },
+  { src: "", poster: "", title: "Review 4" },
+];
+const BY = Object.fromEntries(PRODUCTS.map(p => [p.slug, p]));
+const BUNDLE = { key: "bundle-winter-duo", name: "Winter Duo", price: 850, was: 1000, img: "demo/honey.jpg" };
+const WA = "https://wa.me/201279125006";
+const SHIPPING_FEE = 90;           // flat fallback fee (EGP), used ONLY while no governorates are set in the dashboard (Shipping tab).
+const SHIP_ZONES = [];             // [{ name, fee }] from the dashboard. When not empty, the customer picks a governorate and its fee applies.
+const HOME_PAGE_SIZE = 4;          // products shown on the homepage grid; "See more" reveals this many more each time
+const WA_ORDER_MODE = true;   // temporary: orders go through WhatsApp instead of /api/order
+const WA_MAX_URL = 1900;
+const ORDER_API = "/api/order";    // Vercel serverless function (api/order.js): saves the order and notifies Telegram
+const CATS = ["men", "women", "unisex"];
+// Top banner under the hero. image: file path, href: where a click goes (a page like "#shop", "#offers", or a full https link).
+const BANNER = { image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop" };
+
+/* ---------- Live data from the dashboard (/admin) ----------
+   The dashboard saves one JSON file to Supabase Storage. It is read at runtime and replaces the values above.
+   If it cannot be loaded (offline, missing or invalid), the values above are used unchanged. */
+const STORE_URL = "https://ppqgtzujpoyhglxsykdw.supabase.co/storage/v1/object/public/media/site/storefront.json";
+const okHref = h => typeof h === "string" && /^(#[\w-]*|https?:\/\/[^\s"'<>]+)$/.test(h);
+const okSrc = s => typeof s === "string" && /^(https:\/\/[^\s"'<>]+|(demo|brand|media)\/[\w.\-\/]+)$/.test(s);
+const okNum = n => typeof n === "number" && isFinite(n) && n >= 0;
+function cleanProduct(x) {
+  if (!x || typeof x !== "object") return null;
+  if (typeof x.slug !== "string" || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(x.slug)) return null;
+  if (typeof x.name !== "string" || !x.name.trim() || !okSrc(x.img)) return null;
+  const p = { slug: x.slug, name: x.name.trim(), ref: typeof x.ref === "string" ? x.ref.trim() : "", cat: CATS.includes(x.cat) ? x.cat : "men",
+    img: x.img, img2: okSrc(x.img2) ? x.img2 : x.img, prices: {}, available: {},
+    notes: typeof x.notes === "string" ? x.notes.trim().slice(0, 1000) : "",
+    notesAr: typeof x.notesAr === "string" ? x.notesAr.trim().slice(0, 1000) : "",
+    priority: okNum(x.priority) ? x.priority : null };
+  if (x.featured) p.featured = true;
+  for (const s of SIZES) {
+    const P = x.prices && x.prices[s];
+    if (!P || !okNum(P.now)) return null;
+    p.prices[s] = { before: okNum(P.before) ? P.before : P.now, now: P.now };
+    p.available[s] = !(x.available && x.available[s] === false);
+  }
+  return p;
+}
+function applyStore(d) {
+  if (!d || typeof d !== "object") return false;
+  if (Array.isArray(d.products)) {
+    const list = d.products.map(cleanProduct).filter(Boolean).filter((p, i, a) => a.findIndex(q => q.slug === p.slug) === i);
+    if (list.length) {
+      // Old saved data has no priority: keep the saved order (position + 1). Then order by priority (stable, so ties keep the saved order).
+      list.forEach((p, i) => { if (p.priority == null) p.priority = i + 1; });
+      list.sort((a, b) => a.priority - b.priority);
+      PRODUCTS.splice(0, PRODUCTS.length, ...list);
+      Object.keys(BY).forEach(k => delete BY[k]);
+      PRODUCTS.forEach(p => { BY[p.slug] = p; });
+    }
+  }
+  if (Array.isArray(d.shipping)) {
+    const zones = d.shipping.filter(z => z && typeof z.name === "string" && z.name.trim() && okNum(z.fee))
+      .map(z => ({ name: z.name.trim().slice(0, 60), fee: z.fee }))
+      .filter((z, i, a) => a.findIndex(q => q.name === z.name) === i);
+    SHIP_ZONES.splice(0, SHIP_ZONES.length, ...zones);
+    if (customer.gov && !zones.some(z => z.name === customer.gov)) customer.gov = "";
+  }
+  if (Array.isArray(d.offers)) NOW_OFFERS.splice(0, NOW_OFFERS.length, ...d.offers.filter(s => typeof s === "string" && BY[s]));
+  // Empty saved reviews clear the defaults; only real media should be shown.
+  const vids = Array.isArray(d.reviews) ? d.reviews.filter(v => v && okSrc(v.src))
+    .map((v, i) => ({ type: v.type === "image" ? "image" : "video", src: v.src, poster: okSrc(v.poster) ? v.poster : "", title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : `Review ${i + 1}` })) : [];
+  REVIEW_VIDEOS.splice(0, REVIEW_VIDEOS.length, ...vids);
+  if (d.banner && okSrc(d.banner.image)) {
+    BANNER.image = d.banner.image;
+    if (okHref(d.banner.href)) BANNER.href = d.banner.href;
+    if (typeof d.banner.alt === "string") BANNER.alt = d.banner.alt;
+  }
+  return true;
+}
+function loadStore() { return Promise.resolve(STATIC_STORE); }
+
+/* ---------- Strings (EN / AR) ---------- */
+const I18N = {
+  en: {
+    winter: "Winter collection is live now", nShop: "Shop", nMen: "Men", nWomen: "Women", nCollections: "Collections", nStory: "Our Story",
+    search: "Search", searchPh: "Search fragrances", wish: "Wishlist", cart: "Cart", menu: "Menu", filterSort: "Sort", showResults: "Show results",
+    nowTitle: "Now's offers", nowSub: "Selected fragrances, on offer right now.",
+    heroTitle: "Not just a perfume. It's a lifestyle.", heroLede: "Remember yourself, a gift from MAWJA.",
+    heroCta: "Shop the collection", heroCta2: "Best sellers",
+    catTitle: "Shop by collection", catMen: "Men's fragrances", catWomen: "Women's fragrances", catBest: "Best sellers",
+    bsTitle: "Our perfumes", bsSub: "A curated selection to start with.", viewAll: "View all",
+    reviewFull: "Customer review", reviewClose: "Close review", reviewOpen: "Enlarge customer review",
+    rvTitle: "Customer reviews", rvSlot: "Review slot. A photo or video is added from the dashboard.", prev: "Previous", next: "Next", playVideo: "Play video",
+    storyKicker: "Our story", storyTitle: "Remember yourself.", storyBody: "MAWJA means “wave” in Arabic. We create premium fragrances inspired by globally loved scents, for the everyday moods and memories that belong to you.", storyPull: "Mawja is not just a perfume. It's a lifestyle.",
+    exploreTitle: "Explore more", exploreBundleTitle: "Winter Duo", exploreBundleBody: "Two signature scents, one limited-time price.", exploreAllTitle: "Shop all fragrances", exploreAllBody: "Every MAWJA fragrance, in 10 ml, 35 ml and 55 ml.",
+    faqTitle: "Questions",
+    fq1: "How do I order?", fa1: "Add your fragrances to the cart and place your order. Our team contacts you to confirm the order and delivery.",
+    fq2: "What sizes are available?", fa2: "Each fragrance is available in 10 ml, 35 ml and 55 ml.",
+    fq3: "Are the prices final?", fa3: "Yes. The prices shown on the site are final.",
+    fq4: "What are the fragrances inspired by?", fa4: "Each MAWJA fragrance is inspired by a globally loved scent, named under its title.",
+    listCount: "{n} fragrances", listCountOne: "{n} fragrance", sortTitle: "Sort", sFeat: "Featured", sName: "Name A–Z",
+    noResults: "No fragrances match these choices.", emptyWish: "Your wishlist is empty. Tap the heart on any fragrance to save it.",
+    inspired: "Inspired by {x}", viewProduct: "View product", from: "From",
+    back: "Back to list", size: "Size", qty: "Quantity", addCart: "Add to cart", added: "Added to your cart", wishAdded: "Saved to wishlist", wishRemoved: "Removed from wishlist",
+    ordering: "Ordering & delivery", orderingBody: "Send your request from the cart. Our team contacts you to confirm the order and delivery. Prices shown are final.",
+    notes: "Fragrance notes", notesBody: "Notes will appear here once they are verified.",
+    related: "You may also like", bundleAdd: "Add bundle to cart",
+    cartTitle: "Your cart", cartEmpty: "Your cart is empty.", subtotal: "Subtotal", checkout: "Checkout", back2cart: "Back to cart",
+    checkoutTitle: "Send your order", checkoutNote: "Enter your delivery details. You will see the full order, including shipping, before you confirm. Online payment is not connected yet.", sendWa: "Send order request on WhatsApp", remove: "Remove",
+    fShop: "Shop", fHelp: "Help", fContact: "Contact", footStatement: "Mawja is not just a perfume. It's a lifestyle.",
+    ship: "Shipping policy (coming soon)", ret: "Return policy (coming soon)", priv: "Privacy policy (coming soon)", terms: "Terms and conditions (coming soon)",
+    copy: "© 2026 Mawjafragrances. All Rights Reserved",
+    cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", stripMen: "Men's", stripWomen: "Women's", stripBest: "Best sellers", seeMore: "See more",
+    nUnisex: "Unisex", catUnisex: "Unisex fragrances", stripUnisex: "Unisex", fCat: "Category", fAll: "All",
+    photos: "Photos", photoN: "Photo {n}", photosNote: "This fragrance has 2 photos. Tap a thumbnail or swipe the image to switch.",
+    shipLabel: "Shipping", total: "Total", shipNote: "Shipping ({fee}) is added at checkout.",
+    custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
+    phName: "First and last name", phAddress: "Governorate, city, street, building, floor, apartment",
+    eName: "Enter your full name (first and last).", ePhone: "Enter an 11-digit Egyptian mobile number starting with 01.", eAddress: "Enter your full address with details.",
+    reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", waOpen: "Open WhatsApp with my order", waCopy: "Copy order message", waCopied: "Order message copied", waNote: "For now, to order please press 'Open WhatsApp with my order'. Your order is confirmed once we reply. Opening WhatsApp alone sends nothing. Press Send in WhatsApp to place your order.", waLong: "Your cart is long, so the message could not be prefilled. Copy it, open WhatsApp, paste it and press Send. Your order is confirmed once we reply.", sending: "Sending…", editDetails: "Edit details",
+    doneTitle: "Order received", doneBody: "Your order has been received. We will contact you shortly to confirm it.", orderNo: "Order number", continueShop: "Continue shopping",
+    eSend: "We could not send your order. Please try again, or contact us on WhatsApp.", eUnavail: "One of the items is no longer available. Please review your cart and try again.",
+    eWait: "An order was just sent from this phone number. Please wait a moment and try again.", contactWa: "Contact us on WhatsApp",
+    fGov: "Governorate", selGov: "Select governorate", eGov: "Select your governorate.", shipPick: "Select governorate",
+    shipNote2: "Shipping is calculated at checkout by governorate.",
+    eShip: "Shipping for this governorate has changed. Please review your details and try again."
+  },
+  ar: {
+    winter: "مجموعة الشتاء متاحة الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
+    search: "بحث", searchPh: "ابحث عن عطر", wish: "المفضلة", cart: "السلة", menu: "القائمة", filterSort: "ترتيب", showResults: "عرض النتائج",
+    nowTitle: "Now's offers", nowSub: "عطور مختارة، عليها عرض الآن.",
+    heroTitle: "موجة ليست مجرد عطر… إنها أسلوب حياة.", heroLede: "تذكّر نفسك، بهدية من موجة.",
+    heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا",
+    catTitle: "تسوق حسب المجموعة", catMen: "عطور رجالي", catWomen: "عطور نسائي", catBest: "الأكثر مبيعًا",
+    bsTitle: "عطورنا", bsSub: "مجموعة مختارة لتبدأ بها.", viewAll: "عرض الكل",
+    reviewFull: "رأي عميل", reviewClose: "إغلاق الرأي", reviewOpen: "تكبير رأي العميل",
+    rvTitle: "آراء العملاء", rvSlot: "مكان رأي العميل. تُضاف الصورة أو الفيديو من لوحة التحكم.", prev: "السابق", next: "التالي", playVideo: "تشغيل الفيديو",
+    storyKicker: "قصتنا", storyTitle: "تذكّر نفسك.", storyBody: "«موجة» بالعربية. نصنع عطورًا راقية مستوحاة من روائح يحبها العالم، لمزاجك وذكرياتك اليومية أنت.", storyPull: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
+    exploreTitle: "اكتشف المزيد", exploreBundleTitle: "ثنائي الشتاء", exploreBundleBody: "عطران مميزان بسعر واحد لفترة محدودة.", exploreAllTitle: "تسوق كل العطور", exploreAllBody: "كل عطور موجة بحجم 10 مل و35 مل و55 مل.",
+    faqTitle: "الأسئلة الشائعة",
+    fq1: "إزاي أطلب؟", fa1: "أضف العطور للسلة وأتمّ طلبك. فريقنا هيتواصل معك لتأكيد الطلب والتوصيل.",
+    fq2: "إيه الأحجام المتاحة؟", fa2: "كل عطر متاح بحجم 10 مل و35 مل و55 مل.",
+    fq3: "هل الأسعار نهائية؟", fa3: "نعم. الأسعار المعروضة على الموقع نهائية.",
+    fq4: "العطور مستوحاة من إيه؟", fa4: "كل عطر من موجة مستوحى من رائحة يحبها العالم، ومكتوب اسمها تحت عنوان العطر.",
+    listCount: "{n} عطر", sortTitle: "ترتيب", sFeat: "المميزة", sName: "الاسم أ–ي",
+    noResults: "لا توجد عطور تطابق هذه الاختيارات.", emptyWish: "قائمة المفضلة فارغة. اضغط على القلب في أي عطر لحفظه.",
+    inspired: "مستوحى من {x}", viewProduct: "عرض المنتج", from: "ابتداءً من",
+    back: "رجوع للقائمة", size: "الحجم", qty: "الكمية", addCart: "أضف إلى السلة", added: "تمت الإضافة إلى السلة", wishAdded: "تم الحفظ في المفضلة", wishRemoved: "تمت الإزالة من المفضلة",
+    ordering: "الطلب والتوصيل", orderingBody: "أرسل طلبك من السلة. فريقنا هيتواصل معك لتأكيد الطلب والتوصيل. الأسعار المعروضة نهائية.",
+    notes: "نوتات العطر", notesBody: "ستظهر النوتات هنا بعد التحقق منها.",
+    related: "قد يعجبك أيضًا", bundleAdd: "أضف الثنائي للسلة",
+    cartTitle: "سلة التسوق", cartEmpty: "سلتك فارغة.", subtotal: "المجموع الفرعي", checkout: "إتمام الطلب", back2cart: "رجوع للسلة",
+    checkoutTitle: "أرسل طلبك", checkoutNote: "أدخل بيانات التوصيل. ستراجع الطلب كاملًا شاملًا الشحن قبل التأكيد. الدفع الإلكتروني غير مفعّل بعد.", sendWa: "أرسل الطلب عبر واتساب", remove: "إزالة",
+    fShop: "تسوق", fHelp: "مساعدة", fContact: "تواصل", footStatement: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
+    ship: "سياسة الشحن (قريبًا)", ret: "سياسة الاسترجاع (قريبًا)", priv: "سياسة الخصوصية (قريبًا)", terms: "الشروط والأحكام (قريبًا)",
+    copy: "© 2026 Mawjafragrances. جميع الحقوق محفوظة",
+    cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", stripMen: "رجالي", stripWomen: "نسائي", stripBest: "الأكثر مبيعاً", seeMore: "شوف المزيد",
+    nUnisex: "للجنسين", catUnisex: "عطور للجنسين", stripUnisex: "للجنسين", fCat: "الفئة", fAll: "الكل",
+    photos: "الصور", photoN: "الصورة {n}", photosNote: "لهذا العطر صورتان. اضغط على الصورة المصغّرة أو اسحب الصورة للتبديل.",
+    shipLabel: "الشحن", total: "الإجمالي", shipNote: "يُضاف الشحن ({fee}) عند إتمام الطلب.",
+    custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
+    phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
+    eName: "اكتب اسمك الكامل (الاسم الأول والأخير).", ePhone: "اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.", eAddress: "اكتب عنوانك كاملًا بالتفصيل.",
+    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", waOpen: "افتح واتساب برسالة الطلب", waCopy: "انسخ رسالة الطلب", waCopied: "تم نسخ رسالة الطلب", waNote: "مؤقتًا: للطلب يرجى الضغط على (فتح واتساب برسالة الطلب جاهزة) وبمجرد ردنا عليك يتم تأكيد الطلب. فتح واتساب وحده لا يرسل شيئًا. اضغط إرسال في واتساب.", waLong: "السلة كبيرة فلم نستطع تجهيز الرسالة تلقائيًا. انسخ الرسالة والصقها في واتساب واضغط إرسال. وبمجرد ردنا عليك يتم تأكيد الطلب.", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
+    doneTitle: "تم استلام طلبك", doneBody: "تم استلام طلبك، وسنتواصل معك قريبًا لتأكيده.", orderNo: "رقم الطلب", continueShop: "متابعة التسوق",
+    eSend: "تعذّر إرسال طلبك. حاول مرة أخرى، أو تواصل معنا على واتساب.", eUnavail: "أحد المنتجات لم يعد متاحًا. راجع السلة وحاول مرة أخرى.",
+    eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب",
+    fGov: "المحافظة", selGov: "اختر المحافظة", eGov: "اختر المحافظة.", shipPick: "اختر المحافظة",
+    shipNote2: "يُحسب الشحن عند إتمام الطلب حسب المحافظة.",
+    eShip: "تغيّرت تكلفة الشحن لهذه المحافظة. راجع بياناتك وحاول مرة أخرى."
+  }
+};
+
+/* ---------- State ---------- */
+let lang = load("mawja-lang", "en") === "ar" ? "ar" : "en";
+let view = { name: "home", arg: null };
+let filt = { sort: "feat", cat: "all" };
+let pick = { qty: 1, photo: 0 };
+let cart = [];
+let wish = [];
+let cartStep = "cart";   // cart -> checkout (details) -> review (summary) -> done
+let customer = { name: "", phone: "", gov: "", address: "", website: "" };   // "website" is a hidden honeypot field for bots
+let custErr = {};
+let orderRef = null;
+let submitting = false;
+let submitErr = "";
+let orderDone = null;
+let homeShown = HOME_PAGE_SIZE;
+let searchQ = "";
+let vIndex = 0;
+
+const $ = s => document.querySelector(s);
+const t = (k, vars) => { let s = (I18N[lang][k] ?? I18N.en[k] ?? k); if (vars) for (const v in vars) s = s.replace(`{${v}}`, vars[v]); return s; };
+const money = n => `${Number(n).toLocaleString("en-US")} ${t("cur")}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const isWish = s => wish.includes(s);
+const cartCount = () => cart.reduce((n, l) => n + l.qty, 0);
+const cartTotal = () => cart.reduce((n, l) => n + lineInfo(l).price * l.qty, 0);
+
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+function load(key, fb) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fb; } catch (e) { return fb; } }
+
+const ICON_HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`;
+const ICON_PLAY = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
+
+/* ---------- Cards ---------- */
+function swapHTML(p, alt, w, h) {
+  return `<span class="swap" data-swap>
+      <img class="a" src="${p.img}" alt="${esc(alt)}" loading="lazy" width="${w}" height="${h}" draggable="false">
+      <img class="b" src="${p.img2}" alt="" loading="lazy" width="${w}" height="${h}" draggable="false">
+    </span>`;
+}
+// Selected size per product. Shared by the homepage card and the product page, so both stay in sync.
+const sel = {};
+function selSize(p) {
+  const want = sel[p.slug];
+  if (want && p.available[want]) return want;
+  return [10, 35, 55].find(s => p.available[s]) ?? null;
+}
+function priceHTML(p, ml) {
+  const P = p.prices[ml];
+  return `<span class="now">${money(P.now)}</span>${P.before > P.now ? ` <s>${money(P.before)}</s>` : ""}`;
+}
+function sizeBtnsHTML(p) {
+  const cur = selSize(p);
+  return SIZES.map(s => {
+    const ok = p.available[s];
+    return `<button class="szc" role="radio" data-act="csize" data-slug="${p.slug}" data-ml="${s}" aria-checked="${s === cur}" ${ok ? "" : "disabled"}>${s} ml</button>`;
+  }).join("");
+}
+function card(p) {
+  const on = isWish(p.slug);
+  const cur = selSize(p);
+  return `<article class="pc" data-card="${p.slug}">
+    <a class="im" href="#product-${p.slug}" draggable="false" aria-label="${esc(p.name)}">
+      ${swapHTML(p, `${p.name} — ${t("inspired", { x: p.ref })}`, 600, 600)}
+    </a>
+    <button class="wish" data-act="wish" data-slug="${p.slug}" aria-pressed="${on}" aria-label="${on ? t("wishRemoved") : t("wishAdded")}">${ICON_HEART}</button>
+    <h3>${esc(p.name)}</h3>
+    <p class="ref">${esc(t("inspired", { x: p.ref }))}</p>
+    <div class="szr" role="radiogroup" aria-label="${t("size")}">${sizeBtnsHTML(p)}</div>
+    <p class="pr" data-price="${p.slug}">${cur ? priceHTML(p, cur) : `<span class="now">${t("unavail")}</span>`}</p>
+    <button class="qa" data-act="cadd" data-slug="${p.slug}" ${cur ? "" : "disabled"}>${t("addCart")}</button>
+  </article>`;
+}
+// Updates one card in place (no re-render), so the image swap state is kept.
+function updateCard(slug) {
+  const p = BY[slug];
+  const cur = selSize(p);
+  const card = document.querySelector(`[data-card="${slug}"]`);
+  if (!card) return;
+  card.querySelectorAll("[data-act='csize']").forEach(b => b.setAttribute("aria-checked", String(Number(b.dataset.ml) === cur)));
+  const pr = card.querySelector("[data-price]");
+  pr.innerHTML = cur ? priceHTML(p, cur) : `<span class="now">${t("unavail")}</span>`;
+  pr.classList.remove("fade"); void pr.offsetWidth; pr.classList.add("fade");
+  card.querySelector(".qa").disabled = !cur;
+}
+
+/* ---------- Review videos ---------- */
+function reviewsHTML() {
+  if (!REVIEW_VIDEOS.some(v => v && okSrc(v.src))) return "";
+  return `<section class="sec bg-ivory" id="reviews" aria-labelledby="rvTitle">
+    <div class="sec-in">
+      <div class="sec-head"><h2 id="rvTitle">${t("rvTitle")}</h2></div>
+      <div class="vc" id="vc">
+        <div class="vwin"><div class="vtrack" id="vtrack">
+          ${REVIEW_VIDEOS.map((v, i) => `<div class="vslide" data-i="${i}">
+            ${v.src && v.type === "image"
+              ? `<button class="review-open" type="button" data-act="reviewZoom" data-i="${i}" aria-label="${t("reviewOpen")}" tabindex="${i === vIndex ? "0" : "-1"}"><img class="rimg" src="${esc(v.src)}" alt="${esc(v.title)}" loading="lazy" draggable="false"></button>`
+              : v.src
+              ? `<video playsinline preload="metadata" ${v.poster ? `poster="${esc(v.poster)}"` : ""} src="${esc(v.src)}" aria-label="${esc(v.title)}"></video>
+                 <button class="vplay" data-act="vplay" aria-label="${t("playVideo")}"><span>${ICON_PLAY}</span></button>`
+              : `<div class="ph">${t("rvSlot")}</div>`}
+          </div>`).join("")}
+        </div></div>
+        <div class="vctl">
+          <button class="vbtn" data-act="vprev" aria-label="${t("prev")}">‹</button>
+          <div class="vdots" id="vdots">${REVIEW_VIDEOS.map((_, i) => `<button class="vdot" data-act="vgo" data-i="${i}" aria-label="${i + 1}" aria-current="${i === vIndex}"></button>`).join("")}</div>
+          <button class="vbtn" data-act="vnext" aria-label="${t("next")}">›</button>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* Moves the carousel to vIndex. Pauses every video; plays the active one when asked. */
+function setTrack(play) {
+  const n = REVIEW_VIDEOS.length;
+  if (!n || !$("#vtrack")) return;
+  vIndex = (vIndex + n) % n;
+  document.querySelectorAll("#vtrack video").forEach(v => v.pause());
+  document.querySelectorAll("#vtrack .vplay").forEach(b => { b.hidden = false; });
+  document.querySelectorAll("#vtrack .review-open").forEach((button, i) => { button.tabIndex = Number(button.dataset.i) === vIndex ? 0 : -1; });
+  const shift = lang === "ar" ? vIndex * 100 : -vIndex * 100;
+  $("#vtrack").style.transform = `translateX(${shift}%)`;
+  document.querySelectorAll("#vdots .vdot").forEach((d, k) => d.setAttribute("aria-current", String(k === vIndex)));
+  if (play) {
+    const slide = document.querySelector(`#vtrack .vslide[data-i="${vIndex}"]`);
+    const v = slide && slide.querySelector("video");
+    if (v) {
+      v.controls = true;
+      const btn = slide.querySelector(".vplay");
+      if (btn) btn.hidden = true;
+      v.play().catch(() => {});
+    }
+  }
+}
+function vGo(i, play) { vIndex = i; setTrack(play); }
+
+/* ---------- Views ---------- */
+function renderHome() {
+  const offers = NOW_OFFERS.map(s => BY[s]);
+  return `
+  <nav class="strip" aria-label="Sections">
+    <a href="#men" data-i18n="stripMen">Men's</a>
+    <a href="#women" data-i18n="stripWomen">Women's</a>
+    <a href="#unisex" data-i18n="stripUnisex">Unisex</a>
+    <a href="#best" data-i18n="stripBest">Best sellers</a>
+  </nav>
+  <section class="hero2" id="hero">
+    <a class="macro-link" href="${esc(BANNER.href)}"${/^https?:/.test(BANNER.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}><img class="macro" src="${esc(BANNER.image)}" alt="${esc(BANNER.alt)}" width="1000" height="1000" fetchpriority="high"></a>
+    <div class="slogan">
+      <p class="kicker">MAWJA · موجة</p>
+      <h1>${t("heroTitle")}</h1>
+      <p class="lede">${t("heroLede")}</p>
+      <div class="ctas">
+        <a class="offers-btn" href="#offers">${t("nowTitle")}</a>
+        <a class="btn btn-line hero-line" href="#shop">${t("heroCta")}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec bg-ivory" id="bestsellers" aria-labelledby="bsTitle" style="padding-top:24px">
+    <div class="sec-in">
+      <div class="sec-head">
+        <div><h2 id="bsTitle">${t("bsTitle")}</h2><p class="sub">${t("bsSub")}</p></div>
+      </div>
+      <div class="pgrid" id="homeGrid">${PRODUCTS.slice(0, homeShown).map(card).join("")}</div>
+      ${homeShown < PRODUCTS.length ? `<div class="more" id="homeMore"><button class="btn btn-ivory" type="button" data-act="seeMore">${t("seeMore")}</button></div>` : ""}
+    </div>
+  </section>
+
+  ${reviewsHTML()}
+
+  <section class="sec bg-ocean2" id="story" aria-labelledby="storyTitle">
+    <div class="sec-in story-text">
+      <div>
+        <p class="kicker" style="color:var(--sand)">${t("storyKicker")}</p>
+        <h2 id="storyTitle" style="margin-top:12px">${t("storyTitle")}</h2>
+        <p>${t("storyBody")}</p>
+        <p class="pull">${t("storyPull")}</p>
+      </div>
+    </div>
+  </section>
+
+`;
+}
+
+function listItems() {
+  let list = PRODUCTS.filter(p => {
+    if (view.name === "men" && p.cat !== "men") return false;
+    if (view.name === "women" && p.cat !== "women") return false;
+    if (view.name === "unisex" && p.cat !== "unisex") return false;
+    if (filt.cat && filt.cat !== "all" && p.cat !== filt.cat) return false;
+    if (view.name === "wishlist" && !isWish(p.slug)) return false;
+    if (view.name === "offers" && !NOW_OFFERS.includes(p.slug)) return false;
+    if (view.name === "best" && !p.featured) return false;
+    return true;
+  });
+  const q = searchQ.trim().toLowerCase();
+  if (q) list = list.filter(p => p.name.toLowerCase().includes(q) || p.ref.toLowerCase().includes(q));
+  if (filt.sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+  return list;
+}
+
+/* Only controls that change the result are shown. */
+function controlsHTML() {
+  const chip = (group, val, label) => `<button class="chip" data-act="filt" data-group="${group}" data-v="${val}" aria-pressed="${filt[group] === val}">${label}</button>`;
+  const catChips = ["shop", "offers", "best", "wishlist"].includes(view.name)
+    ? `<p class="ctrl-title">${t("fCat")}</p>
+    <div class="ctrl">${chip("cat", "all", t("fAll"))}${chip("cat", "men", t("nMen"))}${chip("cat", "women", t("nWomen"))}${PRODUCTS.some(p => p.cat === "unisex") ? chip("cat", "unisex", t("nUnisex")) : ""}</div>` : "";
+  return `
+    <p class="ctrl-title">${t("sortTitle")}</p>
+    <div class="ctrl">${chip("sort", "feat", t("sFeat"))}${chip("sort", "name", t("sName"))}</div>${catChips}`;
+}
+
+function renderList() {
+  const titles = { shop: t("nShop"), men: t("catMen"), women: t("catWomen"), unisex: t("catUnisex"), wishlist: t("wish"), offers: t("nowTitle"), best: t("bsTitle") };
+  const subs = { shop: t("bsSub"), offers: t("nowSub"), best: t("bsSub") };
+  const list = listItems();
+  const emptyMsg = view.name === "wishlist" && !wish.length ? t("emptyWish") : t("noResults");
+  return `
+    <section class="lhead">
+      <h1>${titles[view.name]}</h1>
+      <p>${subs[view.name] || ""}</p>
+    </section>
+    <div class="lbar">
+      <span class="lcount">${t(list.length === 1 && lang === "en" ? "listCountOne" : "listCount", { n: list.length })}</span>
+      <button class="fbtn" data-act="filterSheet">${t("filterSort")}</button>
+      <div class="inline-tools">${controlsHTML()}</div>
+    </div>
+    <section class="lgrid">
+      ${list.length ? `<div class="pgrid">${list.map(card).join("")}</div>` : `<p class="empty">${emptyMsg}</p>`}
+    </section>`;
+}
+
+function renderProduct(slug) {
+  const p = BY[slug];
+  if (!p) return `<p class="empty" style="padding:80px 20px">—</p>`;
+  const cur = selSize(p);
+  const P = cur ? p.prices[cur] : null;
+  const related = PRODUCTS.filter(x => x.cat === p.cat && x.slug !== p.slug).slice(0, 4);
+  const back = p.cat;
+  const catName = { men: t("nMen"), women: t("nWomen"), unisex: t("nUnisex") }[p.cat];
+  const two = !!p.img2 && p.img2 !== p.img;
+  const notesTxt = ((lang === "ar" ? p.notesAr || p.notes : p.notes || p.notesAr) || "").trim();
+  const altMain = `${p.name} — ${t("inspired", { x: p.ref })}`;
+  const galHTML = two
+    ? `<div class="galwrap">
+        <div class="gal"><span class="swap nohover${pick.photo ? " on" : ""}" data-swap data-gal>
+          <img class="a" src="${p.img}" alt="${esc(altMain)}" width="1000" height="1000" draggable="false">
+          <img class="b" src="${p.img2}" alt="${esc(`${p.name} — ${t("photoN", { n: 2 })}`)}" width="1000" height="1000" draggable="false">
+        </span></div>
+        <div class="thumbs" role="group" aria-label="${t("photos")}">${[p.img, p.img2].map((src, n) => `<button class="th" type="button" data-act="gphoto" data-n="${n}" aria-pressed="${(pick.photo || 0) === n}" aria-label="${t("photoN", { n: n + 1 })}"><img src="${src}" alt="" width="144" height="144" draggable="false"></button>`).join("")}</div>
+        <p class="gal-note">${t("photosNote")}</p>
+      </div>`
+    : `<div class="gal">${swapHTML(p, altMain, 1000, 1000)}</div>`;
+  const szHTML = SIZES.map(s => {
+    const ok = p.available[s];
+    return `<button class="szb" role="radio" data-act="psize" data-ml="${s}" aria-checked="${s === cur}" ${ok ? "" : "disabled"}>
+      <b>${s} ml</b><span>${ok ? priceHTML(p, s) : t("unavail")}</span>
+    </button>`;
+  }).join("");
+  return `
+  <section class="pp">
+    ${galHTML}
+    <div>
+      <p class="crumb"><a href="#${back}">${catName}</a> / ${esc(p.name)}</p>
+      <h1>${esc(p.name)}</h1>
+      <p class="ref">${esc(t("inspired", { x: p.ref }))}</p>
+      <p class="price">${P
+        ? `${P.before > P.now ? `<s>${money(P.before * pick.qty)}</s>` : ""}<b id="pPrice">${money(P.now * pick.qty)}</b>`
+        : `<b>${t("unavail")}</b>`}</p>
+      <div class="opt">
+        <p class="opt-label">${t("size")}</p>
+        <div class="szs" role="radiogroup" aria-label="${t("size")}">${szHTML}</div>
+      </div>
+      <div class="buyrow">
+        <div class="qty" role="group" aria-label="${t("qty")}">
+          <button data-act="pqty" data-d="-1" aria-label="−">−</button>
+          <span aria-live="polite">${pick.qty}</span>
+          <button data-act="pqty" data-d="1" aria-label="+">+</button>
+        </div>
+        <button class="btn btn-teal" data-act="padd" data-slug="${p.slug}" ${cur ? "" : "disabled"}>${t("addCart")}</button>
+      </div>
+      <div class="acc">
+        ${notesTxt ? `<details><summary>${t("notes")}</summary><p style="white-space:pre-line">${esc(notesTxt)}</p></details>` : ""}
+        <details><summary>${t("ordering")}</summary><p>${t("orderingBody")}</p></details>
+      </div>
+      <p style="margin-top:22px"><a class="link-u" href="#${back}">${t("back")}</a></p>
+    </div>
+  </section>
+  ${related.length ? `<section class="related"><div class="sec-in" style="max-width:1280px;margin:0 auto"><div class="sec-head"><h2>${t("related")}</h2></div><div class="pgrid">${related.map(card).join("")}</div></div></section>` : ""}`;
+}
+
+function render() {
+  const el = $("#view");
+  if (view.name === "home") el.innerHTML = renderHome();
+  else if (view.name === "product") el.innerHTML = renderProduct(view.arg);
+  else el.innerHTML = renderList();
+  setTrack(false);
+  renderCounts();
+  renderFilterSheet();
+  applyStatic();
+}
+
+function renderFilterSheet() { $("#filterBody").innerHTML = controlsHTML(); }
+
+function applyStatic() {
+  const hasUnisex = PRODUCTS.some(p => p.cat === "unisex");
+  document.querySelectorAll('a[href="#unisex"]').forEach(el => {
+    (el.parentElement.tagName === "LI" ? el.parentElement : el).hidden = !hasUnisex;
+  });
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const k = el.getAttribute("data-i18n");
+    if (I18N[lang][k] !== undefined) el.textContent = I18N[lang][k];
+  });
+  document.querySelectorAll("[data-i18n-attr]").forEach(el => {
+    el.getAttribute("data-i18n-attr").split(";").forEach(pair => {
+      const [attr, key] = pair.split(":");
+      if (attr && key && I18N[lang][key] !== undefined) el.setAttribute(attr, I18N[lang][key]);
+    });
+  });
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  $("#langBtn").textContent = lang === "ar" ? "EN" : "AR";
+  $("#sq").placeholder = t("searchPh");
+  document.title = lang === "ar" ? "موجة للعطور" : "MAWJA Fragrances";
+}
+
+function renderCounts() {
+  const c = cartCount(), w = wish.length;
+  const cb = $("#cartCount"), wb = $("#wishCount");
+  cb.textContent = c; cb.hidden = !c;
+  wb.textContent = w; wb.hidden = !w;
+}
+
+/* ---------- Routing (plain #names only) ---------- */
+function route() {
+  const h = decodeURIComponent(location.hash.replace(/^#/, ""));
+  if (h === "shop" || h === "men" || h === "women" || h === "unisex" || h === "wishlist" || h === "offers" || h === "best") {
+    view = { name: h, arg: null };
+    filt = { sort: filt.sort, cat: "all" };
+    render();
+    window.scrollTo({ top: 0, behavior: "auto" });
+    return;
+  }
+  if (h.startsWith("product-")) {
+    view = { name: "product", arg: h.slice(8) };
+    pick = { qty: 1, photo: 0 };
+    render();
+    window.scrollTo({ top: 0, behavior: "auto" });
+    return;
+  }
+  if (view.name !== "home") { view = { name: "home", arg: null }; render(); }
+  if (h) {
+    const el = document.getElementById(h);
+    if (el) el.scrollIntoView({ behavior: "auto", block: "start" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+}
+
+/* ---------- Cart ---------- */
+function addToCart(slug, ml, qty) {
+  const p = BY[slug];
+  if (!ml || !p.available[ml]) { toast(t("unavail")); return; }
+  const key = `${slug}-${ml}`;
+  const line = cart.find(l => l.key === key);
+  if (line) line.qty = Math.min(20, line.qty + qty);
+  else cart.push({ key, slug, ml, qty });
+  save("mawja-cart", cart);
+  orderDone = null;
+  renderCounts();
+  toast(t("added"));
+}
+function addBundle() {
+  const line = cart.find(l => l.key === BUNDLE.key);
+  if (line) line.qty = Math.min(20, line.qty + 1);
+  else cart.push({ key: BUNDLE.key, bundle: true, qty: 1 });
+  save("mawja-cart", cart);
+  renderCounts();
+  toast(t("added"));
+}
+// The price is read from product data when shown, so a price change applies in the cart too.
+function lineInfo(l) {
+  if (l.bundle) return { name: BUNDLE.name, label: "Bestie · Honey 55 ml", price: BUNDLE.price, img: BUNDLE.img };
+  const p = BY[l.slug];
+  return { name: p.name, label: `${l.ml} ml`, price: p.prices[l.ml].now, img: p.img };
+}
+function openCart() {
+  cartStep = "cart";
+  submitErr = "";
+  $("#cartOv").hidden = false;
+  renderCart();
+  sync();
+}
+function sync() {
+  const open = $("#reviewDialog").open || ["#menuOv", "#searchOv", "#filterOv", "#cartOv"].some(id => !$(id).hidden);
+  document.body.style.overflow = open ? "hidden" : "";
+}
+const normDigits = v => String(v || "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+function customerClean() {
+  return {
+    name: customer.name.trim().replace(/\s+/g, " "),
+    phone: normDigits(customer.phone).replace(/[\s\-().]/g, ""),
+    gov: customer.gov,
+    address: customer.address.trim(),
+  };
+}
+function validateCustomer() {
+  const c = customerClean(), e = {};
+  if (c.name.length < 5 || c.name.split(" ").filter(Boolean).length < 2) e.name = true;
+  if (!/^01\d{9}$/.test(c.phone)) e.phone = true;
+  if (SHIP_ZONES.length && !SHIP_ZONES.some(z => z.name === c.gov)) e.gov = true;
+  if (c.address.length < 10) e.address = true;
+  return e;
+}
+const linesHTML = () => `<ul style="list-style:none;margin-top:20px;display:grid;gap:8px">${cart.map(l => { const i = lineInfo(l); return `<li style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span>${esc(i.name)} · ${i.label} × ${l.qty}</span><span>${money(i.price * l.qty)}</span></li>`; }).join("")}</ul>`;
+// Shipping: the fee of the governorate picked at checkout. With no governorates set in the dashboard, the flat fallback fee applies.
+const shipFee = () => {
+  if (!SHIP_ZONES.length) return SHIPPING_FEE;
+  const z = SHIP_ZONES.find(x => x.name === customer.gov);
+  return z ? z.fee : null;
+};
+const totalsHTML = () => {
+  const f = shipFee();
+  return `<div class="srow"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
+  <div class="srow"><span>${t("shipLabel")}</span><span>${f == null ? t("shipPick") : money(f)}</span></div>
+  <div class="srow tot"><span>${t("total")}</span><span>${f == null ? "—" : money(cartTotal() + f)}</span></div>`;
+};
+
+
+/* Temporary WhatsApp order mode: builds the order message and a wa.me click-to-chat link. Nothing is sent or saved by the site. */
+function waOrderText() {
+  const c = customerClean(), f = shipFee(), ar = lang === "ar";
+  const L = ar
+    ? { hi: "طلب جديد من موقع Mawja", items: "المنتجات", addr: "العنوان", name: "الاسم", ph: "الهاتف", gov: "المحافظة", ship: "الشحن", tot: "الحساب (الإجمالي)", sub: "المجموع الفرعي" }
+    : { hi: "New order from Mawja website", items: "Items", addr: "Address", name: "Name", ph: "Phone", gov: "Governorate", ship: "Shipping", tot: "Total", sub: "Subtotal" };
+  const lines = cart.map(l => { const i = lineInfo(l); return l.bundle ? `${l.qty} × ${i.name} (${i.label}) = ${money(i.price * l.qty)}` : `${l.qty} × ${l.ml}${ar ? " مل" : "ml"} ${i.name} = ${money(i.price * l.qty)}`; });
+  return [L.hi, "", L.items + ":", ...lines, "", `${L.sub}: ${money(cartTotal())}`, `${L.ship}: ${f == null ? "-" : money(f)}`, `${L.tot}: ${f == null ? "-" : money(cartTotal() + f)}`, "",
+    `${L.name}: ${c.name}`, `${L.ph}: ${c.phone}`, ...(SHIP_ZONES.length ? [`${L.gov}: ${c.gov}`] : []), `${L.addr}: ${c.address}`].join("\n");
+}
+function waOrderLink() {
+  const url = `${WA}?text=${encodeURIComponent(waOrderText())}`;
+  return url.length <= WA_MAX_URL ? url : null;   // too long for a safe link: caller falls back to copy
+}
+function waCopy() {
+  const txt = waOrderText();
+  const done = () => toast(t("waCopied"));
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, () => waCopyFallback(txt, done));
+  else waCopyFallback(txt, done);
+}
+function waCopyFallback(txt, done) {
+  const ta = document.createElement("textarea"); ta.value = txt; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
+}
+
+function renderCart() {
+  const body = $("#cartBody"), foot = $("#cartFoot");
+  if (cartStep === "done" && orderDone) {
+    body.innerHTML = `<div style="padding:56px 0;text-align:center">
+      <h3 class="serif" style="font-size:36px;line-height:1.1">${t("doneTitle")}</h3>
+      <p style="margin-top:16px">${t("doneBody")}</p>
+      ${orderDone.no ? `<p class="fine-txt" style="margin-top:16px">${t("orderNo")}: #${esc(orderDone.no)}</p>` : ""}
+    </div>`;
+    foot.innerHTML = `<button class="btn btn-teal btn-block" data-close>${t("continueShop")}</button>`;
+    return;
+  }
+  if (!cart.length) {
+    body.innerHTML = `<p class="empty" style="padding:56px 0">${t("cartEmpty")}</p>`;
+    foot.innerHTML = `<button class="btn btn-teal btn-block" data-close>${t("nShop")}</button>`;
+    return;
+  }
+  if (cartStep === "checkout") {
+    const bad = k => (custErr[k] ? ' bad" aria-invalid="true' : "");
+    const err = (k, key) => (custErr[k] ? `<p class="ferr" role="alert">${t(key)}</p>` : "");
+    body.innerHTML = `<div style="padding:24px 0">
+      <h3 class="serif" style="font-size:32px;line-height:1.1">${t("checkoutTitle")}</h3>
+      <p class="fine-txt" style="margin-top:12px">${t("checkoutNote")}</p>
+      <form id="custForm" novalidate autocomplete="on">
+        <label class="flab" for="cName">${t("fName")}</label>
+        <input class="field${bad("name")}" id="cName" data-f="name" name="name" type="text" autocomplete="name" dir="auto" maxlength="100" placeholder="${esc(t("phName"))}" value="${esc(customer.name)}">
+        ${err("name", "eName")}
+        <label class="flab" for="cPhone">${t("fPhone")}</label>
+        <input class="field${bad("phone")}" id="cPhone" data-f="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="20" placeholder="01XXXXXXXXX" value="${esc(customer.phone)}">
+        ${err("phone", "ePhone")}
+        ${SHIP_ZONES.length ? `<label class="flab" for="cGov">${t("fGov")}</label>
+        <select class="field${bad("gov")}" id="cGov" data-f="gov" name="state" autocomplete="address-level1">
+          <option value="">${t("selGov")}</option>${SHIP_ZONES.map(z => `<option value="${esc(z.name)}" ${customer.gov === z.name ? "selected" : ""}>${esc(z.name)}</option>`).join("")}
+        </select>
+        ${err("gov", "eGov")}` : ""}
+        <label class="flab" for="cAddress">${t("fAddress")}</label>
+        <textarea class="field${bad("address")}" id="cAddress" data-f="address" name="address" autocomplete="street-address" dir="auto" maxlength="500" placeholder="${esc(t("phAddress"))}">${esc(customer.address)}</textarea>
+        ${err("address", "eAddress")}
+        <div class="hp" aria-hidden="true"><label>Website<input type="text" data-f="website" name="website" tabindex="-1" autocomplete="off" value="${esc(customer.website)}"></label></div>
+      </form>
+      ${linesHTML()}
+    </div>`;
+    foot.innerHTML = `<div id="totalsBox">${totalsHTML()}</div>
+      <button class="btn btn-teal btn-block" data-act="toReview">${t("reviewOrder")}</button>
+      <button class="btn btn-line btn-block" data-act="cartStep" data-v="cart" style="margin-top:10px">${t("back2cart")}</button>`;
+    return;
+  }
+  if (cartStep === "review") {
+    const c = customerClean();
+    body.innerHTML = `<div style="padding:24px 0">
+      <h3 class="serif" style="font-size:32px;line-height:1.1">${t("reviewTitle")}</h3>
+      ${linesHTML()}
+      <div class="cust">
+        <b>${t("custTitle")}</b>
+        <p>${esc(c.name)}</p>
+        <p dir="ltr" style="text-align:start">${esc(c.phone)}</p>
+        ${SHIP_ZONES.length ? `<p>${esc(c.gov)}</p>` : ""}
+        <p>${esc(c.address)}</p>
+      </div>
+      ${submitErr ? `<div class="cerr" role="alert">${t(submitErr)}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${t("contactWa")}</a></div>` : ""}
+    </div>`;
+    if (WA_ORDER_MODE) {
+      const link = waOrderLink();
+      foot.innerHTML = `${totalsHTML()}
+      <p class="fine-txt" style="margin:10px 0">${t("waNote")}${link ? "" : " " + t("waLong")}</p>
+      ${link ? `<a class="btn btn-teal btn-block" href="${link}" target="_blank" rel="noopener noreferrer">${t("waOpen")}</a>` : ""}
+      <button class="btn ${link ? "btn-line" : "btn-teal"} btn-block" data-act="waCopy" style="margin-top:10px">${t("waCopy")}</button>
+      ${link ? "" : `<a class="btn btn-line btn-block" href="${WA}" target="_blank" rel="noopener noreferrer" style="margin-top:10px">${t("contactWa")}</a>`}
+      <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px">${t("editDetails")}</button>`;
+      return;
+    }
+    foot.innerHTML = `${totalsHTML()}
+      <button class="btn btn-teal btn-block" data-act="confirmOrder" ${submitting ? "disabled" : ""}>${submitting ? t("sending") : t("confirmOrder")}</button>
+      <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px" ${submitting ? "disabled" : ""}>${t("editDetails")}</button>`;
+    return;
+  }
+  body.innerHTML = cart.map(l => { const i = lineInfo(l); return `<div class="cl">
+      <img src="${i.img}" alt="">
+      <div>
+        <p class="nm">${esc(i.name)}</p>
+        <p class="meta">${i.label} · ${money(i.price)}</p>
+        <div class="row">
+          <div class="qty"><button data-act="cqty" data-key="${l.key}" data-d="-1" aria-label="−">−</button><span>${l.qty}</span><button data-act="cqty" data-key="${l.key}" data-d="1" aria-label="+">+</button></div>
+          <button class="rm" data-act="crm" data-key="${l.key}">${t("remove")}</button>
+        </div>
+      </div>
+      <p class="lp">${money(i.price * l.qty)}</p>
+    </div>`; }).join("");
+  foot.innerHTML = `<div class="sum"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
+    <p class="fine-txt" style="margin-bottom:12px">${SHIP_ZONES.length ? t("shipNote2") : t("shipNote", { fee: money(SHIPPING_FEE) })} ${t("ordering")} · ${t("orderingBody")}</p>
+    <button class="btn btn-teal btn-block" data-act="cartStep" data-v="checkout">${t("checkout")}</button>`;
+}
+
+/* Sends the order to the server (api/order.js). The cart is cleared only after the server confirms it saved the order. */
+async function submitOrder() {
+  if (submitting) return;
+  const c = customerClean();
+  custErr = validateCustomer();
+  if (Object.keys(custErr).length) { cartStep = "checkout"; renderCart(); return; }
+  submitting = true; submitErr = ""; renderCart();
+  orderRef = orderRef || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
+  const payload = {
+    clientRef: orderRef, lang,
+    customer: { name: c.name, phone: c.phone, address: c.address },
+    governorate: SHIP_ZONES.length ? c.gov : "",
+    shippingFee: shipFee(),   // used by the server only if it cannot read the dashboard data; otherwise the server uses its own fee
+    website: customer.website,
+    items: cart.map(l => l.bundle
+      ? { bundle: true, qty: l.qty }
+      : { slug: l.slug, ml: l.ml, qty: l.qty, name: BY[l.slug].name, price: BY[l.slug].prices[l.ml].now }),
+  };
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = ctl && setTimeout(() => ctl.abort(), 25000);
+  try {
+    const r = await fetch(ORDER_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: ctl ? ctl.signal : undefined });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (!r.ok || !j || !j.ok) {
+      const code = j && j.error;
+      submitErr = code === "unavailable" ? "eUnavail" : code === "too_many" ? "eWait" : code === "shipping" ? "eShip" : "eSend";
+    } else {
+      orderDone = { no: j.orderNo };
+      cart = []; save("mawja-cart", cart); renderCounts();
+      orderRef = null; cartStep = "done";
+      if ($("#cartOv").hidden) { $("#cartOv").hidden = false; sync(); }
+    }
+  } catch (e) {
+    submitErr = "eSend";
+  } finally {
+    if (timer) clearTimeout(timer);
+    submitting = false;
+    renderCart();
+  }
+}
+
+/* ---------- Search ---------- */
+function renderSearch() {
+  const q = searchQ.trim().toLowerCase();
+  const list = q ? PRODUCTS.filter(p => p.name.toLowerCase().includes(q) || p.ref.toLowerCase().includes(q)) : [];
+  $("#sres").innerHTML = q
+    ? (list.length ? list.map(p => `<a href="#product-${p.slug}" data-close><img src="${p.img}" alt=""><div><b>${esc(p.name)}</b><br><span>${esc(t("inspired", { x: p.ref }))}</span></div></a>`).join("") : `<p class="empty">${t("noResults")}</p>`)
+    : "";
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+/* ---------- Two-photo swipe ---------- */
+let sw = null;
+let swipedAt = 0;
+function syncThumbs() { document.querySelectorAll(".th").forEach(b => b.setAttribute("aria-pressed", String(Number(b.dataset.n) === pick.photo))); }
+// Stop the browser's native image/link drag, which would otherwise cancel the swipe.
+document.addEventListener("dragstart", e => { if (e.target.closest && e.target.closest(".im, .gal, [data-swap]")) e.preventDefault(); });
+document.addEventListener("pointerdown", e => {
+  const s = e.target.closest && e.target.closest("[data-swap]");
+  if (s) sw = { el: s, x: e.clientX };
+});
+document.addEventListener("pointerup", e => {
+  if (!sw) return;
+  const dx = e.clientX - sw.x;
+  if (Math.abs(dx) > 30) {
+    sw.el.classList.toggle("on");
+    if (sw.el.hasAttribute("data-gal")) { pick.photo = sw.el.classList.contains("on") ? 1 : 0; syncThumbs(); }
+  }
+  if (Math.abs(dx) > 12) swipedAt = Date.now();
+  sw = null;
+});
+document.addEventListener("pointercancel", () => { sw = null; vsw = null; });
+// After a real swipe on a photo, ignore the click that follows so the product link does not open.
+document.addEventListener("click", e => {
+  if (Date.now() - swipedAt < 400 && e.target.closest && e.target.closest("[data-swap]")) { e.preventDefault(); e.stopPropagation(); }
+}, true);
+
+/* ---------- Review carousel swipe: next video plays on swipe ---------- */
+let vsw = null, reviewSwipedAt = 0;
+const reviewDialog = $("#reviewDialog");
+let reviewOpener = null;
+$("#reviewDialogClose").addEventListener("click", () => reviewDialog.close());
+reviewDialog.addEventListener("keydown", e => { if (e.key === "Tab") { e.preventDefault(); $("#reviewDialogClose").focus(); } });
+reviewDialog.addEventListener("close", () => { $("#reviewDialogImage").removeAttribute("src"); sync(); if (reviewOpener && reviewOpener.isConnected) reviewOpener.focus({ preventScroll: true }); });
+
+document.addEventListener("pointerdown", e => {
+  if (e.target.closest && e.target.closest("#vc")) vsw = { x: e.clientX };
+});
+document.addEventListener("pointerup", e => {
+  if (!vsw) return;
+  const dx = e.clientX - vsw.x;
+  vsw = null;
+  if (Math.abs(dx) < 40) return;
+  reviewSwipedAt = Date.now();
+  vGo(dx < 0 ? vIndex + 1 : vIndex - 1, true);
+});
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e => {
+  const t0 = e.target;
+
+  const close = t0.closest("[data-close]");
+  if (close) {
+    const ov = close.closest(".ov");
+    if (ov) { ov.hidden = true; sync(); }
+    if (close.closest("#cartOv")) { cartStep = "cart"; orderDone = null; }
+    return;
+  }
+
+  const act = t0.closest("[data-act]");
+  if (!act) return;
+  e.preventDefault();
+  const a = act.dataset.act;
+
+  if (a === "reviewZoom") {
+    if (Date.now() - reviewSwipedAt < 400) return;
+    const review = REVIEW_VIDEOS[Number(act.dataset.i)];
+    if (!review || review.type !== "image" || !okSrc(review.src)) return;
+    reviewOpener = act;
+    $("#reviewDialogImage").src = review.src;
+    $("#reviewDialogImage").alt = review.title || t("reviewFull");
+    reviewDialog.showModal(); reviewDialog.scrollTop = 0; sync();
+    $("#reviewDialogClose").focus(); return;
+  }
+  if (a === "menu") { $("#menuOv").hidden = false; sync(); return; }
+  if (a === "search") { $("#searchOv").hidden = false; sync(); $("#sq").focus(); renderSearch(); return; }
+  if (a === "cart") return openCart();
+  if (a === "lang") { lang = lang === "en" ? "ar" : "en"; save("mawja-lang", lang); render(); if (!$("#cartOv").hidden) renderCart(); renderSearch(); return; }
+  if (a === "filterSheet") { renderFilterSheet(); $("#filterOv").hidden = false; sync(); return; }
+  if (a === "filt") { filt[act.dataset.group || "sort"] = act.dataset.v; render(); return; }
+  if (a === "seeMore") {
+    // Reveal more products in place: no navigation, no re-render, so the page keeps its scroll position.
+    const grid = $("#homeGrid"); if (!grid) return;
+    const from = homeShown;
+    homeShown = Math.min(PRODUCTS.length, homeShown + HOME_PAGE_SIZE);
+    grid.insertAdjacentHTML("beforeend", PRODUCTS.slice(from, homeShown).map(card).join(""));
+    if (homeShown >= PRODUCTS.length) { const m = $("#homeMore"); if (m) m.remove(); }
+    const first = grid.children[from], link = first && first.querySelector(".im");
+    if (link) link.focus({ preventScroll: true });
+    return;
+  }
+  if (a === "gphoto") {
+    pick.photo = Number(act.dataset.n) === 1 ? 1 : 0;
+    const g = document.querySelector("[data-gal]"); if (g) g.classList.toggle("on", pick.photo === 1);
+    syncThumbs(); return;
+  }
+  if (a === "toReview") {
+    custErr = validateCustomer();
+    if (Object.keys(custErr).length) {
+      renderCart();
+      const f = document.querySelector(`[data-f="${Object.keys(custErr)[0]}"]`); if (f) f.focus();
+      return;
+    }
+    cartStep = "review"; submitErr = ""; renderCart(); return;
+  }
+  if (a === "waCopy") { waCopy(); return; }
+  if (a === "confirmOrder") { if (WA_ORDER_MODE) return; submitOrder(); return; }
+  if (a === "wish") {
+    const s = act.dataset.slug;
+    if (isWish(s)) { wish = wish.filter(x => x !== s); toast(t("wishRemoved")); }
+    else { wish.push(s); toast(t("wishAdded")); }
+    save("mawja-wish", wish);
+    render();
+    return;
+  }
+  if (a === "psize") { const p = BY[view.arg]; const ml = Number(act.dataset.ml); if (p && p.available[ml]) { sel[p.slug] = ml; render(); } return; }
+  if (a === "csize") { const slug = act.dataset.slug; const ml = Number(act.dataset.ml); if (BY[slug].available[ml]) { sel[slug] = ml; updateCard(slug); } return; }
+  if (a === "cadd") { const slug = act.dataset.slug; addToCart(slug, selSize(BY[slug]), 1); return; }
+  if (a === "pqty") { pick.qty = Math.min(20, Math.max(1, pick.qty + Number(act.dataset.d))); render(); return; }
+  if (a === "padd") { const slug = act.dataset.slug; addToCart(slug, selSize(BY[slug]), pick.qty); return; }
+  if (a === "cqty") {
+    const line = cart.find(l => l.key === act.dataset.key);
+    if (line) line.qty = Math.min(20, line.qty + Number(act.dataset.d));
+    cart = cart.filter(l => l.qty >= 1);
+    save("mawja-cart", cart); renderCounts(); renderCart(); return;
+  }
+  if (a === "crm") { cart = cart.filter(l => l.key !== act.dataset.key); save("mawja-cart", cart); renderCounts(); renderCart(); return; }
+  if (a === "cartStep") { cartStep = act.dataset.v; submitErr = ""; if (cartStep !== "review") orderRef = null; renderCart(); return; }
+  if (a === "bundle") { addBundle(); return; }
+  if (a === "vprev") { vGo(vIndex - 1, false); return; }
+  if (a === "vnext") { vGo(vIndex + 1, false); return; }
+  if (a === "vgo") { vGo(Number(act.dataset.i), false); return; }
+  if (a === "vplay") {
+    const v = document.querySelector(`#vtrack .vslide[data-i="${vIndex}"] video`);
+    if (v) { v.controls = true; act.hidden = true; v.play().catch(() => {}); }
+    return;
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-act='bundle']")) {
+    e.preventDefault();
+    addBundle();
+  }
+});
+
+document.addEventListener("submit", e => {
+  e.preventDefault();
+  if (e.target && e.target.id === "custForm") { const b = document.querySelector('[data-act="toReview"]'); if (b) b.click(); }
+});
+document.addEventListener("input", e => {
+  const el = e.target, f = el && el.dataset && el.dataset.f;
+  if (!f) return;
+  customer[f] = el.value;
+  if (f === "gov") { const b = $("#totalsBox"); if (b) b.innerHTML = totalsHTML(); }
+  if (custErr[f]) {
+    delete custErr[f]; el.classList.remove("bad"); el.removeAttribute("aria-invalid");
+    const er = el.nextElementSibling; if (er && er.classList.contains("ferr")) er.remove();
+  }
+});
+
+$("#sq").addEventListener("input", e => { searchQ = e.target.value; renderSearch(); });
+
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (!$("#cartOv").hidden) { cartStep = "cart"; orderDone = null; }
+  ["#menuOv", "#searchOv", "#filterOv", "#cartOv"].forEach(id => { if (!$(id).hidden) $(id).hidden = true; });
+  sync();
+});
+
+window.addEventListener("hashchange", route);
+window.addEventListener("scroll", () => { $(".hdr").classList.toggle("sc", window.scrollY > 160); }, { passive: true });
+
+/* Restore saved state. Cart lines for a product or size that no longer exists, or is unavailable, are dropped. */
+function restoreState() {
+  const c = load("mawja-cart", []), w = load("mawja-wish", []);
+  cart = (Array.isArray(c) ? c : []).filter(l => l && (l.bundle || (BY[l.slug] && BY[l.slug].prices[l.ml] && BY[l.slug].available[l.ml])));
+  wish = (Array.isArray(w) ? w : []).filter(s => BY[s]);
+}
+
+const STATIC_STORE = {"version": 1, "banner": {"image": "demo/fluffy.jpg", "alt": "MAWJA Fluffy", "href": "#shop"}, "products": [{"slug": "gentle-knight", "name": "Gentle Knight", "ref": "Layton", "cat": "men", "img": "media/0270e851a34a6d0134d493aa.webp", "img2": "media/e0b329663a037810dc95223c.webp", "prices": {"10": {"before": 170, "now": 130}, "35": {"before": 420, "now": 340}, "55": {"before": 600, "now": 450}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "ريحة الراجل الشيك اللي حضوره بيتلاحظ من غير ما يرفع صوته. بداية التفاح واللافندر بتدي إحساس مرتب ومنعش، وبعدها الفانيليا والأخشاب يضيفوا دفء ناعم. مناسب لخروجة مسائية أو ديت تحب تكون فيه واثق وعلى طبيعتك، خصوصًا لو بتحب العطر اللي يوازن بين الانتعاش والحلاوة من غير ما يبقى سكري.", "priority": 1}, {"slug": "hunter", "name": "Hunter", "ref": "Al Thair", "cat": "men", "img": "media/c419cb580e4e9b389781a49d.webp", "img2": "media/96af8c223b4f290d38196f45.webp", "prices": {"10": {"before": 170, "now": 130}, "35": {"before": 420, "now": 340}, "55": {"before": 600, "now": 450}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "لو بتحب ريحتك تبقى دافية وقريبة، دي شخصيتك. فانيليا ناعمة وحلاوة برالين، معاهم بهارات خفيفة تكسر السكر وتدي الريحة طابع رجولي مريح. اختيار حلو لديت في الجو البارد أو قعدة قريبة، خصوصًا لو بتحب الحلاوة اللي البنات ممكن تستلطفها على الراجل، من غير وعود إن ذوق كل الناس واحد.", "priority": 1}, {"slug": "cigaro", "name": "Cigaro", "ref": "TF Tobacco vanilla  ", "cat": "men", "img": "media/731e66a0ce73ffe5a61e8e17.webp", "img2": "media/dfbf65adc0cc5cc83fd77ee1.webp", "featured": true, "prices": {"10": {"before": 180, "now": 120}, "35": {"before": 450, "now": 350}, "55": {"before": 680, "now": 480}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "دي مش ريحة مستعجلة، دي موود سهرة هادية ولبس متظبط وحضور له شخصية. طابع التبغ مع الفانيليا والكاكاو بيدي دفء حلو وغامق، ولمسة الفواكه المجففة تزود الإحساس الغني. مناسب للي بيحب العطور المختلفة عن الفريش اليومي، ولخروجات الليل والجو البارد لما تكون عايز ريحة أعمق وأهدى في مزاجها.", "priority": 3}, {"slug": "italian-prince", "name": "Italian prince", "ref": "Valantino Born In Roma intense", "cat": "men", "img": "media/11f79abb3cc87ebab8739719.webp", "img2": "media/71bae21d4a5228a711a33e6b.webp", "prices": {"10": {"before": 180, "now": 150}, "35": {"before": 430, "now": 340}, "55": {"before": 650, "now": 450}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "ريحة شاب واثق ولبسه بسيط بس محسوب، جاهز لخروجة ليل من غير تكلف. الفانيليا الدافية بتقابل اللافاندين ولمسة الفيتيفر، فالحلاوة يبقى معاها طابع عطري وخشبي مش سكر وخلاص. مناسب لديت أو سهرة، وللي يحب ريحته تجمع بين الشباب والأناقة وتكمل اللوك من غير ما تحاول تشرح نفسها كتير.", "priority": 3}, {"slug": "master", "name": "Master", "ref": "Black Afgano", "cat": "men", "img": "media/60d70a9c38a575709358dc37.webp", "img2": "media/28d43d318d8c99de019aa725.webp", "featured": true, "prices": {"10": {"before": 190, "now": 150}, "35": {"before": 480, "now": 390}, "55": {"before": 690, "now": 480}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "لو ذوقك بيميل للغامق والمختلف، دي ريحة ليها شخصية مش بتحاول ترضي كل الناس. طابع خشبي دخاني وراتنجي يخلي المود عميق وغامض، بعيد عن الروائح السكرية والخفيفة. مناسب لخروجة ليل أو جو بارد، وللي يحب يختار عطره على مزاجه هو، ويفضل الريحة الجريئة على الاختيارات المألوفة والسهلة في كل مرة.", "priority": 4}, {"slug": "honey", "name": "Honey", "ref": "Bianco Latte", "cat": "men", "img": "media/eec0e63c5fd51428c4e6bc64.webp", "img2": "media/51feddb345f3c2bb6798cbf7.webp", "featured": true, "prices": {"10": {"before": 170, "now": 130}, "35": {"before": 450, "now": 340}, "55": {"before": 650, "now": 450}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "دي ريحة القعدة القريبة والدفا، حلوة وكريمية كأنها حلوى بتحبها من زمان. الكراميل والعسل مع الفانيليا والمسك الأبيض بيدوا إحساس ناعم ومريح. اختيار لطيف للديت وللي يحب العطور الحلوة على الرجالة، وممكن البنات تستلطفه، لكن جاذبية الريحة ذوق شخصي. البسه لما تكون عايز موود حميمي وهادي، مش رسمي وجاد.", "priority": 4}, {"slug": "flirty", "name": "Flirty", "ref": "Stronger with you intensely", "cat": "men", "img": "media/607abac1038291bb5ad2d009.webp", "img2": "media/80d47873c30432faefbf6a72.webp", "featured": true, "prices": {"10": {"before": 150, "now": 120}, "35": {"before": 420, "now": 340}, "55": {"before": 620, "now": 450}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "فيه ثقة خفيفة ومرح من غير استعراض، كأنك داخل الخروجة مرتاح ومش محتاج تثبت حاجة. حلاوة الفانيليا ودفء الأخشاب العنبرية بيتوازنوا مع اللافندر ولمسة الفلفل الوردي. مناسب لمساء بارد وديت لطيف، وللي يحب العطر الدافي اللي فيه طاقة شبابية، بدل الرسمية الزيادة أو الانتعاش الحاد اللي ممكن تختاره للنهار.", "priority": 5}, {"slug": "barbie", "name": "Barbie", "ref": "Burberry her", "cat": "women", "img": "media/864b8aeed77207b39127d609.webp", "img2": "media/38f7eac2661220ec233515dd.webp", "featured": true, "prices": {"10": {"before": 150, "now": 130}, "35": {"before": 420, "now": 350}, "55": {"before": 620, "now": 450}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "دي ريحة الـ Cool Girl اللي ليها ستايلها الخاص، بنوتاتية ومرحة وواثقة من غير ما تحاول تبقى شبه حد. التوت الأحمر والداكن بيدي إحساس فاكهي حلو، مع لمسة أخشاب بيضاء تخلي الشخصية مش سكر وبس. مناسبة للبنت اللي بتحب ريحتها تكمل طاقتها الشبابية وخروجاتها، وتكون جزء من ستايلها اليومي.", "priority": 5}, {"slug": "banaya", "name": "Bonnaya", "ref": "Khamra Qahwa", "cat": "men", "img": "media/2576fa98b46a175378a0e2fb.webp", "img2": "media/afd2382a89eaac3f6a619601.webp", "prices": {"10": {"before": 170, "now": 130}, "35": {"before": 450, "now": 380}, "55": {"before": 650, "now": 550}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "تخيل موود كافيه دافي في يوم برد، قعدة رايقة وحاجة حلوة جنب القهوة. هنا طابع القهوة مع القرفة والهيل والفانيليا والبرالين بيدي إحساس غني ومريح، مش قهوة سادة وخلاص. مناسب للي يحب العطور الحلوة المتبلة، وخروجات الشتا اللي عايز فيها ريحتك تبقى دافية وليها شخصية بعيدة عن الفريش المعتاد.", "priority": 6}, {"slug": "il-capo", "name": "Il Capo", "ref": "Il Padrino ", "cat": "men", "img": "media/6119ad4ce1260c4bd8b9d894.webp", "img2": "media/e022c9d318cd00e197398f90.webp", "prices": {"10": {"before": 180, "now": 150}, "35": {"before": 480, "now": 360}, "55": {"before": 650, "now": 490}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "حضور هادي وكاريزما إيطالية، كأنك داخل القعدة وأنت مش محتاج تلفت النظر بالعافية. طابع الروم والأماريتو مع الكشمش الأسود يدي حلاوة غامقة، وبعدها العنبر والصندل يضيفوا دفء وأناقة. مناسب لسهرة أو مناسبة تحب فيها اللوك يبقى محسوب، وللي يحب العطر اللي شخصيته ناضجة وواثقة، مش ريحة رياضية أو سكرية مرحة.", "priority": 7}, {"slug": "bestie", "name": "Bestie", "ref": "Erba Pura", "cat": "men", "img": "media/a5c12ab2a03674f3229d26b8.webp", "img2": "media/0f856633d306a5bc1dab2139.webp", "featured": true, "prices": {"10": {"before": 170, "now": 130}, "35": {"before": 450, "now": 370}, "55": {"before": 650, "now": 500}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "دي ريحة الخروجة اللي داخلالها بمود حلو وطاقة اجتماعية، ملونة ومليانة حياة. الحمضيات والفواكه بتدي إحساس مشرق، وبعدها المسك الأبيض والفانيليا يضيفوا نعومة وحلاوة. مناسبة للي يحب الطابع الفاكهي الواضح، وعايز ريحة مرحة تكمل شخصيته في مقابلة صحابه أو يوم مختلف، بدل الاختيارات الجادة أو الدخانية اللي مزاجها أتقل.", "priority": 7}, {"slug": "fluffy", "name": "Fluffy", "ref": "Kayali Marshmallow", "cat": "women", "img": "media/03cad0eb00793a62b7966c6a.webp", "img2": "media/b7a299f91be6f07793bad709.webp", "prices": {"10": {"before": 170, "now": 130}, "35": {"before": 450, "now": 380}, "55": {"before": 650, "now": 480}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "دي ريحة المود الوردي والنعومة، للي بتحب الحلاوة الخفيفة في شخصيتها حتى وهي واثقة وعارفة هي عايزة إيه. طابع المارشميلو والفراولة مع جوز الهند والفانيليا بيدي إحساس كريمي ولطيف. مناسبة لخروجة كاجوال أو قعدة قريبة، لو بتحبي العطر يبقى زي تفصيلة حلوة تكمل يومك، مش شخصية رسمية أو جادة.", "priority": 8}, {"slug": "glowy", "name": "Glowy", "ref": "Amouage Guidance ", "cat": "women", "img": "media/defa77a7e2cb1a7101e8eea7.webp", "img2": "media/3de6da40b3a8740d54223d46.webp", "prices": {"10": {"before": 220, "now": 180}, "35": {"before": 500, "now": 400}, "55": {"before": 700, "now": 500}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "فيها نعومة ملفتة بس مش ساذجة، كأن اللوك بسيط وتفاصيله هي اللي عاملة الفرق. الكمثرى والبندق مع الورد ولمسة البخور والصندل بيدوا طابع كريمي وزهري له عمق. مناسبة للي يحب العطور المختلفة اللي مش بتتقري من أول لحظة، ولخروجة مميزة عايز فيها ريحتك تكون ناعمة وليها شخصية في نفس الوقت.", "priority": 12}, {"slug": "cutie", "name": "Cutie", "ref": "Yara candy", "cat": "women", "img": "media/530745cdc00f02ea9c49bb54.webp", "img2": "media/45655e6b65b5f05927c0e8e4.webp", "featured": true, "prices": {"10": {"before": 180, "now": 150}, "35": {"before": 420, "now": 380}, "55": {"before": 620, "now": 480}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "ريحة لطيفة ومرحة للي بتحب تدخل يومها بحاجة تفتح النفس، زي حلوى فاكهية صغيرة في نص اليوم. اليوسفي والكشمش الأسود مع طابع حلوى الفراولة والفانيليا بيدوا إحساس سكري شبابي، ولمسة المسك تزود النعومة. مناسبة لخروجة كاجوال أو يوم رايق، لو بتحبي العطور البنوتاتية الحلوة أكتر من الطابع الجاد والتقيل.", "priority": 13}, {"slug": "kaas", "name": "Kaas", "ref": "Angles share paradise", "cat": "men", "img": "media/24844a0d4fae7de53b122d55.webp", "img2": "media/2a9ae7d8697d114c0be4e748.webp", "prices": {"10": {"before": 190, "now": 150}, "35": {"before": 460, "now": 340}, "55": {"before": 680, "now": 450}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "موود ديت في ليلة برد، لبس متظبط وقعدة مش مستعجلة. التوت والورد بيدوا حلاوة فاكهية، ومع طابع الكونياك والقرفة والتونكا الإحساس يبقى دافي وغني. مناسب للي يحب العطور الحلوة اللي فيها عمق وشخصية، وعايز اختيار مختلف للسهرة، فيه قرب ودفا بدل الانتعاش الرياضي أو الطابع الخفيف اللي بيختاره للنهار.", "priority": 14}, {"slug": "noble", "name": "Noble", "ref": "Asad Elixir = Sauvage Elixir", "cat": "men", "img": "media/7c06c3b81f7c04389cd9c857.webp", "img2": "media/ee28b961fe2221515c597263.webp", "prices": {"10": {"before": 190, "now": 150}, "35": {"before": 450, "now": 390}, "55": {"before": 680, "now": 580}}, "available": {"10": true, "35": true, "55": true}, "notes": "", "notesAr": "دي ريحة الراجل اللي عارف هو عايز إيه، حضوره جاد وواثق من غير زحمة تفاصيل. الجريب فروت والبهارات مع اللافندر والأخشاب بيدوا طابع عطري دافي، مش حلاوة سكرية. مناسب لسهرة أو مناسبة تحب فيها تبقى متظبط، وللي يميل للروائح الرجولية الجريئة أكتر من العطور الكريمية الناعمة أو الفاكهية المرحة.", "priority": 15}, {"slug": "ecstasy", "name": "Ecstasy", "ref": "Le Male Elixir", "cat": "men", "img": "media/f0367d99556c64f69ab5514b.webp", "img2": "media/a074bbc1c08e8060bc16bc07.webp", "prices": {"10": {"before": 170, "now": 130}, "35": {"before": 450, "now": 380}, "55": {"before": 650, "now": 550}}, "available": {"10": false, "35": false, "55": false}, "notes": "", "notesAr": "دي ريحة ليل ودفء وثقة، للي يحب الطابع الحلو بس عايزه بطابع عطري مش حلوى وبس. اللافندر بيقابل التونكا والبنزوين، ومعاهم إحساس عسلي دافي يدي الريحة عمق. مناسبة لسهرة أو ديت في الجو البارد، لما تحب تختار شخصية أجرأ من الفريش اليومي وتسيب للريحة مساحة تكمل حضورك من غير مبالغة.", "priority": 20}], "shipping": [{"name": "اسيوط", "fee": 120}, {"name": "الغربيه", "fee": 75}, {"name": "الاسكندريه", "fee": 85}, {"name": "الاقصر", "fee": 135}, {"name": "البحيرة", "fee": 85}, {"name": "الاسماعيلية", "fee": 110}, {"name": "القاهرة", "fee": 85}, {"name": "الشرقية", "fee": 85}, {"name": "الدقهلية", "fee": 85}, {"name": "الجيزة", "fee": 85}, {"name": "القليوبية", "fee": 85}, {"name": "المنوفية", "fee": 85}, {"name": "كفر الشيخ", "fee": 85}, {"name": "دمياط", "fee": 85}, {"name": "الفيوم", "fee": 100}, {"name": "بني سويف", "fee": 100}, {"name": "بورسعيد", "fee": 110}, {"name": "السويس", "fee": 110}, {"name": "المنيا", "fee": 120}, {"name": "سوهاج", "fee": 125}, {"name": "قنا", "fee": 130}, {"name": "أسوان", "fee": 135}], "offers": ["gentle-knight", "hunter", "barbie"], "reviews": [{"type": "image", "src": "media/c1cd62c27cca0b6ad6bee47f.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/fd56238e5a8e0ee47a54e010.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/e71f39448d94e9434ee0d1b5.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/ace1042db87fea76906599fb.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/64e7ee8ef0ca670e3d319332.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/2fee05cad5c6c8254e4a470c.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/0b8bf915cd19f76026c53c28.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/69fdb6022a718a42176fd9a4.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/519e21ffd84183f0c338377d.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/3d0399965d3d2be9c22d25d2.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/27bd584582c301318ff1759d.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/038565d1690afe421139d36c.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/56081926819c75cd54224633.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/0fd492ef55ec40202870072b.webp", "poster": "", "title": ""}, {"type": "image", "src": "media/dbf38aa1792b955fe5793b95.webp", "poster": "", "title": ""}], "updatedAt": "2026-11-24T02:17:35.346Z"};
+applyStore(STATIC_STORE);
+/* First paint: wait briefly for the dashboard data so prices do not flicker.
+   If it is slow, paint with the built-in values and update when the data arrives. */
+let painted = false;
+function firstPaint() { if (painted) return; painted = true; restoreState(); render(); route(); }
+const paintTimer = setTimeout(firstPaint, 1500);
+loadStore(8000).then(d => {
+  const changed = applyStore(d);
+  clearTimeout(paintTimer);
+  if (!painted) return firstPaint();
+  if (changed) { restoreState(); render(); if (!$("#cartOv").hidden) renderCart(); }
+});
+</script>
+</body>
+</html>
