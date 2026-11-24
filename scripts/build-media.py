@@ -5,7 +5,8 @@ What it does
   1. Reads the PUBLISHED storefront.json from Supabase (what visitors see right now).
   2. Downloads each image it references (products img/img2, reviews, banner).
   3. Saves a resized WebP copy in media/ (content-hashed file name, so it can be cached forever).
-  4. Writes the map  original-Supabase-URL -> media/<file>  into index.html (between the MEDIA_MAP markers)
+  4. Also embeds the catalog itself as STORE_BACKUP (shown if Supabase is down).
+  5. Writes the map  original-Supabase-URL -> media/<file>  into index.html (between the MEDIA_MAP markers)
      and into site-data/media-map.json.
 Originals in Supabase are never changed or deleted. Images that are not in the map (for example a photo
 uploaded from the dashboard after the last run) simply keep loading from Supabase until this script is run again.
@@ -68,6 +69,10 @@ def main():
     block = "/*MEDIA_MAP_START*/\nconst MEDIA_MAP = " + json.dumps(short, separators=(",", ":")) + ";\n/*MEDIA_MAP_END*/"
     html, n = re.subn(r"/\*MEDIA_MAP_START\*/.*?/\*MEDIA_MAP_END\*/", lambda m: block, html, flags=re.S)
     assert n == 1, "MEDIA_MAP markers missing in index.html"
+    backup = json.dumps(store, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+    block2 = "/*STORE_BACKUP_START*/\nconst STORE_BACKUP = " + backup + ";\n/*STORE_BACKUP_END*/"
+    html, n2 = re.subn(r"/\*STORE_BACKUP_START\*/.*?/\*STORE_BACKUP_END\*/", lambda m: block2, html, flags=re.S)
+    assert n2 == 1, "STORE_BACKUP markers missing in index.html"
     html_path.write_text(html)
     print(f"{len(mp)} images, {before/1024:.0f} KB -> {after/1024:.0f} KB")
 
