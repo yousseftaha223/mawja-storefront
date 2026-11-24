@@ -570,7 +570,7 @@ const BUNDLE = { key: "bundle-winter-duo", name: "Winter Duo", price: 850, was: 
 const WA = "https://wa.me/201279125006";
 const SHIPPING_FEE = 90;           // flat fallback fee (EGP), used ONLY while no governorates are set in the dashboard (Shipping tab).
 const SHIP_ZONES = [];             // [{ name, fee }] from the dashboard. When not empty, the customer picks a governorate and its fee applies.
-const HOME_PAGE_SIZE = 4;          // products shown on the homepage grid; "See more" reveals this many more each time
+const HOME_PAGE_SIZE = 8;          // products shown on the homepage grid; "See more" reveals this many more each time
 const WA_ORDER_MODE = true;   // temporary: orders go through WhatsApp instead of /api/order
 const WA_MAX_URL = 1900;
 const ORDER_API = "/api/order";    // Vercel serverless function (api/order.js): saves the order and notifies Telegram
@@ -921,7 +921,6 @@ function renderHome() {
         <p class="kicker" style="color:var(--sand)">${t("storyKicker")}</p>
         <h2 id="storyTitle" style="margin-top:12px">${t("storyTitle")}</h2>
         <p>${t("storyBody")}</p>
-        <p class="pull">${t("storyPull")}</p>
       </div>
     </div>
   </section>
