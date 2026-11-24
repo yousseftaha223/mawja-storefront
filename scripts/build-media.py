@@ -48,8 +48,37 @@ def convert(raw, kind):
     im.save(buf, "WEBP", quality=78 if kind == "product" else 82, method=6)
     return buf.getvalue()
 
+def validate(store, html):
+    """Refuse to publish a broken or suspiciously small catalog. Raises SystemExit so nothing is written."""
+    def bad(msg): raise SystemExit("REFUSING TO UPDATE: " + msg)
+    if not isinstance(store, dict): bad("catalog is not an object")
+    prods, ship, revs = store.get("products"), store.get("shipping"), store.get("reviews")
+    if not isinstance(prods, list) or not prods: bad("no products")
+    if not isinstance(ship, list) or not ship: bad("no shipping zones")
+    seen = set()
+    for p in prods:
+        if not (isinstance(p, dict) and p.get("slug") and p.get("name")): bad("product missing slug or name")
+        if p["slug"] in seen: bad("duplicate product " + p["slug"])
+        seen.add(p["slug"])
+        pr = p.get("prices")
+        if not isinstance(pr, dict) or not pr: bad("product without prices: " + p["slug"])
+        for ml, v in pr.items():
+            if not isinstance(v, dict) or not isinstance(v.get("now"), (int, float)) or v["now"] <= 0: bad("bad price on " + p["slug"])
+    for z in ship:
+        if not (isinstance(z, dict) and z.get("name") and isinstance(z.get("fee"), (int, float)) and z["fee"] >= 0): bad("bad shipping zone")
+    m = re.search(r"/\*STORE_BACKUP_START\*/\s*const STORE_BACKUP = (.*?);\s*/\*STORE_BACKUP_END\*/", html, re.S)
+    if m:
+        try: old = json.loads(m.group(1))
+        except Exception: old = None
+        if old:
+            # a big drop against the current backup looks like a wiped or half-saved catalog
+            if len(prods) < 0.7 * len(old.get("products", [])): bad("products dropped from %d to %d" % (len(old["products"]), len(prods)))
+            if len(ship) < 0.7 * len(old.get("shipping", [])): bad("shipping zones dropped")
+            if len(revs or []) < 0.5 * len(old.get("reviews", [])): bad("reviews dropped")
+
 def main():
     store = json.loads(get(STORE + "?v=1"))
+    validate(store, (ROOT / "index.html").read_text())
     urls = collect(store)
     mp, before, after = {}, 0, 0
     for u, kind in urls.items():
