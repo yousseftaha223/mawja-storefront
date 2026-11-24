@@ -656,7 +656,7 @@ const I18N = {
     bsTitle: "Our perfumes", bsSub: "A curated selection to start with.", viewAll: "View all",
     reviewFull: "Customer review", reviewClose: "Close review", reviewOpen: "Enlarge customer review",
     rvTitle: "Customer reviews", rvSlot: "Review slot. A photo or video is added from the dashboard.", prev: "Previous", next: "Next", playVideo: "Play video",
-    storyKicker: "Our story", storyTitle: "Remember yourself.", storyBody: "MAWJA means “wave” in Arabic. We create premium fragrances inspired by globally loved scents, for the everyday moods and memories that belong to you.", storyPull: "Mawja is not just a perfume. It's a lifestyle.",
+    storyKicker: "Our story", storyTitle: "Remember yourself.", storyBody: "Mawja is the most beautiful gift you can give yourself.", storyBody2: "We create premium fragrances inspired by globally loved scents, for the everyday moods and memories that belong to you.", storyPull: "Mawja is not just a perfume. It's a lifestyle.",
     exploreTitle: "Explore more", exploreBundleTitle: "Winter Duo", exploreBundleBody: "Two signature scents, one limited-time price.", exploreAllTitle: "Shop all fragrances", exploreAllBody: "Every MAWJA fragrance, in 10 ml, 35 ml and 55 ml.",
     faqTitle: "Questions",
     fq1: "How do I order?", fa1: "Add your fragrances to the cart and place your order. Our team contacts you to confirm the order and delivery.",
@@ -700,7 +700,7 @@ const I18N = {
     bsTitle: "عطورنا", bsSub: "مجموعة مختارة لتبدأ بها.", viewAll: "عرض الكل",
     reviewFull: "رأي عميل", reviewClose: "إغلاق الرأي", reviewOpen: "تكبير رأي العميل",
     rvTitle: "آراء العملاء", rvSlot: "مكان رأي العميل. تُضاف الصورة أو الفيديو من لوحة التحكم.", prev: "السابق", next: "التالي", playVideo: "تشغيل الفيديو",
-    storyKicker: "قصتنا", storyTitle: "تذكّر نفسك.", storyBody: "«موجة» بالعربية. نصنع عطورًا راقية مستوحاة من روائح يحبها العالم، لمزاجك وذكرياتك اليومية أنت.", storyPull: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
+    storyKicker: "قصتنا", storyTitle: "افتكر نفسك بحاجة حلوة...", storyBody: "\"موچة\" هي أحسن هدية تقدر تقدمها لنفسك وسط زحمة يومك وتغير بيها مودك للأحسن", storyBody2: "عطور مستوحاة من أشهر وأفضل العطور العالمية بجودة عالية وخامات مستوردة وثبات يدوم بالأيام.", storyPull: "موجة ليست مجرد عطر… إنها أسلوب حياة.",
     exploreTitle: "اكتشف المزيد", exploreBundleTitle: "ثنائي الشتاء", exploreBundleBody: "عطران مميزان بسعر واحد لفترة محدودة.", exploreAllTitle: "تسوق كل العطور", exploreAllBody: "كل عطور موجة بحجم 10 مل و35 مل و55 مل.",
     faqTitle: "الأسئلة الشائعة",
     fq1: "إزاي أطلب؟", fa1: "أضف العطور للسلة وأتمّ طلبك. فريقنا هيتواصل معك لتأكيد الطلب والتوصيل.",
@@ -921,6 +921,7 @@ function renderHome() {
         <p class="kicker" style="color:var(--sand)">${t("storyKicker")}</p>
         <h2 id="storyTitle" style="margin-top:12px">${t("storyTitle")}</h2>
         <p>${t("storyBody")}</p>
+        <p style="margin-top:12px">${t("storyBody2")}</p>
       </div>
     </div>
   </section>
