@@ -94,6 +94,18 @@ table.sz .in{min-height:38px;padding:6px 10px}
 /* Videos */
 .vitem{display:grid;gap:12px;grid-template-columns:1fr}
 @media(min-width:720px){.vitem{grid-template-columns:240px 1fr}}
+.vgrip{touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;display:inline-flex;align-items:center;gap:6px}
+.pgrip{font-size:22px;line-height:1;padding:8px 6px;color:var(--mute);margin:-8px 0}
+details.prod.dragging,details.prod.dropbefore,details.prod.dropafter{position:relative}
+details.prod.dragging{z-index:5;box-shadow:0 12px 32px rgba(0,0,0,.45);outline:2px solid var(--teal,#0C6F70)}
+details.prod.dropbefore::before,details.prod.dropafter::after{content:"";position:absolute;left:0;right:0;height:4px;border-radius:2px;background:#4fd1c5}
+details.prod.dropbefore::before{top:-9px}details.prod.dropafter::after{bottom:-9px}
+.vgrip:active{cursor:grabbing}
+.vitem{position:relative}
+.vitem.dragging{z-index:5;box-shadow:0 12px 32px rgba(0,0,0,.45);opacity:.96;outline:2px solid var(--teal,#0C6F70);transition:none}
+.vitem.dropbefore::before,.vitem.dropafter::after{content:"";position:absolute;left:0;right:0;height:4px;border-radius:2px;background:#4fd1c5}
+.vitem.dropbefore::before{top:-9px}.vitem.dropafter::after{bottom:-9px}
+body.vdragging{user-select:none;-webkit-user-select:none}
 .vitem video{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000;border-radius:4px}
 /* Save bar */
 .savebar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ocean2);border-top:1px solid var(--line)}
@@ -453,6 +465,7 @@ function productCard(p, i) {
     </tr>`).join("");
   return `<details class="prod" data-i="${i}" ${p._open ? "open" : ""}>
     <summary>
+      <span class="vgrip pgrip" data-vgrip="products" role="img" aria-label="Drag to reorder ${esc(p.name || "product")}" title="Drag to reorder">⠿</span>
       ${p.img ? `<img src="${esc(imgSrc(p.img))}" alt="">` : `<span style="width:52px;height:52px;border:1px solid var(--line);border-radius:4px"></span>`}
       <span class="grow"><span class="nm">${esc(p.name || "New product")}</span><br><span class="sub">${CAT_LABEL[p.cat]}${p.ref ? " · Inspired by " + esc(p.ref) : ""}</span></span>
       ${off.length ? `<span class="badge off">${off.map(s => s + " ml").join(", ")} unavailable</span>` : ""}
@@ -521,6 +534,7 @@ function reviewsView() {
         </div>`}
         <div class="toolrow">
           <div style="display:flex;gap:6px">
+            <span class="btn btn-line btn-sm vgrip" data-vgrip="reviews" role="img" aria-label="Drag to reorder review ${i + 1}" title="Drag to reorder">⠿ Drag</span>
             <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""}>↑</button>
             <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="1" ${i === data.reviews.length - 1 ? "disabled" : ""}>↓</button>
           </div>
@@ -752,6 +766,45 @@ $("#panel").addEventListener("toggle", e => {
 }, true);
 
 boot();
+
+// Drag and drop reordering for reviews (mouse and touch). The order is the array order, saved with the rest.
+(() => {
+  let d = null;
+  const SEL = ".vitem, details.prod", items = () => [...document.querySelectorAll(d ? d.kind === "products" ? "details.prod" : ".vitem" : SEL)];
+  document.addEventListener("click", e => { if (e.target.closest("[data-vgrip]")) { e.preventDefault(); e.stopPropagation(); } }, true);
+  document.addEventListener("pointerdown", e => {
+    const g = e.target.closest("[data-vgrip]"); if (!g || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const kind = g.dataset.vgrip, el = g.closest(kind === "products" ? "details.prod" : ".vitem"); d = { kind }; const list = items(); e.preventDefault();
+    d = { kind, el, from: list.indexOf(el), to: list.indexOf(el), y0: e.clientY, sy0: scrollY, id: e.pointerId, y: e.clientY, raf: 0 };
+    try { g.setPointerCapture(e.pointerId); } catch (_) {}
+    el.classList.add("dragging"); document.body.classList.add("vdragging");
+    d.raf = requestAnimationFrame(tick);
+  });
+  function tick() {
+    if (!d) return;
+    const vh = innerHeight, edge = 70;
+    if (d.y < edge) scrollBy(0, -Math.ceil((edge - d.y) / 4)); else if (d.y > vh - edge) scrollBy(0, Math.ceil((d.y - (vh - edge)) / 4));
+    d.el.style.transform = `translateY(${d.y - d.y0 + (scrollY - d.sy0)}px)`;
+    const list = items(), cy = d.y + 0; let to = d.from;
+    list.forEach((it, k) => { if (it === d.el) return; const r = it.getBoundingClientRect(), mid = r.top + r.height / 2; if (k < d.from && cy < mid) to = Math.min(to, k); if (k > d.from && cy > mid) to = Math.max(to, k); });
+    if (to !== d.to || !list.some(i => i.classList.contains("dropbefore") || i.classList.contains("dropafter"))) {
+      d.to = to; list.forEach(i => i.classList.remove("dropbefore", "dropafter"));
+      if (to !== d.from) list[to].classList.add(to < d.from ? "dropbefore" : "dropafter");
+    }
+    d.raf = requestAnimationFrame(tick);
+  }
+  document.addEventListener("pointermove", e => { if (d && e.pointerId === d.id) { d.y = e.clientY; e.preventDefault(); } }, { passive: false });
+  const end = (e, cancel) => {
+    if (!d || e.pointerId !== d.id) return;
+    cancelAnimationFrame(d.raf); const { from, to, kind } = d; d = null;
+    document.body.classList.remove("vdragging");
+    document.querySelectorAll(SEL).forEach(i => { i.classList.remove("dragging", "dropbefore", "dropafter"); i.style.transform = ""; });
+    if (!cancel && from !== to && kind === "products") { keepOpen(); const [p] = data.products.splice(from, 1); data.products.splice(to, 0, p); data.products.forEach((q, k) => { q.priority = k + 1; }); render(); refreshBar(); }
+    else if (!cancel && from !== to) { pendingReviewRemoval = null; const [v] = data.reviews.splice(from, 1); data.reviews.splice(to, 0, v); render(); refreshBar(); }
+  };
+  document.addEventListener("pointerup", e => end(e, false));
+  document.addEventListener("pointercancel", e => end(e, true));
+})();
 </script>
 </body>
 </html>
