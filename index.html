@@ -429,6 +429,11 @@ html,body{overscroll-behavior-x:none}
 .swap{touch-action:pan-y;overscroll-behavior:contain}
 .swap.nohover:not(.on):hover + .pdots i:first-child{background:var(--teal)}
 .swap.nohover:not(.on):hover + .pdots i:last-child{background:transparent}
+.swap{container-type:inline-size}
+.swap .lbl{position:absolute;transform:translate(-50%,-50%);font-family:var(--serif);font-style:italic;font-weight:600;font-size:max(11px,5.2cqw);line-height:1;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.75);letter-spacing:.02em;pointer-events:none;opacity:0;transition:opacity .45s ease;white-space:nowrap}
+.swap.on .lbl{opacity:1}
+@media (hover:hover){.swap:hover .lbl{opacity:1}}
+.swap.nohover:not(.on):hover .lbl{opacity:0}
 </style>
 </head>
 <body>
@@ -784,10 +789,22 @@ const ICON_HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_PLAY = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
 
 /* ---------- Cards ---------- */
+const PHOTO_LABELS = {"gentle-knight":[[29,22],[49,22],[75,34]]}; // sample only; other products are added after owner approval
+// Single-bottle photo (Master): only the 55 ml bottle is shown.
+const PHOTO_LABELS_SINGLE = {};
+function lblHTML(p) {
+  if (!p.img2 || p.img2 === p.img) return "";
+  const m = PHOTO_LABELS[p.slug], one = PHOTO_LABELS_SINGLE[p.slug];
+  const mk = (txt, x, y) => `<span class="lbl" style="left:${x}%;top:${y}%">${txt}</span>`;
+  if (m) return mk("10ml", m[0][0], m[0][1]) + mk("55ml", m[1][0], m[1][1]) + mk("35ml", m[2][0], m[2][1]);
+  if (one) return mk("55ml", one[0], one[1]);
+  return "";
+}
 function swapHTML(p, alt, w, h) {
   return `<span class="swap" data-swap>
       <img class="a" src="${p.img}" alt="${esc(alt)}" loading="lazy" width="${w}" height="${h}" draggable="false">
       <img class="b" src="${p.img2}" alt="" loading="lazy" width="${w}" height="${h}" draggable="false">
+      ${lblHTML(p)}
     </span>`;
 }
 // Selected size per product. Shared by the homepage card and the product page, so both stay in sync.
@@ -1010,6 +1027,7 @@ function renderProduct(slug) {
         <div class="gal"><span class="swap nohover${pick.photo ? " on" : ""}" data-swap data-gal>
           <img class="a" src="${p.img}" alt="${esc(altMain)}" width="1000" height="1000" draggable="false">
           <img class="b" src="${p.img2}" alt="${esc(`${p.name} — ${t("photoN", { n: 2 })}`)}" width="1000" height="1000" draggable="false">
+          ${lblHTML(p)}
         </span><span class="pdots" role="button" aria-label="Next photo"><i></i><i></i></span></div>
         <div class="thumbs" role="group" aria-label="${t("photos")}">${[p.img, p.img2].map((src, n) => `<button class="th" type="button" data-act="gphoto" data-n="${n}" aria-pressed="${(pick.photo || 0) === n}" aria-label="${t("photoN", { n: n + 1 })}"><img src="${src}" alt="" width="144" height="144" draggable="false"></button>`).join("")}</div>
         <p class="gal-note">${t("photosNote")}</p>
