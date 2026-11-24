@@ -325,6 +325,8 @@ button.qa:disabled{opacity:.45;cursor:not-allowed}
 .strip a{color:var(--sand);opacity:.6;padding:6px 0;border-bottom:2px solid transparent;transition:opacity .2s,border-color .2s}
 .strip a:hover,.strip a.on{opacity:1;border-bottom-color:var(--sand)}
 .macro-link{display:block}
+.macro-wrap{display:block;position:relative;overflow:hidden}
+.lbl-hero{position:absolute;transform:translate(-50%,-50%);font-family:var(--serif);font-style:italic;font-weight:600;font-size:clamp(12px,2.6vw,26px);line-height:1;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;white-space:nowrap;opacity:0}
 .macro{display:block;width:100%;height:clamp(440px,64vw,680px);object-fit:cover;object-position:center 40%}
 .offers-wrap{display:flex;justify-content:center;padding:36px 16px 48px;background:var(--ocean2)}
 .offers-wrap .offers-btn{margin-top:0;min-width:min(100%,420px)}
@@ -806,10 +808,11 @@ const PHOTO_LABELS = {
   "flirty":[[27,22],[48,18],[75,32]],
   "il-capo":[[27,22.8],[48,20],[75,32]],
   "italian-prince":[[22.5,23.5],[48,19],[74,31]],
-  "kaas":[[23,21],[42,21],[64,32]]
+  "kaas":[[23,21],[42,21],[64,32]],
+  "master":[[30,6],[50,6],[70,6]]
 }; // [x%, y%] centres of the 10ml / 55ml / 35ml labels, measured per second photo
 // Single-bottle photo (Master): only the 55 ml bottle is shown.
-const PHOTO_LABELS_SINGLE = {"master":[50,8]};
+const PHOTO_LABELS_SINGLE = {};
 function lblHTML(p) {
   if (!p.img2 || p.img2 === p.img) return "";
   const m = PHOTO_LABELS[p.slug], one = PHOTO_LABELS_SINGLE[p.slug];
@@ -935,7 +938,7 @@ function renderHome() {
     <a href="#best" data-i18n="stripBest">Best sellers</a>
   </nav>
   <section class="hero2" id="hero">
-    <a class="macro-link" href="${esc(BANNER.href)}"${/^https?:/.test(BANNER.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}><img class="macro" src="${esc(BANNER.image)}" alt="${esc(BANNER.alt)}" width="1000" height="1000" fetchpriority="high"></a>
+    <a class="macro-link" href="${esc(BANNER.href)}"${/^https?:/.test(BANNER.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}><span class="macro-wrap" id="macroWrap"><img class="macro" src="${esc(BANNER.image)}" alt="${esc(BANNER.alt)}" width="1000" height="1000" fetchpriority="high">${/fluffy/.test(BANNER.image) ? PHOTO_LABELS.fluffy.map((l, i) => `<span class="lbl lbl-hero" data-hl="${i}">${["10ml", "55ml", "35ml"][i]}</span>`).join("") : ""}</span></a>
     <div class="slogan">
       <p class="kicker">MAWJA · موجة</p>
       <h1 lang="en" dir="ltr">${t("heroTitle")}</h1>
@@ -1195,11 +1198,18 @@ function sync() {
   const open = $("#reviewDialog").open || ["#menuOv", "#searchOv", "#filterOv", "#cartOv"].some(id => !$(id).hidden);
   document.body.style.overflow = open ? "hidden" : "";
 }
+const normPhone = v => {
+  let p = normDigits(v).replace(/[\s\-().]/g, "");
+  if (p.startsWith("+")) p = p.slice(1); else if (p.startsWith("00")) p = p.slice(2);
+  else return p;
+  if (p.startsWith("20")) p = p.slice(2);
+  return p.startsWith("0") ? p : "0" + p;
+};
 const normDigits = v => String(v || "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
 function customerClean() {
   return {
     name: customer.name.trim().replace(/\s+/g, " "),
-    phone: normDigits(customer.phone).replace(/[\s\-().]/g, ""),
+    phone: normPhone(customer.phone),
     gov: customer.gov,
     address: customer.address.trim(),
   };
@@ -1609,6 +1619,23 @@ loadStore(8000).then(d => {
   if (!painted) return firstPaint();
   if (changed) { restoreState(); render(); if (!$("#cartOv").hidden) renderCart(); }
 });
+
+/* Size labels over the big hero photo (it is cropped with object-fit:cover, so map the label positions through the crop) */
+function placeHeroLabels() {
+  const img = document.querySelector("#macroWrap img.macro"); if (!img) return;
+  const W = img.clientWidth, H = img.clientHeight; if (!W || !H) return;
+  const sc = Math.max(W, H), offY = (sc - H) * 0.4, offX = (sc - W) * 0.5;
+  document.querySelectorAll("#macroWrap .lbl-hero").forEach(el => {
+    const [x, y] = PHOTO_LABELS.fluffy[+el.dataset.hl];
+    el.style.left = (x / 100 * sc - offX) + "px";
+    el.style.top = Math.min(H - 14, Math.max(22, y / 100 * sc - offY)) + "px";
+    el.style.opacity = 1;
+  });
+}
+addEventListener("resize", placeHeroLabels);
+addEventListener("load", placeHeroLabels);
+document.addEventListener("load", e => { if (e.target.classList && e.target.classList.contains("macro")) placeHeroLabels(); }, true);
+new MutationObserver(() => placeHeroLabels()).observe(document.body, { childList: true });
 </script>
 </body>
 </html>

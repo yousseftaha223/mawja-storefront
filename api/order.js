@@ -152,7 +152,12 @@ module.exports = async (req, res) => {
 
   const c = body.customer || {};
   const name = clean(c.name, 100).replace(/\s+/g, " ");
-  const phone = normDigits(clean(c.phone, 30)).replace(/[\s\-().]/g, "");
+  let phone = normDigits(clean(c.phone, 30)).replace(/[\s\-().]/g, "");
+  if (phone.startsWith("+") || phone.startsWith("00")) {
+    phone = phone.replace(/^(\+|00)/, "");
+    if (phone.startsWith("20")) phone = phone.slice(2);
+    if (!phone.startsWith("0")) phone = "0" + phone;
+  }
   const address = clean(c.address, 500);
   const clientRef = clean(body.clientRef, 80);
   if (name.length < 5 || name.split(" ").filter(Boolean).length < 2) return json(res, 400, { ok: false, error: "invalid" });
