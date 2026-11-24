@@ -325,6 +325,7 @@ button.qa:disabled{opacity:.45;cursor:not-allowed}
 .strip a{color:var(--sand);opacity:.6;padding:6px 0;border-bottom:2px solid transparent;transition:opacity .2s,border-color .2s}
 .strip a:hover,.strip a.on{opacity:1;border-bottom-color:var(--sand)}
 .macro-link{display:block}
+.wa-fail{margin:10px 0;color:#ff5a5f;font-weight:600;font-size:14px;line-height:1.7;text-align:right}
 .macro-wrap{display:block;position:relative;overflow:hidden}
 .lbl-hero{position:absolute;transform:translate(-50%,-50%);font-family:var(--serif);font-style:italic;font-weight:600;font-size:clamp(12px,2.6vw,26px);line-height:1;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;white-space:nowrap;opacity:0}
 .macro{display:block;width:100%;height:clamp(440px,64vw,680px);object-fit:cover;object-position:center 40%}
@@ -749,7 +750,7 @@ const I18N = {
     custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
     phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
     eName: "اكتب اسمك الكامل (الاسم الأول والأخير).", ePhone: "اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.", eAddress: "اكتب عنوانك كاملًا بالتفصيل.",
-    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", waOpen: "افتح واتساب برسالة الطلب", waCopy: "انسخ رسالة الطلب", waCopied: "تم نسخ رسالة الطلب", waFail: "معرفناش نبعت طلبك من الموقع دلوقتي. اضغط على الزرار تحت وابعته لنا على واتساب. طلبك بيتأكد لما نرد عليك. فتح واتساب لوحده مبيبعتش حاجة، اضغط إرسال في واتساب.", waRetry: "حاول تاني", waNote: "مؤقتًا: للطلب يرجى الضغط على (فتح واتساب برسالة الطلب جاهزة) وبمجرد ردنا عليك يتم تأكيد الطلب. فتح واتساب وحده لا يرسل شيئًا. اضغط إرسال في واتساب.", waLong: "السلة كبيرة فلم نستطع تجهيز الرسالة تلقائيًا. انسخ الرسالة والصقها في واتساب واضغط إرسال. وبمجرد ردنا عليك يتم تأكيد الطلب.", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
+    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", waOpen: "افتح واتساب برسالة الطلب", waCopy: "انسخ رسالة الطلب", waCopied: "تم نسخ رسالة الطلب", waFail: "معرفناش نبعت طلبك من الموقع دلوقتي. افتح واتساب لإتمام الأوردر: اضغط على الزرار تحت وابعت لنا الرسالة الجاهزة. طلبك بيتأكد لما نرد عليك، وفتح واتساب لوحده مبيبعتش حاجة، لازم تضغط إرسال.", waRetry: "حاول تاني", waNote: "مؤقتًا: للطلب يرجى الضغط على (فتح واتساب برسالة الطلب جاهزة) وبمجرد ردنا عليك يتم تأكيد الطلب. فتح واتساب وحده لا يرسل شيئًا. اضغط إرسال في واتساب.", waLong: "السلة كبيرة فلم نستطع تجهيز الرسالة تلقائيًا. انسخ الرسالة والصقها في واتساب واضغط إرسال. وبمجرد ردنا عليك يتم تأكيد الطلب.", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
     doneTitle: "تم استلام طلبك", doneBody: "تم استلام طلبك، وسنتواصل معك قريبًا لتأكيده.", orderNo: "رقم الطلب", continueShop: "متابعة التسوق",
     eSend: "تعذّر إرسال طلبك. حاول مرة أخرى، أو تواصل معنا على واتساب.", eUnavail: "أحد المنتجات لم يعد متاحًا. راجع السلة وحاول مرة أخرى.",
     eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب",
@@ -1326,7 +1327,7 @@ function renderCart() {
     if (WA_ORDER_MODE || waFallback) {
       const link = waOrderLink();
       foot.innerHTML = `${totalsHTML()}
-      <p class="fine-txt" style="margin:10px 0">${waFallback ? t("waFail") : t("waNote")}${link ? "" : " " + t("waLong")}</p>
+      ${waFallback ? `<p class="wa-fail" lang="ar" dir="rtl">${I18N.ar.waFail}</p>` : `<p class="fine-txt" style="margin:10px 0">${t("waNote")}${link ? "" : " " + t("waLong")}</p>`}
       ${link ? `<a class="btn btn-teal btn-block" href="${link}" target="_blank" rel="noopener noreferrer">${t("waOpen")}</a>` : `<button class="btn btn-teal btn-block" data-act="waCopy" style="margin-top:10px">${t("waCopy")}</button>`}
       ${link ? "" : `<a class="btn btn-line btn-block" href="${WA}" target="_blank" rel="noopener noreferrer" style="margin-top:10px">${t("contactWa")}</a>`}
       ${waFallback && !WA_ORDER_MODE ? `<button class="btn btn-line btn-block" data-act="confirmOrder" style="margin-top:10px" ${submitting ? "disabled" : ""}>${submitting ? t("sending") : t("waRetry")}</button>` : ""}
