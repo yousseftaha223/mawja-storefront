@@ -42,10 +42,15 @@ const clean = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u0008\u00
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const money = (n) => `${Number(n).toLocaleString("en-US")} ج.م`;
 
-async function loadCatalog(url) {
+async function loadCatalog(url, host) {
+  // Same-site copy first (it is exactly what the page shows, and costs no Supabase traffic); Supabase only if it is missing.
+  const own = host ? await loadCatalogFrom(`https://${host}/site-data/storefront.json`) : null;
+  return own || loadCatalogFrom(`${url}/storage/v1/object/public/media/site/storefront.json?v=${Date.now()}`);
+}
+async function loadCatalogFrom(src) {
   const t = withTimeout(5000);
   try {
-    const r = await fetch(`${url}/storage/v1/object/public/media/site/storefront.json?v=${Date.now()}`, { cache: "no-store", signal: t.signal });
+    const r = await fetch(src, { cache: "no-store", signal: t.signal });
     if (!r.ok) return null;
     const d = await r.json();
     if (!d || !Array.isArray(d.products)) return null;
@@ -165,7 +170,7 @@ module.exports = async (req, res) => {
   if (address.length < 10) return json(res, 400, { ok: false, error: "invalid" });
   if (!/^[\w-]{8,80}$/.test(clientRef)) return json(res, 400, { ok: false, error: "invalid" });
 
-  const store = await loadCatalog(sbUrl);
+  const store = await loadCatalog(sbUrl, /^(www\.)?mawjaa\.store$/.test(String(req.headers.host || "")) ? req.headers.host : "");
   const catalog = store && store.by;
   const built = buildItems(body.items, catalog);
   if (built.error) return json(res, built.error === "unavailable" ? 409 : 400, { ok: false, error: built.error });
