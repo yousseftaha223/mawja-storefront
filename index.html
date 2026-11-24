@@ -390,6 +390,30 @@ select.field option{background:var(--ocean2);color:var(--sand)}
 .review-dialog-head{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--ocean)}
 .review-dialog img{width:100%;height:auto;display:block}
 .vslide .rimg{width:100%;height:100%;object-fit:contain;display:block;background:var(--ocean)}
+
+/* ---- Layout polish (draft): shorter hero, light product band, floating contact, follow strip ---- */
+.hide-sm{display:none}
+@media (min-width:720px){.hide-sm{display:inline-flex}}
+.macro{height:clamp(230px,36vw,440px)}
+.hero2 .slogan{padding:32px 20px 40px}
+.sec-light{background:#F5F1EA;color:var(--ink)}
+.sec-light h2{color:var(--ocean)}
+.sec-light .pc h3{color:var(--ocean)}
+.sec-light .pc .wish{background:#fff}
+.btn-dark{background:var(--ocean);color:var(--sand);border:1px solid var(--ocean)}
+.btn-dark:hover{background:var(--teal);border-color:var(--teal)}
+#reviews .vc{max-width:520px;margin:0 auto}
+#reviews .sec-head{justify-content:center;text-align:center}
+.follow{background:var(--ocean2);text-align:center;padding:56px 20px}
+.follow h2{font-family:var(--serif);font-weight:500;font-size:clamp(30px,4vw,46px);line-height:1.1}
+.follow p{margin:12px auto 0;max-width:52ch;opacity:.85}
+.follow .offers-btn{margin-top:22px;text-transform:none;letter-spacing:.04em}
+.fab{position:fixed;inset-inline-end:16px;bottom:18px;z-index:36;display:flex;flex-direction:column;gap:10px;align-items:center}
+.fab a{display:flex;align-items:center;justify-content:center;border-radius:50%;box-shadow:0 8px 22px rgba(0,0,0,.35);color:#fff}
+.fab svg{width:28px;height:28px}
+.fab-wa{width:58px;height:58px;background:#25D366}
+.fab-ig{width:46px;height:46px;background:linear-gradient(45deg,#f09433,#dc2743 55%,#bc1888)}
+.fab-ig svg{width:24px;height:24px}
 </style>
 </head>
 <body>
@@ -405,6 +429,8 @@ select.field option{background:var(--ocean2);color:var(--sand)}
     </button>
     <a class="logo" href="#top" aria-label="MAWJA home"><img class="lw" src="brand/mawja-logo-beige.png" alt="MAWJA" width="988" height="155"><img class="li" src="brand/mawja-icon-beige.png" alt="" width="360" height="166"></a>
     <div class="tools">
+      <a class="ib hide-sm" href="https://www.instagram.com/mawja_fragrances" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></a>
+      <a class="ib hide-sm" href="https://wa.me/201279125006" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/></svg></a>
       <button class="ib" data-act="search" aria-label="Search" data-i18n-attr="aria-label:search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
       <a class="ib" href="#wishlist" aria-label="Wishlist" data-i18n-attr="aria-label:wish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span class="badge" id="wishCount" hidden>0</span></a>
       <button class="ib" data-act="cart" aria-label="Cart" data-i18n-attr="aria-label:cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" id="cartCount" hidden>0</span></button>
@@ -491,6 +517,11 @@ select.field option{background:var(--ocean2);color:var(--sand)}
   </div>
   <p class="fine" data-i18n="copy">© 2026 Mawjafragrances. All Rights Reserved</p>
 </footer>
+
+<div class="fab" aria-label="Contact">
+  <a class="fab-ig" href="https://www.instagram.com/mawja_fragrances" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></a>
+  <a class="fab-wa" href="https://wa.me/201279125006" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/></svg></a>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -619,7 +650,7 @@ const I18N = {
     search: "Search", searchPh: "Search fragrances", wish: "Wishlist", cart: "Cart", menu: "Menu", filterSort: "Sort", showResults: "Show results",
     nowTitle: "Now's offers", nowSub: "Selected fragrances, on offer right now.",
     heroTitle: "Not just a perfume. It's a lifestyle.", heroLede: "Remember yourself, a gift from MAWJA.",
-    heroCta: "Shop the collection", heroCta2: "Best sellers",
+    heroCta: "Shop the collection", heroCta2: "Best sellers", stripOffers: "Offers", followTitle: "Follow Mawja on Instagram", followSub: "New scents, real customer reviews and offers, first on Instagram.", followBtn: "Follow @mawja_fragrances", waFloat: "Order on WhatsApp", igFloat: "Instagram",
     catTitle: "Shop by collection", catMen: "Men's fragrances", catWomen: "Women's fragrances", catBest: "Best sellers",
     bsTitle: "Our perfumes", bsSub: "A curated selection to start with.", viewAll: "View all",
     reviewFull: "Customer review", reviewClose: "Close review", reviewOpen: "Enlarge customer review",
@@ -663,7 +694,7 @@ const I18N = {
     search: "بحث", searchPh: "ابحث عن عطر", wish: "المفضلة", cart: "السلة", menu: "القائمة", filterSort: "ترتيب", showResults: "عرض النتائج",
     nowTitle: "Now's offers", nowSub: "عطور مختارة، عليها عرض الآن.",
     heroTitle: "موجة ليست مجرد عطر… إنها أسلوب حياة.", heroLede: "تذكّر نفسك، بهدية من موجة.",
-    heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا",
+    heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا", stripOffers: "العروض", followTitle: "تابع موجة على انستجرام", followSub: "ريحات جديدة وآراء عملاء حقيقية وعروض، تلاقيها الأول على انستجرام.", followBtn: "تابعنا @mawja_fragrances", waFloat: "اطلب على واتساب", igFloat: "انستجرام",
     catTitle: "تسوق حسب المجموعة", catMen: "عطور رجالي", catWomen: "عطور نسائي", catBest: "الأكثر مبيعًا",
     bsTitle: "عطورنا", bsSub: "مجموعة مختارة لتبدأ بها.", viewAll: "عرض الكل",
     reviewFull: "رأي عميل", reviewClose: "إغلاق الرأي", reviewOpen: "تكبير رأي العميل",
@@ -705,7 +736,7 @@ const I18N = {
 };
 
 /* ---------- State ---------- */
-let lang = load("mawja-lang", "en") === "ar" ? "ar" : "en";
+let lang = load("mawja-lang", "ar") === "en" ? "en" : "ar";
 let view = { name: "home", arg: null };
 let filt = { sort: "feat", cat: "all" };
 let pick = { qty: 1, photo: 0 };
@@ -845,6 +876,7 @@ function renderHome() {
   const offers = NOW_OFFERS.map(s => BY[s]);
   return `
   <nav class="strip" aria-label="Sections">
+    <a href="#offers" data-i18n="stripOffers">Offers</a>
     <a href="#men" data-i18n="stripMen">Men's</a>
     <a href="#women" data-i18n="stripWomen">Women's</a>
     <a href="#unisex" data-i18n="stripUnisex">Unisex</a>
@@ -857,23 +889,30 @@ function renderHome() {
       <h1>${t("heroTitle")}</h1>
       <p class="lede">${t("heroLede")}</p>
       <div class="ctas">
-        <a class="offers-btn" href="#offers">${t("nowTitle")}</a>
-        <a class="btn btn-line hero-line" href="#shop">${t("heroCta")}</a>
+        <a class="offers-btn" href="#shop">${t("heroCta")}</a>
       </div>
     </div>
   </section>
 
-  <section class="sec bg-ivory" id="bestsellers" aria-labelledby="bsTitle" style="padding-top:24px">
+  <section class="sec sec-light" id="bestsellers" aria-labelledby="bsTitle" style="padding-top:24px">
     <div class="sec-in">
       <div class="sec-head">
         <div><h2 id="bsTitle">${t("bsTitle")}</h2><p class="sub">${t("bsSub")}</p></div>
       </div>
       <div class="pgrid" id="homeGrid">${PRODUCTS.slice(0, homeShown).map(card).join("")}</div>
-      ${homeShown < PRODUCTS.length ? `<div class="more" id="homeMore"><button class="btn btn-ivory" type="button" data-act="seeMore">${t("seeMore")}</button></div>` : ""}
+      ${homeShown < PRODUCTS.length ? `<div class="more" id="homeMore"><button class="btn btn-dark" type="button" data-act="seeMore">${t("seeMore")}</button></div>` : ""}
     </div>
   </section>
 
   ${reviewsHTML()}
+
+  <section class="follow" id="follow" aria-labelledby="flTitle">
+    <div class="sec-in">
+      <h2 id="flTitle">${t("followTitle")}</h2>
+      <p>${t("followSub")}</p>
+      <a class="offers-btn" href="https://www.instagram.com/mawja_fragrances" target="_blank" rel="noopener noreferrer">${t("followBtn")}</a>
+    </div>
+  </section>
 
   <section class="sec bg-ocean2" id="story" aria-labelledby="storyTitle">
     <div class="sec-in story-text">
