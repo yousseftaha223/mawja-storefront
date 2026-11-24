@@ -593,7 +593,8 @@ const WA = "https://wa.me/201279125006";
 const SHIPPING_FEE = 90;           // flat fallback fee (EGP), used ONLY while no governorates are set in the dashboard (Shipping tab).
 const SHIP_ZONES = [];             // [{ name, fee }] from the dashboard. When not empty, the customer picks a governorate and its fee applies.
 const HOME_PAGE_SIZE = 8;          // products shown on the homepage grid; "See more" reveals this many more each time
-const WA_ORDER_MODE = true;   // temporary: orders go through WhatsApp instead of /api/order
+const WA_ORDER_MODE = false;  // false = normal online order (saved + Telegram). Set true to force WhatsApp-only. When the order API fails, the review step switches to the WhatsApp message automatically (waFallback).
+let waFallback = false;
 const WA_MAX_URL = 1900;
 const ORDER_API = "/api/order";    // Vercel serverless function (api/order.js): saves the order and notifies Telegram
 const CATS = ["men", "women", "unisex"];
@@ -704,7 +705,7 @@ const I18N = {
     custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
     phName: "First and last name", phAddress: "Governorate, city, street, building, floor, apartment",
     eName: "Enter your full name (first and last).", ePhone: "Enter an 11-digit Egyptian mobile number starting with 01.", eAddress: "Enter your full address with details.",
-    reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", waOpen: "Open WhatsApp with my order", waCopy: "Copy order message", waCopied: "Order message copied", waNote: "For now, to order please press 'Open WhatsApp with my order'. Your order is confirmed once we reply. Opening WhatsApp alone sends nothing. Press Send in WhatsApp to place your order.", waLong: "Your cart is long, so the message could not be prefilled. Copy it, open WhatsApp, paste it and press Send. Your order is confirmed once we reply.", sending: "Sending…", editDetails: "Edit details",
+    reviewOrder: "Review order", reviewTitle: "Review your order", confirmOrder: "Confirm order", waOpen: "Open WhatsApp with my order", waCopy: "Copy order message", waCopied: "Order message copied", waFail: "We could not send your order from the site right now. Please press the button below to send it to us on WhatsApp instead. Your order is confirmed once we reply. Opening WhatsApp alone sends nothing. Press Send in WhatsApp to place it.", waRetry: "Try again", waNote: "For now, to order please press 'Open WhatsApp with my order'. Your order is confirmed once we reply. Opening WhatsApp alone sends nothing. Press Send in WhatsApp to place your order.", waLong: "Your cart is long, so the message could not be prefilled. Copy it, open WhatsApp, paste it and press Send. Your order is confirmed once we reply.", sending: "Sending…", editDetails: "Edit details",
     doneTitle: "Order received", doneBody: "Your order has been received. We will contact you shortly to confirm it.", orderNo: "Order number", continueShop: "Continue shopping",
     eSend: "We could not send your order. Please try again, or contact us on WhatsApp.", eUnavail: "One of the items is no longer available. Please review your cart and try again.",
     eWait: "An order was just sent from this phone number. Please wait a moment and try again.", contactWa: "Contact us on WhatsApp",
@@ -748,7 +749,7 @@ const I18N = {
     custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
     phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
     eName: "اكتب اسمك الكامل (الاسم الأول والأخير).", ePhone: "اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.", eAddress: "اكتب عنوانك كاملًا بالتفصيل.",
-    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", waOpen: "افتح واتساب برسالة الطلب", waCopy: "انسخ رسالة الطلب", waCopied: "تم نسخ رسالة الطلب", waNote: "مؤقتًا: للطلب يرجى الضغط على (فتح واتساب برسالة الطلب جاهزة) وبمجرد ردنا عليك يتم تأكيد الطلب. فتح واتساب وحده لا يرسل شيئًا. اضغط إرسال في واتساب.", waLong: "السلة كبيرة فلم نستطع تجهيز الرسالة تلقائيًا. انسخ الرسالة والصقها في واتساب واضغط إرسال. وبمجرد ردنا عليك يتم تأكيد الطلب.", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
+    reviewOrder: "مراجعة الطلب", reviewTitle: "راجع طلبك", confirmOrder: "تأكيد الطلب", waOpen: "افتح واتساب برسالة الطلب", waCopy: "انسخ رسالة الطلب", waCopied: "تم نسخ رسالة الطلب", waFail: "معرفناش نبعت طلبك من الموقع دلوقتي. اضغط على الزرار تحت وابعته لنا على واتساب. طلبك بيتأكد لما نرد عليك. فتح واتساب لوحده مبيبعتش حاجة، اضغط إرسال في واتساب.", waRetry: "حاول تاني", waNote: "مؤقتًا: للطلب يرجى الضغط على (فتح واتساب برسالة الطلب جاهزة) وبمجرد ردنا عليك يتم تأكيد الطلب. فتح واتساب وحده لا يرسل شيئًا. اضغط إرسال في واتساب.", waLong: "السلة كبيرة فلم نستطع تجهيز الرسالة تلقائيًا. انسخ الرسالة والصقها في واتساب واضغط إرسال. وبمجرد ردنا عليك يتم تأكيد الطلب.", sending: "جارٍ الإرسال…", editDetails: "تعديل البيانات",
     doneTitle: "تم استلام طلبك", doneBody: "تم استلام طلبك، وسنتواصل معك قريبًا لتأكيده.", orderNo: "رقم الطلب", continueShop: "متابعة التسوق",
     eSend: "تعذّر إرسال طلبك. حاول مرة أخرى، أو تواصل معنا على واتساب.", eUnavail: "أحد المنتجات لم يعد متاحًا. راجع السلة وحاول مرة أخرى.",
     eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب",
@@ -1320,14 +1321,15 @@ function renderCart() {
         ${SHIP_ZONES.length ? `<p>${esc(c.gov)}</p>` : ""}
         <p>${esc(c.address)}</p>
       </div>
-      ${submitErr ? `<div class="cerr" role="alert">${t(submitErr)}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${t("contactWa")}</a></div>` : ""}
+      ${submitErr && !waFallback ? `<div class="cerr" role="alert">${t(submitErr)}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${t("contactWa")}</a></div>` : ""}
     </div>`;
-    if (WA_ORDER_MODE) {
+    if (WA_ORDER_MODE || waFallback) {
       const link = waOrderLink();
       foot.innerHTML = `${totalsHTML()}
-      <p class="fine-txt" style="margin:10px 0">${t("waNote")}${link ? "" : " " + t("waLong")}</p>
+      <p class="fine-txt" style="margin:10px 0">${waFallback ? t("waFail") : t("waNote")}${link ? "" : " " + t("waLong")}</p>
       ${link ? `<a class="btn btn-teal btn-block" href="${link}" target="_blank" rel="noopener noreferrer">${t("waOpen")}</a>` : `<button class="btn btn-teal btn-block" data-act="waCopy" style="margin-top:10px">${t("waCopy")}</button>`}
       ${link ? "" : `<a class="btn btn-line btn-block" href="${WA}" target="_blank" rel="noopener noreferrer" style="margin-top:10px">${t("contactWa")}</a>`}
+      ${waFallback && !WA_ORDER_MODE ? `<button class="btn btn-line btn-block" data-act="confirmOrder" style="margin-top:10px" ${submitting ? "disabled" : ""}>${submitting ? t("sending") : t("waRetry")}</button>` : ""}
       <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px">${t("editDetails")}</button>`;
       return;
     }
@@ -1379,14 +1381,16 @@ async function submitOrder() {
     if (!r.ok || !j || !j.ok) {
       const code = j && j.error;
       submitErr = code === "unavailable" ? "eUnavail" : code === "too_many" ? "eWait" : code === "shipping" ? "eShip" : "eSend";
+      if (submitErr === "eSend") waFallback = true;   // server/Supabase problem: offer the WhatsApp message
     } else {
+      waFallback = false;
       orderDone = { no: j.orderNo };
       cart = []; save("mawja-cart", cart); renderCounts();
       orderRef = null; cartStep = "done";
       if ($("#cartOv").hidden) { $("#cartOv").hidden = false; sync(); }
     }
   } catch (e) {
-    submitErr = "eSend";
+    submitErr = "eSend"; waFallback = true;
   } finally {
     if (timer) clearTimeout(timer);
     submitting = false;
@@ -1531,7 +1535,7 @@ document.addEventListener("click", e => {
       const f = document.querySelector(`[data-f="${Object.keys(custErr)[0]}"]`); if (f) f.focus();
       return;
     }
-    cartStep = "review"; submitErr = ""; renderCart(); return;
+    cartStep = "review"; submitErr = ""; waFallback = false; renderCart(); return;
   }
   if (a === "waCopy") { waCopy(); return; }
   if (a === "confirmOrder") { if (WA_ORDER_MODE) return; submitOrder(); return; }
