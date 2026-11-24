@@ -599,6 +599,7 @@ function applyStore(d) {
     if (okHref(d.banner.href)) BANNER.href = d.banner.href;
     if (typeof d.banner.alt === "string") BANNER.alt = d.banner.alt;
   }
+  if (Array.isArray(d.products) && PRODUCTS.length) priceTrusted = true;
   return true;
 }
 function loadStore(ms) {
@@ -654,7 +655,10 @@ const I18N = {
     eWait: "An order was just sent from this phone number. Please wait a moment and try again.", contactWa: "Contact us on WhatsApp",
     fGov: "Governorate", selGov: "Select governorate", eGov: "Select your governorate.", shipPick: "Select governorate",
     shipNote2: "Shipping is calculated at checkout by governorate.",
-    eShip: "Shipping for this governorate has changed. Please review your details and try again."
+    eShip: "Shipping for this governorate has changed. Please review your details and try again.",
+    pricesRefreshed: "Prices were refreshed. Please review your order and confirm again.",
+    eCatalog: "We could not load the latest prices, so the order was not sent. Check your connection and try again, or contact us on WhatsApp.",
+    eBusy: "Too many requests right now. Please wait a few minutes and try again, or contact us on WhatsApp."
   },
   ar: {
     winter: "مجموعة الشتاء متاحة الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
@@ -698,7 +702,10 @@ const I18N = {
     eWait: "تم إرسال طلب منذ لحظات من نفس رقم الهاتف. انتظر قليلًا ثم حاول مرة أخرى.", contactWa: "تواصل معنا على واتساب",
     fGov: "المحافظة", selGov: "اختر المحافظة", eGov: "اختر المحافظة.", shipPick: "اختر المحافظة",
     shipNote2: "يُحسب الشحن عند إتمام الطلب حسب المحافظة.",
-    eShip: "تغيّرت تكلفة الشحن لهذه المحافظة. راجع بياناتك وحاول مرة أخرى."
+    eShip: "تغيّرت تكلفة الشحن لهذه المحافظة. راجع بياناتك وحاول مرة أخرى.",
+    pricesRefreshed: "تم تحديث الأسعار. راجع طلبك وأكّد مرة أخرى.",
+    eCatalog: "تعذّر تحميل أحدث الأسعار، فلم يتم إرسال الطلب. تأكد من الاتصال وحاول مرة أخرى، أو تواصل معنا على واتساب.",
+    eBusy: "عدد الطلبات كبير حاليًا. انتظر بضع دقائق ثم حاول مرة أخرى، أو تواصل معنا على واتساب."
   }
 };
 
@@ -713,6 +720,7 @@ let cartStep = "cart";   // cart -> checkout (details) -> review (summary) -> do
 let customer = { name: "", phone: "", gov: "", address: "", website: "" };   // "website" is a hidden honeypot field for bots
 let custErr = {};
 let orderRef = null;
+let priceTrusted = false;   // true only after the live catalog (prices, shipping) loaded; built-in values may be stale and must not be used to order
 let submitting = false;
 let submitErr = "";
 let orderDone = null;
@@ -1220,6 +1228,12 @@ async function submitOrder() {
   custErr = validateCustomer();
   if (Object.keys(custErr).length) { cartStep = "checkout"; renderCart(); return; }
   submitting = true; submitErr = ""; renderCart();
+  if (!priceTrusted) {   // prices on screen may be the built-in (possibly stale) ones: reload the live catalog before sending anything
+    const d = await loadStore(8000);
+    if (d && applyStore(d)) { restoreState(); render(); }
+    if (!priceTrusted) { submitErr = "eCatalog"; submitting = false; renderCart(); return; }
+    submitting = false; renderCart(); toast(t("pricesRefreshed")); return;   // show the live prices and let the customer confirm again
+  }
   orderRef = orderRef || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
   const payload = {
     clientRef: orderRef, lang,
@@ -1238,7 +1252,7 @@ async function submitOrder() {
     let j = null; try { j = await r.json(); } catch (e) {}
     if (!r.ok || !j || !j.ok) {
       const code = j && j.error;
-      submitErr = code === "unavailable" ? "eUnavail" : code === "too_many" ? "eWait" : code === "shipping" ? "eShip" : "eSend";
+      submitErr = code === "unavailable" ? "eUnavail" : code === "too_many" ? "eWait" : code === "busy" ? "eBusy" : code === "catalog" ? "eCatalog" : code === "shipping" ? "eShip" : "eSend";
     } else {
       orderDone = { no: j.orderNo };
       cart = []; save("mawja-cart", cart); renderCounts();
