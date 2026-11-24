@@ -44,10 +44,17 @@ const clean = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u0008\u00
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const money = (n) => `${Number(n).toLocaleString("en-US")} ج.م`;
 
-async function loadCatalog(url) {
+async function loadCatalog(url, host) {
+  // Same-site copy first (exactly what the page shows, no Supabase traffic); Supabase only if it is missing.
+  const own = host ? await loadCatalogFrom(null, host) : null;
+  return own || loadCatalogFrom(`${url}/storage/v1/object/public/media/site/storefront.json?v=${Date.now()}`, null);
+}
+async function loadCatalogFrom(src, host) {
   const t = withTimeout(5000);
   try {
-    const r = await fetch(`${url}/storage/v1/object/public/media/site/storefront.json?v=${Date.now()}`, { signal: t.signal });
+    const r = host && ENV.ASSETS && ENV.ASSETS.fetch
+      ? await ENV.ASSETS.fetch(new Request(`https://${host}/site-data/storefront.json`))
+      : await fetch(src || `https://${host}/site-data/storefront.json`, { cache: "no-store", signal: t.signal });
     if (!r.ok) return null;
     const d = await r.json();
     if (!d || !Array.isArray(d.products)) return null;
@@ -167,7 +174,7 @@ const handler = async (req, res) => {
   if (address.length < 10) return json(res, 400, { ok: false, error: "invalid" });
   if (!/^[\w-]{8,80}$/.test(clientRef)) return json(res, 400, { ok: false, error: "invalid" });
 
-  const store = await loadCatalog(sbUrl);
+  const store = await loadCatalog(sbUrl, /(^|\.)(mawjaa\.store|mawja-preview\.pages\.dev)$/.test(String(req.headers && req.headers.host || "")) ? req.headers.host : "");
   const catalog = store && store.by;
   const built = buildItems(body.items, catalog);
   if (built.error) return json(res, built.error === "unavailable" ? 409 : 400, { ok: false, error: built.error });
@@ -271,6 +278,6 @@ export async function onRequest(context) {
   };
   let bodyText = "";
   if (request.method === "POST") { try { bodyText = await request.text(); } catch (e) { bodyText = ""; } }
-  await handler({ method: request.method, body: bodyText }, res);
+  await handler({ method: request.method, body: bodyText, headers: { host: new URL(request.url).host } }, res);
   return new Response(out, { status, headers });
 }

@@ -6,3 +6,4 @@ node_modules
 !.env.example
 
 pages-preview/
+__pycache__/
