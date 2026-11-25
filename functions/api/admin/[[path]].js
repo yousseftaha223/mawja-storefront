@@ -9,6 +9,7 @@ async function ensure(db) {
   await db.batch([
     db.prepare("CREATE TABLE IF NOT EXISTS media (id TEXT PRIMARY KEY, mime TEXT NOT NULL, b64 TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')))"),
     db.prepare("CREATE TABLE IF NOT EXISTS login_fail (ip TEXT NOT NULL, t INTEGER NOT NULL)"),
+    db.prepare("CREATE TABLE IF NOT EXISTS deleted_orders (order_no INTEGER, deleted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')), body TEXT NOT NULL)"),
   ]);
 }
 const kvGet = async (db, k) => { const r = await db.prepare("SELECT v FROM kv WHERE k=?").bind(k).first(); return r ? r.v : null; };
@@ -61,6 +62,19 @@ export async function onRequest({ request, env, params }) {
     const { results } = await db.prepare("SELECT * FROM orders ORDER BY created_at DESC LIMIT 300").all();
     const rows = results.map((r) => ({ ...r, items: JSON.parse(r.items || "[]"), telegram_sent: !!r.telegram_sent }));
     return J(200, { ok: true, orders: rows });
+  }
+  if (route === "order-delete" && method === "POST") {
+    // Admin only (session + same-origin checks above). A copy of the row is kept in deleted_orders. Order numbers keep counting up (AUTOINCREMENT is not reset).
+    const b = await request.json().catch(() => ({}));
+    const id = String(b.id || "");
+    if (!id) return J(400, { ok: false, error: "invalid" });
+    const row = await db.prepare("SELECT * FROM orders WHERE id=?").bind(id).first();
+    if (!row) return J(404, { ok: false, error: "not_found" });
+    await db.batch([
+      db.prepare("INSERT INTO deleted_orders(order_no, body) VALUES(?,?)").bind(row.order_no, JSON.stringify(row)),
+      db.prepare("DELETE FROM orders WHERE id=?").bind(id),
+    ]);
+    return J(200, { ok: true, order_no: row.order_no });
   }
   if (route === "order-status" && method === "POST") {
     const b = await request.json().catch(() => ({}));

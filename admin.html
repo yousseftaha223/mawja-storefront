@@ -143,6 +143,20 @@ table.oi td.n,table.oi th.n{text-align:end;white-space:nowrap}
 .st-cancelled{border-color:rgba(255,180,168,.4);color:var(--err)}
 .ofil{padding:0 0 12px}
 @media(max-width:560px){.top .hide-sm{display:none}.sec-h h2{font-size:28px}.pbody .imgs{grid-template-columns:1fr}}
+
+.ord summary{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.ctx{position:fixed;z-index:60;background:var(--ocean2);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.45);min-width:150px}
+.ctx button{display:block;width:100%;background:none;border:0;color:#ff5a5f;font:inherit;font-size:15px;padding:10px 14px;text-align:right;cursor:pointer;border-radius:8px}
+.ctx button:hover{background:rgba(255,90,95,.12)}
+.dlg-bg{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg{background:var(--ocean2);border:1px solid var(--line);border-radius:14px;max-width:380px;width:100%;padding:22px;direction:rtl;text-align:right}
+.dlg h3{margin:0 0 10px;font-size:20px}
+.dlg p{margin:6px 0}
+.dlg .warn{color:#ff5a5f;font-size:15px}
+.dlg .row{display:flex;gap:10px;margin-top:18px}
+.dlg .row button{flex:1;padding:12px;border-radius:10px;font:inherit;cursor:pointer}
+.dlg .del{background:#ff5a5f;border:0;color:#fff;font-weight:600}
+.dlg .cancel{background:none;border:1px solid var(--line);color:inherit}
 </style>
 </head>
 <body>
@@ -768,6 +782,62 @@ $("#panel").addEventListener("toggle", e => {
   const d = e.target; if (!d.matches || !d.matches("details.ord")) return;
   if (d.open) ordersOpen.add(d.dataset.oid); else ordersOpen.delete(d.dataset.oid);
 }, true);
+
+// Delete an order: right-click (mouse) or long-press (touch) on an order opens a menu with Delete, then an Arabic confirmation.
+(() => {
+  let menu = null, skipClick = false;
+  const closeMenu = () => { if (menu) { menu.remove(); menu = null; } };
+  const orderOf = el => { const d = el.closest && el.closest("details.ord"); return d ? (orders || []).find(x => x.id === d.dataset.oid) : null; };
+  function confirmDelete(o) {
+    const bg = document.createElement("div"); bg.className = "dlg-bg";
+    bg.innerHTML = `<div class="dlg" role="alertdialog" aria-modal="true"><h3>حذف الطلب</h3>
+      <p>هل تريد حذف الطلب رقم <b>#${esc(o.order_no)}</b>؟</p><p>العميل: <b>${esc(o.customer_name)}</b></p>
+      <p class="warn">سيتم حذف الطلب نهائيًا من لوحة التحكم. لا يمكن التراجع عن هذا الإجراء.</p>
+      <div class="row"><button type="button" class="del">حذف نهائيًا</button><button type="button" class="cancel">إلغاء</button></div><p class="warn" id="dlgErr" hidden></p></div>`;
+    document.body.appendChild(bg);
+    const close = () => bg.remove();
+    bg.querySelector(".cancel").onclick = close;
+    bg.addEventListener("click", e => { if (e.target === bg) close(); });
+    bg.querySelector(".del").onclick = async ev => {
+      const btn = ev.currentTarget; btn.disabled = true; btn.textContent = "جارٍ الحذف…";
+      try {
+        await api("order-delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: o.id }) });
+        orders = (orders || []).filter(x => x.id !== o.id); ordersOpen.delete(o.id); close(); render(); updateOrdersBadge && updateOrdersBadge();
+      } catch (e) {
+        btn.disabled = false; btn.textContent = "حذف نهائيًا";
+        const er = bg.querySelector("#dlgErr"); er.hidden = false; er.textContent = "تعذر حذف الطلب. حاول مرة أخرى.";
+      }
+    };
+  }
+  function openMenu(o, x, y) {
+    closeMenu();
+    menu = document.createElement("div"); menu.className = "ctx";
+    menu.innerHTML = `<button type="button">حذف الطلب #${esc(o.order_no)}</button>`;
+    document.body.appendChild(menu);
+    menu.style.left = Math.max(8, Math.min(x, innerWidth - 190)) + "px"; menu.style.top = Math.max(8, Math.min(y, innerHeight - 70)) + "px";
+    menu.querySelector("button").onclick = () => { closeMenu(); confirmDelete(o); };
+  }
+  $("#panel").addEventListener("contextmenu", e => {
+    const o = e.target.closest("details.ord > summary") && orderOf(e.target); if (!o) return;
+    e.preventDefault(); openMenu(o, e.clientX, e.clientY);
+  });
+  let timer = null, sx = 0, sy = 0;
+  $("#panel").addEventListener("touchstart", e => {
+    const s = e.target.closest("details.ord > summary"); const o = s && orderOf(e.target); if (!o) return;
+    const t = e.touches[0]; sx = t.clientX; sy = t.clientY;
+    clearTimeout(timer);
+    timer = setTimeout(() => { timer = null; skipClick = true; openMenu(o, sx, sy); }, 600);
+  }, { passive: true });
+  const cancelTimer = () => { clearTimeout(timer); timer = null; };
+  $("#panel").addEventListener("touchmove", e => { const t = e.touches[0]; if (Math.abs(t.clientX - sx) > 10 || Math.abs(t.clientY - sy) > 10) cancelTimer(); }, { passive: true });
+  $("#panel").addEventListener("touchend", () => { cancelTimer(); setTimeout(() => { skipClick = false; }, 700); });
+  $("#panel").addEventListener("touchcancel", cancelTimer);
+  // After a long-press, do not toggle the order open.
+  $("#panel").addEventListener("click", e => { if (skipClick) { skipClick = false; e.preventDefault(); e.stopPropagation(); } }, true);
+  document.addEventListener("click", e => { if (menu && !menu.contains(e.target)) closeMenu(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
+  addEventListener("scroll", closeMenu, { passive: true });
+})();
 
 boot();
 
