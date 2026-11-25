@@ -792,7 +792,7 @@ $("#panel").addEventListener("toggle", e => {
   function confirmDelete(o) {
     const bg = document.createElement("div"); bg.className = "dlg-bg";
     bg.innerHTML = `<div class="dlg" role="alertdialog" aria-modal="true"><h3>حذف الطلب</h3>
-      <p>هل تريد حذف الطلب رقم <b>#${esc(o.order_no)}</b>؟</p><p>العميل: <b>${esc(o.customer_name)}</b></p>
+      <p>هل تريد حذف الطلب رقم <b>${esc(o.order_no)}</b>؟</p><p>العميل: <b>${esc(o.customer_name)}</b></p>
       <p class="warn">سيتم حذف الطلب نهائيًا من لوحة التحكم. لا يمكن التراجع عن هذا الإجراء.</p>
       <div class="row"><button type="button" class="del">حذف نهائيًا</button><button type="button" class="cancel">إلغاء</button></div><p class="warn" id="dlgErr" hidden></p></div>`;
     document.body.appendChild(bg);
@@ -812,8 +812,8 @@ $("#panel").addEventListener("toggle", e => {
   }
   function openMenu(o, x, y) {
     closeMenu();
-    menu = document.createElement("div"); menu.className = "ctx";
-    menu.innerHTML = `<button type="button">حذف الطلب #${esc(o.order_no)}</button>`;
+    menu = document.createElement("div"); menu.className = "ctx"; menu.dir = "rtl";
+    menu.innerHTML = `<button type="button">حذف الطلب رقم ${esc(o.order_no)}</button>`;
     document.body.appendChild(menu);
     menu.style.left = Math.max(8, Math.min(x, innerWidth - 190)) + "px"; menu.style.top = Math.max(8, Math.min(y, innerHeight - 70)) + "px";
     menu.querySelector("button").onclick = () => { closeMenu(); confirmDelete(o); };
