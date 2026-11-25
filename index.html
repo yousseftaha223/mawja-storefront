@@ -594,7 +594,7 @@ const WA = "https://wa.me/201279125006";
 const SHIPPING_FEE = 90;           // flat fallback fee (EGP), used ONLY while no governorates are set in the dashboard (Shipping tab).
 const SHIP_ZONES = [];             // [{ name, fee }] from the dashboard. When not empty, the customer picks a governorate and its fee applies.
 const HOME_PAGE_SIZE = 8;          // products shown on the homepage grid; "See more" reveals this many more each time
-const WA_ORDER_MODE = true;  // false = normal online order (saved + Telegram). Set true to force WhatsApp-only. When the order API fails, the review step switches to the WhatsApp message automatically (waFallback).
+const WA_ORDER_MODE = false;  // false = normal online order (saved + Telegram). Set true to force WhatsApp-only. When the order API fails, the review step switches to the WhatsApp message automatically (waFallback).
 let waFallback = false;
 const WA_MAX_URL = 1900;
 const WA_NOTIFY_API = "/api/wa-notify";   // forwards a tapped WhatsApp order to the owner's Telegram (works without Supabase)
