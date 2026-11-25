@@ -158,7 +158,7 @@ async function sendTelegram(order) {
   } finally { t.done(); }
 }
 
-async function saveD1(res, row, clientRef, phone, address) {
+async function saveD1(res, row, clientRef, phone, address, ip) {
   const db = ENV.DB;
   try {
     const since = new Date(Date.now() - COOLDOWN_SECONDS * 1000).toISOString();
@@ -166,6 +166,14 @@ async function saveD1(res, row, clientRef, phone, address) {
     if (recent && recent.client_ref !== clientRef) return json(res, 429, { ok: false, error: "too_many" });
     const ex0 = await db.prepare("SELECT order_no FROM orders WHERE client_ref=?").bind(clientRef).first();
     if (ex0) return json(res, 200, { ok: true, orderNo: ex0.order_no });   // retry of an order already saved: no second alert
+    // Flood protection (free, in D1): at most 6 new orders per hour from one IP address and 30 per 10 minutes overall.
+    await db.prepare("CREATE TABLE IF NOT EXISTS order_rate (ip TEXT NOT NULL, t INTEGER NOT NULL)").run();
+    const now = Date.now();
+    await db.prepare("DELETE FROM order_rate WHERE t<?").bind(now - 3600000).run();
+    const perIp = (await db.prepare("SELECT COUNT(*) c FROM order_rate WHERE ip=? AND t>=?").bind(ip || "x", now - 3600000).first()).c;
+    const all10 = (await db.prepare("SELECT COUNT(*) c FROM order_rate WHERE t>=?").bind(now - 600000).first()).c;
+    if (perIp >= 6 || all10 >= 30) return json(res, 429, { ok: false, error: "busy" });
+    await db.prepare("INSERT INTO order_rate(ip,t) VALUES(?,?)").bind(ip || "x", now).run();
     const id = crypto.randomUUID();
     const ins = await db.prepare("INSERT INTO orders (id, client_ref, customer_name, phone, address, governorate, items, subtotal, shipping, total, price_source, lang, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?, 'new')")
       .bind(id, clientRef, row.customer_name, phone, address, row.governorate, JSON.stringify(row.items), row.subtotal, row.shipping, row.total, row.price_source, row.lang).run().catch(async (e) => {
@@ -187,6 +195,10 @@ async function saveD1(res, row, clientRef, phone, address) {
 
 const handler = async (req, res) => {
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return json(res, 405, { ok: false, error: "method" }); }
+
+  // Only the shop's own pages may place orders (a script can fake this header, so it is a first filter next to the rate limit).
+  const org = String(req.headers && req.headers.origin || "");
+  if (!/^https:\/\/(mawjaa\.store|([a-z0-9-]+\.)?mawja-preview\.pages\.dev)$/.test(org)) return json(res, 403, { ok: false, error: "origin" });
 
   const key = ENV.SUPABASE_SERVICE_ROLE_KEY;
   const sbUrl = (ENV.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/+$/, "");
@@ -248,7 +260,7 @@ const handler = async (req, res) => {
     status: "new",
   };
 
-  if (ENV.DB) return saveD1(res, row, clientRef, phone, address);
+  if (ENV.DB) return saveD1(res, row, clientRef, phone, address, req.headers && req.headers.ip);
 
   try {
     // Same phone, different order, within the cooldown window: reject (basic spam / double-tap protection).
@@ -319,6 +331,6 @@ export async function onRequest(context) {
   };
   let bodyText = "";
   if (request.method === "POST") { try { bodyText = await request.text(); } catch (e) { bodyText = ""; } }
-  await handler({ method: request.method, body: bodyText, headers: { host: new URL(request.url).host } }, res);
+  await handler({ method: request.method, body: bodyText, headers: { host: new URL(request.url).host, origin: request.headers.get("Origin") || "", ip: request.headers.get("CF-Connecting-IP") || "" } }, res);
   return new Response(out, { status, headers });
 }

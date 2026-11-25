@@ -63,6 +63,12 @@ export async function onRequest({ request, env, params }) {
     const rows = results.map((r) => ({ ...r, items: JSON.parse(r.items || "[]"), telegram_sent: !!r.telegram_sent }));
     return J(200, { ok: true, orders: rows });
   }
+  if (route === "export" && method === "GET") {
+    const { results } = await db.prepare("SELECT * FROM orders ORDER BY order_no").all();
+    const cat = await kvGet(db, "storefront");
+    const body = JSON.stringify({ exported_at: new Date().toISOString(), orders: results.map((r) => ({ ...r, items: JSON.parse(r.items || "[]") })), catalog: cat ? JSON.parse(cat) : null }, null, 1);
+    return new Response(body, { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "Content-Disposition": 'attachment; filename="mawja-backup.json"' } });
+  }
   if (route === "order-delete" && method === "POST") {
     // Admin only (session + same-origin checks above). A copy of the row is kept in deleted_orders. Order numbers keep counting up (AUTOINCREMENT is not reset).
     const b = await request.json().catch(() => ({}));
