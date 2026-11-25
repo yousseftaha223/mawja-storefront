@@ -45,6 +45,13 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 const money = (n) => `${Number(n).toLocaleString("en-US")} ج.م`;
 
 async function loadCatalog(url, host) {
+  if (ENV.DB) {
+    try {
+      const r = await ENV.DB.prepare("SELECT v FROM kv WHERE k='storefront'").first();
+      const c = r && parseCatalog(JSON.parse(r.v));
+      if (c) return c;
+    } catch (e) { /* use the static copy */ }
+  }
   // Same-site copy first (exactly what the page shows, no Supabase traffic); Supabase only if it is missing.
   const own = host ? await loadCatalogFrom(null, host) : null;
   return own || loadCatalogFrom(`${url}/storage/v1/object/public/media/site/storefront.json?v=${Date.now()}`, null);
@@ -57,6 +64,13 @@ async function loadCatalogFrom(src, host) {
       : await fetch(src || `https://${host}/site-data/storefront.json`, { cache: "no-store", signal: t.signal });
     if (!r.ok) return null;
     const d = await r.json();
+    return parseCatalog(d);
+  } catch (e) {
+    return null;
+  } finally { t.done(); }
+}
+function parseCatalog(d) {
+  {
     if (!d || !Array.isArray(d.products)) return null;
     const by = {};
     d.products.forEach((p) => { if (p && typeof p.slug === "string") by[p.slug] = p; });
@@ -64,9 +78,7 @@ async function loadCatalogFrom(src, host) {
       ? d.shipping.filter((z) => z && typeof z.name === "string" && z.name.trim() && typeof z.fee === "number" && z.fee >= 0 && z.fee <= 100000)
       : [];
     return { by, zones };
-  } catch (e) {
-    return null;
-  } finally { t.done(); }
+  }
 }
 
 function parseBody(req) {
@@ -146,12 +158,39 @@ async function sendTelegram(order) {
   } finally { t.done(); }
 }
 
+async function saveD1(res, row, clientRef, phone, address) {
+  const db = ENV.DB;
+  try {
+    const since = new Date(Date.now() - COOLDOWN_SECONDS * 1000).toISOString();
+    const recent = await db.prepare("SELECT client_ref FROM orders WHERE phone=? AND created_at>=? LIMIT 1").bind(phone, since).first();
+    if (recent && recent.client_ref !== clientRef) return json(res, 429, { ok: false, error: "too_many" });
+    const ex0 = await db.prepare("SELECT order_no FROM orders WHERE client_ref=?").bind(clientRef).first();
+    if (ex0) return json(res, 200, { ok: true, orderNo: ex0.order_no });   // retry of an order already saved: no second alert
+    const id = crypto.randomUUID();
+    const ins = await db.prepare("INSERT INTO orders (id, client_ref, customer_name, phone, address, governorate, items, subtotal, shipping, total, price_source, lang, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?, 'new')")
+      .bind(id, clientRef, row.customer_name, phone, address, row.governorate, JSON.stringify(row.items), row.subtotal, row.shipping, row.total, row.price_source, row.lang).run().catch(async (e) => {
+        const ex = await db.prepare("SELECT order_no FROM orders WHERE client_ref=?").bind(clientRef).first();
+        if (ex) return { dup: ex.order_no };
+        throw e;
+      });
+    if (ins.dup) return json(res, 200, { ok: true, orderNo: ins.dup });
+    const saved = await db.prepare("SELECT order_no FROM orders WHERE id=?").bind(id).first();
+    const tg = await sendTelegram({ ...row, address, order_no: saved.order_no });
+    await db.prepare("UPDATE orders SET telegram_sent=?, telegram_error=? WHERE id=?").bind(tg.ok ? 1 : 0, tg.ok ? null : tg.error, id).run().catch(() => null);
+    if (!tg.ok) console.error("telegram notification failed:", tg.error);
+    return json(res, 200, { ok: true, orderNo: saved.order_no });
+  } catch (e) {
+    console.error("order failed (d1)", e && e.message);
+    return json(res, 502, { ok: false, error: "server" });
+  }
+}
+
 const handler = async (req, res) => {
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return json(res, 405, { ok: false, error: "method" }); }
 
   const key = ENV.SUPABASE_SERVICE_ROLE_KEY;
   const sbUrl = (ENV.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/+$/, "");
-  if (!key) return json(res, 503, { ok: false, error: "server_not_configured" });
+  if (!key && !ENV.DB) return json(res, 503, { ok: false, error: "server_not_configured" });
 
   const body = parseBody(req);
   if (!body) return json(res, 400, { ok: false, error: "invalid" });
@@ -208,6 +247,8 @@ const handler = async (req, res) => {
     lang: body.lang === "ar" ? "ar" : "en",
     status: "new",
   };
+
+  if (ENV.DB) return saveD1(res, row, clientRef, phone, address);
 
   try {
     // Same phone, different order, within the cooldown window: reject (basic spam / double-tap protection).
