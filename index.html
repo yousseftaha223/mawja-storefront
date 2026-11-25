@@ -538,6 +538,12 @@ html,body{overscroll-behavior-x:none}
       </ul>
     </div>
     <div>
+      <h4 data-i18n="fHelp">Help</h4>
+      <ul>
+        <li><a href="/policy" data-i18n="policyLink">Shipping &amp; returns</a></li>
+      </ul>
+    </div>
+    <div>
       <h4 data-i18n="fContact">Contact</h4>
       <ul>
         <li><a class="ci" href="https://www.instagram.com/mawja_fragrances" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>Instagram</a></li>
@@ -716,7 +722,7 @@ const I18N = {
     related: "You may also like", bundleAdd: "Add bundle to cart",
     cartTitle: "Your cart", cartEmpty: "Your cart is empty.", subtotal: "Subtotal", checkout: "Checkout", back2cart: "Back to cart",
     checkoutTitle: "Send your order", checkoutNote: "Enter your delivery details. You will see the full order, including shipping, before you confirm. Online payment is not connected yet.", sendWa: "Send order request on WhatsApp", remove: "Remove",
-    fShop: "Shop", fHelp: "Help", fContact: "Contact", footStatement: "Mawja is not just a perfume. It's a lifestyle.",
+    fShop: "Shop", policyLink: "Shipping & returns", policyNote: "Shipping & returns policy", fHelp: "Help", fContact: "Contact", footStatement: "Mawja is not just a perfume. It's a lifestyle.",
     ship: "Shipping policy (coming soon)", ret: "Return policy (coming soon)", priv: "Privacy policy (coming soon)", terms: "Terms and conditions (coming soon)",
     copy: "© 2026 Mawjafragrances. All Rights Reserved",
     cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", stripMen: "Men's", stripWomen: "Women's", stripBest: "Best sellers", seeMore: "See more",
@@ -760,7 +766,7 @@ const I18N = {
     related: "قد يعجبك أيضًا", bundleAdd: "أضف الثنائي للسلة",
     cartTitle: "سلة التسوق", cartEmpty: "سلتك فارغة.", subtotal: "المجموع الفرعي", checkout: "إتمام الطلب", back2cart: "رجوع للسلة",
     checkoutTitle: "أرسل طلبك", checkoutNote: "أدخل بيانات التوصيل. ستراجع الطلب كاملًا شاملًا الشحن قبل التأكيد. الدفع الإلكتروني غير مفعّل بعد.", sendWa: "أرسل الطلب عبر واتساب", remove: "إزالة",
-    fShop: "تسوق", fHelp: "مساعدة", fContact: "تواصل", footStatement: "افتكر نفسك بحاجة حلوة...", 
+    fShop: "تسوق", policyLink: "الشحن والاسترجاع", policyNote: "سياسة الشحن والاسترجاع", fHelp: "مساعدة", fContact: "تواصل", footStatement: "افتكر نفسك بحاجة حلوة...", 
     ship: "سياسة الشحن (قريبًا)", ret: "سياسة الاسترجاع (قريبًا)", priv: "سياسة الخصوصية (قريبًا)", terms: "الشروط والأحكام (قريبًا)",
     copy: "© 2026 Mawjafragrances. جميع الحقوق محفوظة",
     cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", stripMen: "رجالي", stripWomen: "نسائي", stripBest: "الأكثر مبيعاً", seeMore: "شوف المزيد",
@@ -1377,7 +1383,8 @@ function renderCart() {
     }
     foot.innerHTML = `${totalsHTML()}
       <button class="btn btn-teal btn-block" data-act="confirmOrder" ${submitting ? "disabled" : ""}>${submitting ? t("sending") : t("confirmOrder")}</button>
-      <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px" ${submitting ? "disabled" : ""}>${t("editDetails")}</button>`;
+      <button class="btn btn-line btn-block" data-act="cartStep" data-v="checkout" style="margin-top:10px" ${submitting ? "disabled" : ""}>${t("editDetails")}</button>
+      <p style="text-align:center;margin:12px 0 0;font-size:13px"><a href="/policy" target="_blank" rel="noopener" style="color:inherit;opacity:.85;text-decoration:underline">${t("policyNote")}</a></p>`;
     return;
   }
   body.innerHTML = cart.map(l => { const i = lineInfo(l); return `<div class="cl">
