@@ -606,8 +606,8 @@ const BANNER = { image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop" };
 /* ---------- Live data from the dashboard (/admin) ----------
    The dashboard saves one JSON file to Supabase Storage. It is read at runtime and replaces the values above.
    If it cannot be loaded (offline, missing or invalid), the values above are used unchanged. */
-const LIVE_CATALOG = new URLSearchParams(location.search).has("live");   // visitors use the built-in catalog (zero Supabase requests). ?live=1 reads the dashboard copy, for checking edits before a refresh.
-const STORE_URL = /^feat-d1-orders\./.test(location.hostname) ? "/site-data/storefront.json" : "https://ppqgtzujpoyhglxsykdw.supabase.co/storage/v1/object/public/media/site/storefront.json";   // preview of the D1 version reads its own catalog
+const LIVE_CATALOG = true;   // the catalog is read from this site (/site-data/storefront.json, saved by the dashboard in D1); the built-in copy shows first and if that read fails.
+const STORE_URL = "/site-data/storefront.json";
 const okHref = h => typeof h === "string" && /^(#[\w-]*|https?:\/\/[^\s"'<>]+)$/.test(h);
 const okSrc = s => typeof s === "string" && /^(https:\/\/[^\s"'<>]+|(demo|brand|media)\/[\w.\-\/]+)$/.test(s);
 /* Resized local copies of the Supabase images (written by scripts/build-media.py). Anything not in the map keeps its original URL. */

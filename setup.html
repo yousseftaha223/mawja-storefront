@@ -1,5 +1,0 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Admin setup</title>
-<style>body{font:16px system-ui;max-width:380px;margin:40px auto;padding:0 16px}input,button{display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:10px;font:inherit}#m{margin-top:12px}</style></head><body>
-<h1>Admin setup (one time)</h1>
-<form id="f"><input id="email" type="email" placeholder="Email" autocomplete="username" required><input id="pw" type="password" placeholder="Password (8+ characters)" autocomplete="new-password" required><input id="tok" type="password" placeholder="Setup token" autocomplete="off" required><button>Save</button></form><p id="m"></p>
-<script>f.onsubmit=async e=>{e.preventDefault();const r=await fetch("/api/admin/setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,password:pw.value,token:tok.value})});m.textContent=r.ok?"Saved. Open /admin and sign in.":"Failed ("+r.status+")";};</script></body></html>
