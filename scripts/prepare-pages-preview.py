@@ -10,6 +10,8 @@ if OUT.exists(): shutil.rmtree(OUT)
 OUT.mkdir()
 for name in ['brand', 'demo', 'media']:
     shutil.copytree(ROOT / name, OUT / name)
+(OUT / 'site-data').mkdir()
+shutil.copy(ROOT / 'site-data' / 'storefront.json', OUT / 'site-data' / 'storefront.json')
 for f in ['index.html', 'admin.html', 'setup.html']:
     shutil.copy(ROOT / f, OUT / f)
 (OUT / '_headers').write_text('/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n/admin\n  X-Robots-Tag: noindex, nofollow\n  Cache-Control: no-store\n  X-Frame-Options: DENY\n/media/*\n  Cache-Control: public, max-age=31536000, immutable\n')
