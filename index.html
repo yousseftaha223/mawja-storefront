@@ -377,14 +377,14 @@ textarea.field{min-height:92px;resize:vertical;line-height:1.5}
 .field.bad{border-color:#ffb4a8}
 select.field{appearance:auto;cursor:pointer}
 select.field option{background:var(--ocean2);color:var(--sand)}
-.ferr{font-size:13px;color:#ffb4a8;margin:-2px 0 6px}
+.ferr{font-size:13px;color:#ff5a5f;font-weight:600;margin:-2px 0 6px;text-align:right}
 .hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
 .srow{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:6px}
 .srow.tot{font-size:17px;font-weight:600;margin-bottom:12px}
 .cust{margin-top:20px;border-top:1px solid var(--line-lt);padding-top:14px;display:grid;gap:4px;font-size:14px;color:var(--lt-mute)}
 .cust b{color:var(--sand);font-weight:500}
 .cust p{white-space:pre-line;overflow-wrap:anywhere}
-.cerr{margin-top:16px;padding:12px 14px;border:1px solid #ffb4a8;border-radius:4px;color:#ffb4a8;font-size:14px}
+.cerr{margin-top:16px;padding:12px 14px;border:1px solid #ff5a5f;border-radius:4px;color:#ff5a5f;font-weight:600;font-size:14px;line-height:1.7;text-align:right}
 .cerr a{text-decoration:underline;text-underline-offset:3px}
 /* Review photos */
 .review-open{display:block;width:100%;height:100%;cursor:zoom-in}
@@ -1316,7 +1316,7 @@ function renderCart() {
   }
   if (cartStep === "checkout") {
     const bad = k => (custErr[k] ? ' bad" aria-invalid="true' : "");
-    const err = (k, key) => (custErr[k] ? `<p class="ferr" role="alert">${t(key)}</p>` : "");
+    const err = (k, key) => (custErr[k] ? `<p class="ferr" role="alert" lang="ar" dir="rtl">${I18N.ar[key]}</p>` : "");
     body.innerHTML = `<div style="padding:24px 0">
       <h3 class="serif" style="font-size:32px;line-height:1.1">${t("checkoutTitle")}</h3>
       <p class="fine-txt" style="margin-top:12px">${t("checkoutNote")}</p>
@@ -1356,12 +1356,12 @@ function renderCart() {
         ${SHIP_ZONES.length ? `<p>${esc(c.gov)}</p>` : ""}
         <p>${esc(c.address)}</p>
       </div>
-      ${submitErr && !waFallback ? `<div class="cerr" role="alert">${t(submitErr)}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${t("contactWa")}</a></div>` : ""}
+      ${submitErr && !waFallback ? `<div class="cerr" role="alert" lang="ar" dir="rtl">${I18N.ar[submitErr]}<br><a href="${WA}" target="_blank" rel="noopener noreferrer">${I18N.ar.contactWa}</a></div>` : ""}
     </div>`;
     if (WA_ORDER_MODE || waFallback) {
       const link = waOrderLink();
       foot.innerHTML = `${totalsHTML()}
-      ${waFallback ? `<p class="wa-fail" lang="ar" dir="rtl">${I18N.ar.waFail}</p>` : `<p class="fine-txt" style="margin:10px 0">${t("waNote")}${link ? "" : " " + t("waLong")}</p>`}
+      <p class="wa-fail" lang="ar" dir="rtl">${I18N.ar.waFail}${link ? "" : "<br>" + I18N.ar.waLong}</p>
       ${link ? `<a class="btn btn-teal btn-block" data-track="wa" href="${link}" target="_blank" rel="noopener noreferrer">${t("waOpen")}</a>` : `<button class="btn btn-teal btn-block" data-act="waCopy" style="margin-top:10px">${t("waCopy")}</button>`}
       ${link ? "" : `<a class="btn btn-line btn-block" href="${WA}" target="_blank" rel="noopener noreferrer" style="margin-top:10px">${t("contactWa")}</a>`}
       ${waFallback && !WA_ORDER_MODE ? `<button class="btn btn-line btn-block" data-act="confirmOrder" style="margin-top:10px" ${submitting ? "disabled" : ""}>${submitting ? t("sending") : t("waRetry")}</button>` : ""}
