@@ -296,6 +296,10 @@ function loadSiteDefaults() {
     document.body.appendChild(f);
   });
 }
+// Stable groups: videos first, then priority reviews within each media type.
+function reviewRank(v) { return (v.type === "image" ? 2 : 0) + (v.priorityReview === true ? 0 : 1); }
+function sortReviews(list) { return list.sort((a, b) => reviewRank(a) - reviewRank(b)); }
+function sameReviewGroup(a, b) { return !!a && !!b && reviewRank(a) === reviewRank(b); }
 function normalize(d) {
   d = d && typeof d === "object" ? d : {};
   const b = d.banner || {};
@@ -321,7 +325,7 @@ function normalize(d) {
     shipping: (Array.isArray(d.shipping) ? d.shipping : []).filter(z => z && typeof z.name === "string")
       .map(z => ({ name: z.name, fee: typeof z.fee === "number" && isFinite(z.fee) && z.fee >= 0 ? z.fee : null })),
     offers: (Array.isArray(d.offers) ? d.offers : []).filter(s => products.some(p => p.slug === s)),
-    reviews: (Array.isArray(d.reviews) ? d.reviews : []).filter(v => v && v.src).map(v => ({ type: v.type === "image" ? "image" : "video", src: String(v.src), poster: String(v.poster || ""), title: String(v.title || "") })),
+    reviews: sortReviews((Array.isArray(d.reviews) ? d.reviews : []).filter(v => v && v.src).map(v => ({ type: v.type === "image" ? "image" : "video", src: String(v.src), poster: String(v.poster || ""), title: String(v.title || ""), priorityReview: v.priorityReview === true }))),
   };
 }
 const dirty = () => data && JSON.stringify(data) !== saved;
@@ -540,7 +544,8 @@ function offersView() {
 
 let pendingReviewRemoval = null;
 function reviewsView() {
-  return `<div class="sec-h"><div><h2>Reviews</h2><p>Photos and videos in the Customer reviews carousel on the homepage. With none added, the carousel shows its empty placeholder slots. Photos up to 8 MB (JPG, PNG, WebP); videos up to 50 MB (MP4 works on every phone).</p></div>
+  sortReviews(data.reviews);
+  return `<div class="sec-h"><div><h2>Reviews</h2><p>Photos and videos in the Customer reviews carousel on the homepage. Videos always appear before photos. Within each type, priority reviews appear first. Arrows move reviews within the same group. This preview order is shared by Arabic and English; changes go live only after Save &amp; publish. Photos up to 8 MB (JPG, PNG, WebP); videos up to 50 MB (MP4 works on every phone).</p></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <span class="btn btn-sand upl">+ Upload photo<input type="file" accept="image/jpeg,image/png,image/webp" data-addphoto></span>
       <span class="btn btn-sand upl">+ Upload video<input type="file" accept="video/mp4,video/webm,video/quicktime" data-addvideo></span>
@@ -552,6 +557,7 @@ function reviewsView() {
         : `<video src="${esc(v.src)}" ${v.poster ? `poster="${esc(v.poster)}"` : ""} controls preload="metadata" playsinline></video>`}
       <div class="stack">
         <div><span class="badge">${v.type === "image" ? "Photo" : "Video"}</span></div>
+        <label class="chk"><input type="checkbox" data-review-priority="${i}" ${v.priorityReview === true ? "checked" : ""}>Priority review</label>
         <label class="f"><span>${v.type === "image" ? "Description (read by screen readers)" : "Title (read by screen readers)"}</span><input class="in" value="${esc(v.title)}" placeholder="Review ${i + 1}" data-k="reviews.${i}.title"></label>
         ${v.type === "image" ? `<div class="row"><span class="btn btn-line btn-sm upl">Replace photo<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="reviews.${i}.src" data-kind="img" aria-label="Replace review ${i + 1} photo"></span></div>` : `<div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <span class="btn btn-line btn-sm upl">${v.poster ? "Change cover image" : "Add cover image"}<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="reviews.${i}.poster" data-kind="img"></span>
@@ -560,8 +566,8 @@ function reviewsView() {
         <div class="toolrow">
           <div style="display:flex;gap:6px">
             <span class="btn btn-line btn-sm vgrip" data-vgrip="reviews" role="img" aria-label="Drag to reorder review ${i + 1}" title="Drag to reorder">⠿ Drag</span>
-            <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""}>↑</button>
-            <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="1" ${i === data.reviews.length - 1 ? "disabled" : ""}>↓</button>
+            <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="-1" ${!sameReviewGroup(v, data.reviews[i - 1]) ? "disabled" : ""} aria-label="Move review ${i + 1} up">↑</button>
+            <button class="btn btn-line btn-sm" type="button" data-act="vmove" data-i="${i}" data-d="1" ${!sameReviewGroup(v, data.reviews[i + 1]) ? "disabled" : ""} aria-label="Move review ${i + 1} down">↓</button>
           </div>
           ${pendingReviewRemoval === i ? `<div role="group" aria-label="Confirm removal of review ${i + 1}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span>Remove review ${i + 1}? It stays live until you save.</span><button class="btn btn-line btn-sm" type="button" data-act="cancelReviewRemoval" data-i="${i}">Keep review</button><button class="btn btn-danger btn-sm" type="button" data-act="confirmReviewRemoval" data-i="${i}">Yes, remove review</button></div>` : `<button class="btn btn-danger btn-sm" type="button" data-act="delVideo" data-i="${i}">Remove ${v.type === "image" ? "photo" : "video"}</button>`}
         </div>
@@ -680,6 +686,13 @@ $("#panel").addEventListener("change", async e => {
   if (el.matches("[data-k]") && el.type === "checkbox") { keepOpen(); render(); refreshBar(); return; }
   if (el.matches("[data-priority]")) { keepOpen(); sortProducts(); render(); refreshBar(); return; }
   if (el.matches("[data-ofilter]")) return;
+  if (el.matches("[data-review-priority]")) {
+    const review = data.reviews[Number(el.dataset.reviewPriority)];
+    if (!review) return;
+    review.priorityReview = el.checked;
+    pendingReviewRemoval = null;
+    sortReviews(data.reviews); render(); refreshBar(); return;
+  }
   if (el.matches("[data-order-status]")) {
     const id = el.dataset.orderStatus, o = (orders || []).find(x => x.id === id); if (!o) return;
     const prev = o.status, next = el.value;
@@ -756,7 +769,7 @@ $("#panel").addEventListener("click", e => {
     keepOpen(); render(); refreshBar(); return;
   }
   if (a === "move") { keepOpen(); const [p] = data.products.splice(i, 1); data.products.splice(i + d, 0, p); data.products.forEach((q, k) => { q.priority = k + 1; }); render(); refreshBar(); return; }
-  if (a === "vmove") { pendingReviewRemoval = null; const [v] = data.reviews.splice(i, 1); data.reviews.splice(i + d, 0, v); render(); refreshBar(); return; }
+  if (a === "vmove") { if (!sameReviewGroup(data.reviews[i], data.reviews[i + d])) return; pendingReviewRemoval = null; const [v] = data.reviews.splice(i, 1); data.reviews.splice(i + d, 0, v); render(); refreshBar(); return; }
   if (a === "refreshOrders") { loadOrders(false); return; }
   if (a === "addShip") { data.shipping.push({ name: "", fee: null }); render(); refreshBar(); const r = document.querySelectorAll("table.sz tbody tr"); if (r.length) r[r.length - 1].querySelector("input").focus(); return; }
   if (a === "addAllShip") {
