@@ -325,9 +325,6 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .szc:disabled,.szb:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
 .pc .pr .now{font-size:18px;font-weight:600}
 .navclip{overflow-x:clip}
-.ghostwrap{position:fixed;left:0;right:0;top:0;bottom:0;overflow:hidden;pointer-events:none;z-index:30}
-.ghostwrap>.ghost{position:absolute;left:0;right:0;will-change:transform,opacity;transform-origin:50% 0}
-#view.navanim{will-change:transform,opacity;transform-origin:50% 0}
 
 .pc .pr.fade{animation:fi .25s ease}
 @keyframes fi{from{opacity:.35}to{opacity:1}}
@@ -1260,9 +1257,10 @@ function renderCounts() {
 let didFirstRoute = false; const scrollMem = {}; let hashStack = [], curKey = null, lastY = 0, userTouched = false;
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 function restoreY(y) {
-  const vw = $("#view"); if (y > 0 && vw) { vw.style.minHeight = (y + window.innerHeight) + "px"; setTimeout(() => { vw.style.minHeight = ""; }, 1200); }
-  const go = () => { if (!userTouched) window.scrollTo({ top: y, behavior: "instant" }); };
-  go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 350); setTimeout(go, 800);
+  const vw = $("#view");
+  if (y > 0 && vw) { vw.style.minHeight = (y + window.innerHeight) + "px"; setTimeout(() => { vw.style.minHeight = ""; }, 900); }
+  window.scrollTo({ top: y, behavior: "instant" });
+  setTimeout(() => { if (!userTouched && Math.abs(window.scrollY - y) > 2) window.scrollTo({ top: y, behavior: "instant" }); }, 450);
 }
 function viewFade() {
   const el = $("#view"); if (!el) return; return;
@@ -1304,28 +1302,26 @@ function route() {
   const vw = $("#view");
   if (first || rm || !vw || !vw.animate) { apply(); return; }
   const rtl = document.documentElement.dir === "rtl" ? -1 : 1;
-  const outX = (isBack ? 44 : -30) * rtl, inX = (isBack ? -56 : 56) * rtl;
-  const r = vw.getBoundingClientRect();
-  const wrap = document.createElement("div"); wrap.className = "ghostwrap";
-  const ghost = vw.cloneNode(true); ghost.removeAttribute("id"); ghost.className = "ghost";
-  ghost.setAttribute("aria-hidden", "true"); ghost.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
-  ghost.style.top = r.top + "px"; ghost.style.width = r.width + "px"; ghost.style.left = r.left + "px"; ghost.style.right = "auto";
-  wrap.appendChild(ghost); document.body.appendChild(wrap);
-  document.body.classList.add("navclip"); document.documentElement.classList.add("navclip");
+  const inX = (isBack ? -26 : 26) * rtl;
+  vw.style.opacity = "0";
   apply();
-  const ease = "cubic-bezier(.22,1,.36,1)";
-  ghost.animate([
-    { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
-    { opacity: 0, transform: `translate3d(${outX}px,0,0) scale(.97)` }
-  ], { duration: 380, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
-  vw.classList.add("navanim");
-  const a2 = vw.animate([
-    { opacity: 0, transform: `translate3d(${inX}px,0,0) scale(.985)`, offset: 0 },
-    { opacity: 1, transform: "translate3d(0,0,0) scale(1)", offset: 1 }
-  ], { duration: 460, easing: ease, fill: "backwards" });
-  const done = () => { wrap.remove(); vw.classList.remove("navanim"); document.body.classList.remove("navclip"); document.documentElement.classList.remove("navclip"); };
-  a2.onfinish = done; a2.oncancel = done;
-  setTimeout(done, 900);
+  const de = document.documentElement;
+  de.classList.add("navclip");
+  let started = false;
+  const start = () => {
+    if (started) return; started = true;
+    const a = vw.animate([
+      { opacity: 0, transform: `translate3d(${inX}px,0,0)` },
+      { opacity: 1, transform: "translate3d(0,0,0)" }
+    ], { duration: 300, easing: "cubic-bezier(.2,.8,.2,1)" });
+    vw.style.opacity = "";
+    const done = () => de.classList.remove("navclip");
+    a.onfinish = done; a.oncancel = done;
+  };
+  const vis = Array.from(vw.querySelectorAll("img")).filter(i => { const b = i.getBoundingClientRect(); return b.bottom > 0 && b.top < innerHeight; }).slice(0, 8);
+  const decs = vis.map(i => (i.decode ? i.decode().catch(() => {}) : Promise.resolve()));
+  Promise.race([Promise.all(decs), new Promise(r => setTimeout(r, 90))]).then(() => requestAnimationFrame(start));
+  setTimeout(start, 250);
 }
 
 /* ---------- Cart ---------- */
