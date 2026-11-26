@@ -454,6 +454,40 @@ html,body{overscroll-behavior-x:none}
 .swap.on .lbl{opacity:1}
 @media (hover:hover){.swap:hover .lbl{opacity:1}}
 .swap.nohover:not(.on):hover .lbl{opacity:0}
+@font-face{font-family:'TajawalX';src:url(fonts/Tajawal-500.ttf);font-weight:500}@font-face{font-family:'TajawalX';src:url(fonts/Tajawal-700.ttf);font-weight:700}@font-face{font-family:'TajawalX';src:url(fonts/Tajawal-800.ttf);font-weight:800}@font-face{font-family:'MarheyX';src:url(fonts/Marhey-500.ttf);font-weight:100 900}@font-face{font-family:'ChangaX';src:url(fonts/Changa-700.ttf);font-weight:700}
+
+.hero2 .slogan{background:transparent}
+/* ===== Hero concept A: Tide (cinematic dark, animated waves) ===== */
+.hero2{position:relative;overflow:hidden;background:#062F43}
+.hero2 .macro-wrap::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,47,67,0) 45%,rgba(6,47,67,.55) 78%,#062F43 100%);pointer-events:none}
+.macro{height:auto;aspect-ratio:1/1.02;max-height:560px;transform-origin:50% 60%;animation:kb 18s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.06)}}
+.hero2 .slogan::before{content:'';position:absolute;left:0;right:0;top:-130px;height:216px;background:linear-gradient(180deg,rgba(6,47,67,0) 0%,rgba(6,47,67,.0) 30%,rgba(6,47,67,.85) 80%,#062F43 100%);z-index:-1;pointer-events:none}
+.hero2 .slogan{position:relative;margin-top:-86px;padding:0 20px 44px;z-index:2}
+.tide{position:absolute;left:0;top:-30px;height:44px;overflow:visible;pointer-events:none}
+.tide path{animation:sw 14s linear infinite}
+.tide .w1{fill:#E7D5BB;opacity:.14}
+.tide .w2{fill:#062F43;filter:drop-shadow(0 -6px 10px rgba(231,213,187,.25));animation-duration:9s;animation-direction:reverse}
+@keyframes sw{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tide{width:200%}
+.hero2 .slogan .kicker{letter-spacing:.34em;color:#E7D5BB;opacity:.85}
+.ar-hl{font-family:'TajawalX','Tajawal','Cairo',sans-serif;font-size:clamp(38px,10.5vw,60px);font-weight:800;color:#E7D5BB;line-height:1.25;margin:2px 0 4px;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.slogan h1{font-size:clamp(20px,5vw,30px);font-weight:400;font-style:italic;opacity:.92;max-width:30ch}
+.slogan .lede{margin-top:10px;opacity:.75}
+.hero2 .offers-btn{background:linear-gradient(180deg,#F1E3CC,#DCC7A5);box-shadow:0 14px 34px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.6);border-radius:999px}
+.hero2 .hero-line{border-radius:999px}
+.hero2 .offers-btn{font-family:var(--serif);font-style:italic;font-weight:600;text-transform:none;letter-spacing:.01em;font-size:23px}
+.chips{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:22px 0 0;padding:0}
+.chips li{padding:7px 14px;border:1px solid rgba(231,213,187,.35);border-radius:999px;font-size:12.5px;color:#E7D5BB;background:rgba(231,213,187,.07);backdrop-filter:blur(4px)}
+@media (min-width:900px){.hero2 .macro-link{max-width:820px;margin:0 auto}.macro{aspect-ratio:16/10;max-height:none;object-position:50% 52%}.hero2 .slogan{margin-top:0}}
+@media (prefers-reduced-motion:reduce){.macro,.tide path{animation:none!important}}
+.ar-star{display:inline-block;height:.5em;width:auto;margin-inline-start:.3em;vertical-align:.16em}
+html body .hero2 .slogan p.kicker{letter-spacing:.03em!important;text-transform:none!important;font-size:15px!important;font-weight:500!important}
+@font-face{font-family:ElMessiriK;src:url(fonts/ElMessiri-500.woff2) format("woff2");font-weight:500}html body .hero2 .slogan p.kicker .kar{font-family:ElMessiriK,sans-serif!important;font-weight:500!important;font-size:16px;letter-spacing:0}
+html body .hero2 .slogan p.ar-hl{font-family:'MarheyX',sans-serif!important;font-weight:500!important;font-size:23px!important;line-height:1.5!important;margin:0 auto 12px!important;max-width:none!important;-webkit-text-stroke:0!important;letter-spacing:0!important}
+html body .hero2 .slogan p.ar-hl{display:block;width:100%;text-align:center}
+@media (max-width:899px){html body .hero2 .slogan p.ar-hl,html body .hero2 .slogan p.kicker{position:relative;left:-13px}}
+@media (min-width:900px){html body .hero2 .slogan{padding-top:30px}}
 </style>
 </head>
 <body>
@@ -1004,13 +1038,16 @@ function renderHome() {
   <section class="hero2" id="hero">
     <a class="macro-link" href="${esc(BANNER.href)}"${/^https?:/.test(BANNER.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}><span class="macro-wrap" id="macroWrap"><img class="macro" src="${esc(BANNER.image)}" alt="${esc(BANNER.alt)}" width="1000" height="1000" fetchpriority="high">${/fluffy/.test(BANNER.image) ? PHOTO_LABELS.fluffy.map((l, i) => `<span class="lbl lbl-hero" data-hl="${i}">${["10ml", "55ml", "35ml"][i]}</span>`).join("") : ""}</span></a>
     <div class="slogan">
-      <p class="kicker">MAWJA · موجة</p>
+      <svg class="tide" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0,60 C240,110 480,10 720,60 C960,110 1200,10 1440,60 C1680,110 1920,10 2160,60 C2400,110 2640,10 2880,60 L2880,120 L0,120Z"/><path class="w2" d="M0,80 C200,40 520,120 760,80 C1000,40 1240,120 1480,80 C1720,40 2040,120 2280,80 C2520,40 2760,120 3000,80 L3000,120 L0,120Z"/></svg>
+      <p class="kicker">Mawja &nbsp;|&nbsp; <span class="kar" lang="ar" dir="rtl">مـوچة</span></p>
+      <p class="ar-hl" lang="ar" dir="rtl">كواليتي تليق بيك<img class="ar-star" src="brand/star-beige.png" alt="" width="28" height="28"></p>
       <h1 lang="en" dir="ltr">${t("heroTitle")}</h1>
       <p class="lede" lang="en" dir="ltr">${t("heroLede")}</p>
       <div class="ctas">
         <a class="offers-btn" href="#shop">${t("heroCta")}</a>
         ${hasOffers() ? `<a class="btn btn-line hero-line" href="#offers">${t("nowTitle")}</a>` : ""}
       </div>
+      <ul class="chips" dir="rtl"><li>شحن سريع</li><li dir="ltr">10 · 35 · 55 ml</li><li>قيمة مقابل سعر</li></ul>
     </div>
   </section>
 
