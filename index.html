@@ -708,7 +708,7 @@ const REVIEW_VIDEOS = [
 const BY = Object.fromEntries(PRODUCTS.map(p => [p.slug, p]));
 const BUNDLE = { key: "bundle-winter-duo", name: "Winter Duo", price: 850, was: 1000, img: "demo/honey.jpg" };
 const WA = "https://wa.me/201279125006";
-const FREE_SHIPPING_OVER = 900;    // EGP: free shipping when the items subtotal (before shipping) is MORE than this. Keep equal to FREE_SHIPPING_OVER in api/order.js and functions/api/order.js
+const FREE_SHIPPING_OVER = 900;    // EGP: free shipping when the items subtotal (before shipping) is this amount or MORE. Keep equal to FREE_SHIPPING_OVER in api/order.js and functions/api/order.js
 const SHIPPING_FEE = 90;           // flat fallback fee (EGP), used ONLY while no governorates are set in the dashboard (Shipping tab).
 const SHIP_ZONES = [];             // [{ name, fee }] from the dashboard. When not empty, the customer picks a governorate and its fee applies.
 const HOME_PAGE_SIZE = 8;          // products shown on the homepage grid; "See more" reveals this many more each time
@@ -838,7 +838,7 @@ const I18N = {
     cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", seeMore: "See more",
     nUnisex: "Unisex", catUnisex: "Unisex fragrances", fCat: "Category", fAll: "All",
     photos: "Photos", photoN: "Photo {n}", photosNote: "This fragrance has 2 photos. Tap a thumbnail or swipe the image to switch.",
-    freeShipBtn: "Free shipping", freeShipIf: "(Free shipping if your order is over {n} EGP)", freeShipOn: "(Free shipping applied to your order)", freeShipWord: "Free",
+    freeShipBtn: "Free shipping", freeShipIf: "(Free shipping if your order is {n} EGP or more)", freeShipOn: "(Free shipping applied to your order)", freeShipWord: "Free",
     shipLabel: "Shipping", total: "Total", shipNote: "Shipping ({fee}) is added at checkout.",
     custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
     phName: "First and last name", phAddress: "Governorate, city, street, building, floor, apartment",
@@ -886,7 +886,7 @@ const I18N = {
     cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", seeMore: "شوف المزيد",
     nUnisex: "للجنسين", catUnisex: "عطور للجنسين", fCat: "الفئة", fAll: "الكل",
     photos: "الصور", photoN: "الصورة {n}", photosNote: "لهذا العطر صورتان. اضغط على الصورة المصغّرة أو اسحب الصورة للتبديل.",
-    freeShipBtn: "شحن مجاني", freeShipIf: "(لو الأوردر أكتر من {n} ج.م خد شحن مجاني)", freeShipOn: "(الشحن المجاني اتطبّق على طلبك)", freeShipWord: "مجاني",
+    freeShipBtn: "شحن مجاني", freeShipIf: "(لو الأوردر {n} ج.م أو أكتر خد شحن مجاني)", freeShipOn: "(الشحن المجاني اتطبّق على طلبك)", freeShipWord: "مجاني",
     shipLabel: "الشحن", total: "الإجمالي", shipNote: "يُضاف الشحن ({fee}) عند إتمام الطلب.",
     custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
     phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
@@ -1441,12 +1441,12 @@ function validateCustomer() {
 const linesHTML = () => `<ul style="list-style:none;margin-top:20px;display:grid;gap:8px">${cart.map(l => { const i = lineInfo(l); return `<li style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span>${esc(i.name)} · ${i.label} × ${l.qty}</span><span>${money(i.price * l.qty)}</span></li>`; }).join("")}</ul>`;
 // Shipping: the fee of the governorate picked at checkout. With no governorates set in the dashboard, the flat fallback fee applies.
 const shipFee = () => {
-  if (cartTotal() > FREE_SHIPPING_OVER) return 0;
+  if (cartTotal() >= FREE_SHIPPING_OVER) return 0;
   if (!SHIP_ZONES.length) return SHIPPING_FEE;
   const z = SHIP_ZONES.find(x => x.name === customer.gov);
   return z ? z.fee : null;
 };
-const freeShipHTML = () => { const ok = cartTotal() > FREE_SHIPPING_OVER; return `<div class="fs-box${ok ? " on" : ""}"><span class="fs-pill">${t("freeShipBtn")}</span><span class="fs-note">${ok ? t("freeShipOn") : t("freeShipIf", { n: FREE_SHIPPING_OVER })}</span></div>`; };
+const freeShipHTML = () => { const ok = cartTotal() >= FREE_SHIPPING_OVER; return `<div class="fs-box${ok ? " on" : ""}"><span class="fs-pill">${t("freeShipBtn")}</span><span class="fs-note">${ok ? t("freeShipOn") : t("freeShipIf", { n: FREE_SHIPPING_OVER })}</span></div>`; };
 const totalsHTML = () => {
   const f = shipFee();
   return `<div class="srow"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>

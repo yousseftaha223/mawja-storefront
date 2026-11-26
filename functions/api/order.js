@@ -13,7 +13,7 @@
 let ENV = {};   // filled from the Pages Function context on every request
 
 const DEFAULT_SUPABASE_URL = "https://ppqgtzujpoyhglxsykdw.supabase.co";
-const FREE_SHIPPING_OVER = 900;               // EGP: shipping is free when the items subtotal (before shipping) is MORE than this. Keep equal to FREE_SHIPPING_OVER in index.html
+const FREE_SHIPPING_OVER = 900;               // EGP: shipping is free when the items subtotal (before shipping) is this amount or MORE. Keep equal to FREE_SHIPPING_OVER in index.html
 const SHIPPING_FEE = 90;                       // flat fallback (EGP), used only when no governorates are set in the dashboard. Keep equal to SHIPPING_FEE in index.html
 const SIZES = [55, 35, 10];
 const BUNDLE = { name: "Winter Duo", price: 850 };   // same as BUNDLE in index.html
@@ -243,7 +243,7 @@ const handler = async (req, res) => {
   }
 
   const subtotal = built.items.reduce((n, i) => n + i.line_total, 0);
-  if (subtotal > FREE_SHIPPING_OVER) shipping = 0;   // free shipping over the threshold, applied automatically
+  if (subtotal >= FREE_SHIPPING_OVER) shipping = 0;   // free shipping over the threshold, applied automatically
   const row = {
     client_ref: clientRef,
     customer_name: name,
