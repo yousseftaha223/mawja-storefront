@@ -54,7 +54,8 @@ async function loadCatalog(url, host) {
   }
   // Same-site copy first (exactly what the page shows, no Supabase traffic); Supabase only if it is missing.
   const own = host ? await loadCatalogFrom(null, host) : null;
-  return own || loadCatalogFrom(`${url}/storage/v1/object/public/media/site/storefront.json?v=${Date.now()}`, null);
+  if (own || ENV.DB) return own;   // on Cloudflare (D1 bound) never fall back to Supabase: the catalog lives in D1 and the same-site copy
+  return loadCatalogFrom(`${url}/storage/v1/object/public/media/site/storefront.json?v=${Date.now()}`, null);
 }
 async function loadCatalogFrom(src, host) {
   const t = withTimeout(5000);
@@ -90,7 +91,8 @@ function parseBody(req) {
 function buildItems(rawItems, catalog) {
   if (!Array.isArray(rawItems) || !rawItems.length || rawItems.length > 30) return { error: "invalid" };
   const items = [];
-  let verified = !!catalog;
+  if (!catalog) return { error: "catalog" };   // never trust prices sent by the browser
+  const verified = true;
   for (const it of rawItems) {
     if (!it || typeof it !== "object") return { error: "invalid" };
     const qty = Number(it.qty);
@@ -102,20 +104,12 @@ function buildItems(rawItems, catalog) {
     const ml = Number(it.ml);
     const slug = clean(it.slug, 80);
     if (!SIZES.includes(ml) || !slug) return { error: "invalid" };
-    if (catalog) {
-      const p = catalog[slug];
-      const P = p && p.prices && p.prices[ml];
-      if (!p || !P || typeof P.now !== "number" || P.now < 0 || (p.available && p.available[ml] === false)) {
-        return { error: "unavailable", slug };
-      }
-      items.push({ key: `${slug}-${ml}`, slug, name: clean(p.name, 80), ml, qty, unit_price: P.now, line_total: P.now * qty });
-    } else {
-      // Catalog unreachable: fall back to the prices the page sent (sanity-checked) and flag the order as unverified.
-      const price = Number(it.price);
-      if (!Number.isFinite(price) || price <= 0 || price > 100000) return { error: "invalid" };
-      verified = false;
-      items.push({ key: `${slug}-${ml}`, slug, name: clean(it.name, 80) || slug, ml, qty, unit_price: Math.round(price), line_total: Math.round(price) * qty });
+    const p = catalog[slug];
+    const P = p && p.prices && p.prices[ml];
+    if (!p || !P || typeof P.now !== "number" || P.now < 0 || (p.available && p.available[ml] === false)) {
+      return { error: "unavailable", slug };
     }
+    items.push({ key: `${slug}-${ml}`, slug, name: clean(p.name, 80), ml, qty, unit_price: P.now, line_total: P.now * qty });
   }
   return { items, verified };
 }
@@ -169,11 +163,17 @@ async function saveD1(res, row, clientRef, phone, address, ip) {
     // Flood protection (free, in D1): at most 6 new orders per hour from one IP address and 30 per 10 minutes overall.
     await db.prepare("CREATE TABLE IF NOT EXISTS order_rate (ip TEXT NOT NULL, t INTEGER NOT NULL)").run();
     const now = Date.now();
-    await db.prepare("DELETE FROM order_rate WHERE t<?").bind(now - 3600000).run();
+    await db.prepare("DELETE FROM order_rate WHERE t<?").bind(now - 86400000).run();
     const perIp = (await db.prepare("SELECT COUNT(*) c FROM order_rate WHERE ip=? AND t>=?").bind(ip || "x", now - 3600000).first()).c;
-    const all10 = (await db.prepare("SELECT COUNT(*) c FROM order_rate WHERE t>=?").bind(now - 600000).first()).c;
+    const all10 = (await db.prepare("SELECT COUNT(*) c FROM order_rate WHERE t>=? AND ip NOT LIKE 'ph:%'").bind(now - 600000).first()).c;
+    // Per phone: at most 3 new orders per hour and 6 per day (rows keyed "ph:<phone>"; a retry of the same order returned above).
+    const pk = "ph:" + phone;
+    const phHr = (await db.prepare("SELECT COUNT(*) c FROM order_rate WHERE ip=? AND t>=?").bind(pk, now - 3600000).first()).c;
+    const phDay = (await db.prepare("SELECT COUNT(*) c FROM order_rate WHERE ip=? AND t>=?").bind(pk, now - 86400000).first()).c;
     if (perIp >= 6 || all10 >= 30) return json(res, 429, { ok: false, error: "busy" });
+    if (phHr >= 3 || phDay >= 6) return json(res, 429, { ok: false, error: "too_many" });
     await db.prepare("INSERT INTO order_rate(ip,t) VALUES(?,?)").bind(ip || "x", now).run();
+    await db.prepare("INSERT INTO order_rate(ip,t) VALUES(?,?)").bind(pk, now).run();
     const id = crypto.randomUUID();
     const ins = await db.prepare("INSERT INTO orders (id, client_ref, customer_name, phone, address, governorate, items, subtotal, shipping, total, price_source, lang, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?, 'new')")
       .bind(id, clientRef, row.customer_name, phone, address, row.governorate, JSON.stringify(row.items), row.subtotal, row.shipping, row.total, row.price_source, row.lang).run().catch(async (e) => {
@@ -227,8 +227,10 @@ const handler = async (req, res) => {
 
   const store = await loadCatalog(sbUrl, /(^|\.)(mawjaa\.store|mawja-preview\.pages\.dev)$/.test(String(req.headers && req.headers.host || "")) ? req.headers.host : "");
   const catalog = store && store.by;
+  // Catalog (prices, shipping) unreadable: refuse the order. Nothing is saved and no browser-sent price is ever used.
+  if (!store) return json(res, 503, { ok: false, error: "catalog" });
   const built = buildItems(body.items, catalog);
-  if (built.error) return json(res, built.error === "unavailable" ? 409 : 400, { ok: false, error: built.error });
+  if (built.error) return json(res, built.error === "unavailable" ? 409 : built.error === "catalog" ? 503 : 400, { ok: false, error: built.error });
 
   // Shipping: by governorate when the dashboard has a list; flat fallback when it has none.
   let shipping = SHIPPING_FEE, governorate = null;
@@ -237,11 +239,6 @@ const handler = async (req, res) => {
     const z = store.zones.find((x) => x.name.trim() === govIn);
     if (!z) return json(res, 409, { ok: false, error: "shipping" });
     shipping = z.fee; governorate = z.name.trim();
-  } else if (!store) {
-    // Dashboard data unreachable: use what the page sent (sanity-checked). The order is flagged price_source=client below.
-    const f = Number(body.shippingFee);
-    if (Number.isFinite(f) && f >= 0 && f <= 1000) shipping = Math.round(f);
-    governorate = govIn || null;
   }
 
   const subtotal = built.items.reduce((n, i) => n + i.line_total, 0);
