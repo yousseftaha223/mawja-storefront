@@ -502,6 +502,7 @@ html body .hero2 .slogan p.ar-hl{font-family:'MarheyX',sans-serif!important;font
 html body .hero2 .slogan p.ar-hl{display:block;width:100%;text-align:center}
 @media (max-width:899px){html body .hero2 .slogan p.ar-hl,html body .hero2 .slogan p.kicker{position:relative;left:-13px}}
 @media (min-width:900px){html body .hero2 .slogan{padding-top:30px}}
+html body .cod-line{margin:12px auto 0;width:100%;max-width:none;font-family:var(--sans);font-style:normal;font-weight:400;font-size:12.5px;line-height:1.4;letter-spacing:.02em;color:#E7D5BB;opacity:.85;text-align:center}html body .cod-line.cod-cart{color:var(--lt-mute);opacity:1;margin:0 0 12px;text-align:start;font-size:13px}
 </style>
 </head>
 <body>
@@ -580,7 +581,7 @@ html body .hero2 .slogan p.ar-hl{display:block;width:100%;text-align:center}
 <main id="top"><div id="view"></div></main>
 <script>
 /* Hero shown as plain markup before the main script runs. One source: topHTML() is also used by renderHome(). */
-var HERO_T = {en: {"heroTitle": "Not just a perfume. It's a lifestyle.", "heroLede": "Remember yourself, a gift from MAWJA.", "heroCta": "Shop the collection", "nowTitle": "Now's offers", "stripOffers": "Offers", "stripMen": "Men's", "stripWomen": "Women's", "stripUnisex": "Unisex", "stripBest": "Best sellers"}, ar: {"heroCta": "تسوق المجموعة", "nowTitle": "العروض الحالية", "stripOffers": "العروض", "stripMen": "رجالي", "stripWomen": "نسائي", "stripUnisex": "للجنسين", "stripBest": "الأكثر مبيعاً"}};
+var HERO_T = {en: {"heroTitle": "Not just a perfume. It's a lifestyle.", "heroLede": "Remember yourself, a gift from MAWJA.", "heroCta": "Shop the collection", "heroCod": "Cash on delivery", "nowTitle": "Now's offers", "stripOffers": "Offers", "stripMen": "Men's", "stripWomen": "Women's", "stripUnisex": "Unisex", "stripBest": "Best sellers"}, ar: {"heroCod": "الدفع كاش عند الاستلام", "heroCta": "تسوق المجموعة", "nowTitle": "العروض الحالية", "stripOffers": "العروض", "stripMen": "رجالي", "stripWomen": "نسائي", "stripUnisex": "للجنسين", "stripBest": "الأكثر مبيعاً"}};
 var HERO_BANNER = {image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop"};
 var HERO_LABELS = ["10ml", "55ml", "35ml"];
 function heroEsc(x) { return String(x).replace(/[&<>"']/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
@@ -606,6 +607,7 @@ function topHTML(lang, B, offers) {
         ${offers ? `<a class="btn btn-line hero-line" href="#offers">${T("nowTitle")}</a>` : ""}
       </div>
       <ul class="chips" dir="rtl"><li>شحن سريع</li><li dir="ltr">10 · 35 · 55 ml</li><li>قيمة مقابل سعر</li></ul>
+      <p class="cod-line">${T("heroCod")}</p>
     </div>
   </section>`;
 }
@@ -825,7 +827,7 @@ const I18N = {
     notes: "Fragrance notes", notesBody: "Notes will appear here once they are verified.",
     related: "You may also like", bundleAdd: "Add bundle to cart",
     cartTitle: "Your cart", cartEmpty: "Your cart is empty.", subtotal: "Subtotal", checkout: "Checkout", back2cart: "Back to cart",
-    checkoutTitle: "Send your order", checkoutNote: "Enter your delivery details. You will see the full order, including shipping, before you confirm. Online payment is not connected yet.", sendWa: "Send order request on WhatsApp", remove: "Remove",
+    checkoutTitle: "Send your order", checkoutNote: "Enter your delivery details. You will see the full order, including shipping, before you confirm. Payment is cash on delivery.", sendWa: "Send order request on WhatsApp", remove: "Remove",
     fShop: "Shop", policyLink: "Shipping & returns", policyNote: "Shipping & returns policy", fHelp: "Help", fContact: "Contact", footStatement: "Mawja is not just a perfume. It's a lifestyle.",
     ship: "Shipping policy (coming soon)", ret: "Return policy (coming soon)", priv: "Privacy policy (coming soon)", terms: "Terms and conditions (coming soon)",
     copy: "© 2026 Mawjafragrances. All Rights Reserved",
@@ -872,7 +874,7 @@ const I18N = {
     notes: "نوتات العطر", notesBody: "ستظهر النوتات هنا بعد التحقق منها.",
     related: "قد يعجبك أيضًا", bundleAdd: "أضف الثنائي للسلة",
     cartTitle: "سلة التسوق", cartEmpty: "سلتك فارغة.", subtotal: "المجموع الفرعي", checkout: "إتمام الطلب", back2cart: "رجوع للسلة",
-    checkoutTitle: "أرسل طلبك", checkoutNote: "أدخل بيانات التوصيل. ستراجع الطلب كاملًا شاملًا الشحن قبل التأكيد. الدفع الإلكتروني غير مفعّل بعد.", sendWa: "أرسل الطلب عبر واتساب", remove: "إزالة",
+    checkoutTitle: "أرسل طلبك", checkoutNote: "أدخل بيانات التوصيل. ستراجع الطلب كاملًا شاملًا الشحن قبل التأكيد. الدفع كاش عند الاستلام.", sendWa: "أرسل الطلب عبر واتساب", remove: "إزالة",
     fShop: "تسوق", policyLink: "الشحن والاسترجاع", policyNote: "سياسة الشحن والاسترجاع", fHelp: "مساعدة", fContact: "تواصل", footStatement: "افتكر نفسك بحاجة حلوة...", 
     ship: "سياسة الشحن (قريبًا)", ret: "سياسة الاسترجاع (قريبًا)", priv: "سياسة الخصوصية (قريبًا)", terms: "الشروط والأحكام (قريبًا)",
     copy: "© 2026 Mawjafragrances. جميع الحقوق محفوظة",
@@ -1560,6 +1562,7 @@ function renderCart() {
     </div>`; }).join("");
   foot.innerHTML = `<div class="sum"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
     <p class="fine-txt" style="margin-bottom:12px">${SHIP_ZONES.length ? t("shipNote2") : t("shipNote", { fee: money(SHIPPING_FEE) })} ${t("ordering")} · ${t("orderingBody")}</p>
+    <p class="cod-line cod-cart">${t("heroCod")}</p>
     <button class="btn btn-teal btn-block" data-act="cartStep" data-v="checkout">${t("checkout")}</button>`;
 }
 
