@@ -324,6 +324,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .szc[aria-checked=true]{background:var(--sand);color:var(--ocean);border-color:var(--sand)}
 .szc:disabled,.szb:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
 .pc .pr .now{font-size:18px;font-weight:600}
+.vfade{animation:vf .18s ease-out}@keyframes vf{from{opacity:0}to{opacity:1}}
 .pc .pr.fade{animation:fi .25s ease}
 @keyframes fi{from{opacity:.35}to{opacity:1}}
 button.qa{width:100%;border:0;cursor:pointer;font-family:inherit}
@@ -1252,28 +1253,45 @@ function renderCounts() {
 }
 
 /* ---------- Routing (plain #names only) ---------- */
+const scrollMem = {}; let hashStack = [], curKey = null, lastY = 0, userTouched = false;
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+function restoreY(y) {
+  const vw = $("#view"); if (y > 0 && vw) { vw.style.minHeight = (y + window.innerHeight) + "px"; setTimeout(() => { vw.style.minHeight = ""; }, 1200); }
+  const go = () => { if (!userTouched) window.scrollTo({ top: y, behavior: "instant" }); };
+  go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 350); setTimeout(go, 800);
+}
+function viewFade() {
+  const el = $("#view"); if (!el) return;
+  el.classList.remove("vfade"); void el.offsetWidth; el.classList.add("vfade");
+}
 function route() {
+  const key = location.hash || "#";
+  if (curKey !== null) scrollMem[curKey] = lastY;
+  const isBack = hashStack.length > 1 && hashStack[hashStack.length - 2] === key;
+  if (isBack) hashStack.pop(); else if (hashStack[hashStack.length - 1] !== key) hashStack.push(key);
+  curKey = key; userTouched = false;
+  const y = isBack ? (scrollMem[key] || 0) : 0;
   const h = decodeURIComponent(location.hash.replace(/^#/, ""));
   if (h === "shop" || h === "men" || h === "women" || h === "unisex" || h === "wishlist" || h === "offers" || h === "best") {
     view = { name: h, arg: null };
     filt = { sort: filt.sort, cat: "all" };
-    render();
-    window.scrollTo({ top: 0, behavior: "auto" });
+    render(); viewFade();
+    restoreY(y);
     return;
   }
   if (h.startsWith("product-")) {
     view = { name: "product", arg: h.slice(8) };
     pick = { qty: 1, photo: 0 };
-    render();
-    window.scrollTo({ top: 0, behavior: "auto" });
+    render(); viewFade();
+    restoreY(y);
     return;
   }
-  if (view.name !== "home") { view = { name: "home", arg: null }; render(); }
+  if (view.name !== "home") { view = { name: "home", arg: null }; render(); viewFade(); }
   if (h) {
     const el = document.getElementById(h);
-    if (el) el.scrollIntoView({ behavior: "auto", block: "start" });
+    if (el) el.scrollIntoView({ behavior: "instant", block: "start" });
   } else {
-    window.scrollTo({ top: 0, behavior: "auto" });
+    restoreY(y);
   }
 }
 
@@ -1757,7 +1775,8 @@ document.addEventListener("keydown", e => {
 });
 
 window.addEventListener("hashchange", () => { navCount++; route(); });
-window.addEventListener("scroll", () => { $(".hdr").classList.toggle("sc", window.scrollY > 160); }, { passive: true });
+["touchstart","wheel","keydown"].forEach(e => window.addEventListener(e, () => { userTouched = true; }, { passive: true }));
+window.addEventListener("scroll", () => { lastY = window.scrollY; $(".hdr").classList.toggle("sc", window.scrollY > 160); }, { passive: true });
 
 /* Restore saved state. Cart lines for a product or size that no longer exists, or is unavailable, are dropped. */
 function restoreState() {
