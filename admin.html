@@ -310,7 +310,7 @@ function normalize(d) {
       prices[s] = { before: typeof P.before === "number" ? P.before : null, now: typeof P.now === "number" ? P.now : null };
       available[s] = !(p.available && p.available[s] === false);
     });
-    return { slug: String(p.slug || ""), name: String(p.name || ""), ref: String(p.ref || ""), cat: catOf(p.cat),
+    return { slug: String(p.slug || ""), name: String(p.name || ""), ref: String(p.ref || ""), cat: catOf(p.cat), cats: (Array.isArray(p.cats) ? p.cats : []).filter((c, i, arr) => ["men", "women", "unisex"].includes(c) && arr.indexOf(c) === i && c !== catOf(p.cat)),
       img: String(p.img || ""), img2: String(p.img2 || p.img || ""), featured: !!p.featured, prices, available,
       notes: String(p.notes || ""), notesAr: String(p.notesAr || ""),
       priority: typeof p.priority === "number" && isFinite(p.priority) && p.priority >= 0 ? p.priority : null };
@@ -506,6 +506,7 @@ function productCard(p, i) {
         <label class="f"><span>Name</span><input class="in" value="${esc(p.name)}" data-k="products.${i}.name"></label>
         <label class="f"><span>Inspired by (reference)</span><input class="in" value="${esc(p.ref)}" data-k="products.${i}.ref"></label>
         <label class="f"><span>Category</span><select class="in" data-k="products.${i}.cat"><option value="men" ${p.cat === "men" ? "selected" : ""}>Men</option><option value="women" ${p.cat === "women" ? "selected" : ""}>Women</option><option value="unisex" ${p.cat === "unisex" ? "selected" : ""}>Unisex</option></select></label>
+        <div class="f" style="grid-column:1/-1"><span>Also show in</span><div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:6px">${["men", "women", "unisex"].filter(c => c !== p.cat).map(c => `<label class="chk"><input type="checkbox" data-also="${c}" data-i="${i}" ${(p.cats || []).includes(c) ? "checked" : ""}>${CAT_LABEL[c]}</label>`).join("")}</div></div>
         <div style="display:flex;align-items:flex-end;padding-bottom:10px"><label class="chk"><input type="checkbox" ${p.featured ? "checked" : ""} data-k="products.${i}.featured">Show in Best sellers</label></div>
       </div>
       <div class="grid2">
@@ -683,6 +684,7 @@ $("#panel").addEventListener("input", e => {
 });
 $("#panel").addEventListener("change", async e => {
   const el = e.target;
+  if (el.matches("[data-also]")) { const p = data.products[Number(el.dataset.i)]; const c = el.dataset.also; p.cats = (p.cats || []).filter(x => x !== c); if (el.checked) p.cats.push(c); refreshBar(); return; }
   if (el.matches("[data-k]") && el.type === "checkbox") { keepOpen(); render(); refreshBar(); return; }
   if (el.matches("[data-priority]")) { keepOpen(); sortProducts(); render(); refreshBar(); return; }
   if (el.matches("[data-ofilter]")) return;
