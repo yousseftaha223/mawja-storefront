@@ -268,6 +268,13 @@ button{background:none;border:0;padding:0;cursor:pointer}
 @media (min-width:900px){.pp{grid-template-columns:1.05fr 1fr;gap:72px;padding:48px 20px 72px;align-items:start}}
 .gal{position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:var(--ocean)}
 .pp .crumb{font-size:13px;color:var(--lt-mute)}
+.backrow{max-width:1280px;margin:0 auto;padding:16px 20px 0}
+.backbtn{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;border:1.5px solid currentColor;background:transparent;color:inherit;cursor:pointer;transition:background .15s,transform .15s}
+.backbtn:hover,.backbtn:focus-visible{background:rgba(231,213,187,.14)}
+.backbtn:active{transform:scale(.94)}
+.backbtn svg{width:22px;height:22px}
+[dir=rtl] .backbtn svg{transform:scaleX(-1)}
+.lhead{padding-top:20px!important}
 .pp h1{font-family:var(--serif);font-weight:500;font-size:clamp(46px,5.4vw,68px);line-height:1;margin-top:12px}
 .pp .ref{font-family:var(--serif);font-style:italic;font-size:24px;margin-top:8px;color:var(--lt-mute)}
 .pp .price{margin-top:20px;font-size:24px;font-weight:500}
@@ -890,6 +897,9 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 function load(key, fb) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fb; } catch (e) { return fb; } }
 
 const ICON_HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>`;
+const ICON_BACK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>`;
+const backBtn = fb => `<div class="backrow"><button class="backbtn" type="button" data-act="goBack" data-fallback="${fb}" aria-label="${t("back")}">${ICON_BACK}</button></div>`;
+let navCount = 0;   // hash changes seen on this page load: when 0 there is no earlier page of ours to go back to
 const ICON_PLAY = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
 
 /* ---------- Cards ---------- */
@@ -1122,6 +1132,7 @@ function renderList() {
   const list = listItems();
   const emptyMsg = view.name === "wishlist" && !wish.length ? t("emptyWish") : t("noResults");
   return `
+    ${backBtn("#")}
     <section class="lhead">
       <h1>${titles[view.name]}</h1>
       <p>${subs[view.name] || ""}</p>
@@ -1166,6 +1177,7 @@ function renderProduct(slug) {
     </button>`;
   }).join("");
   return `
+  ${backBtn("#" + back)}
   <section class="pp">
     ${galHTML}
     <div>
@@ -1651,6 +1663,7 @@ document.addEventListener("click", e => {
   if (a === "search") { $("#searchOv").hidden = false; sync(); $("#sq").focus(); renderSearch(); return; }
   if (a === "cart") return openCart();
   if (a === "lang") { lang = lang === "en" ? "ar" : "en"; save("mawja-lang", lang); render(); if (!$("#cartOv").hidden) renderCart(); renderSearch(); return; }
+  if (a === "goBack") { if (navCount > 0 && history.length > 1) history.back(); else location.hash = act.dataset.fallback || "#"; return; }
   if (a === "filterSheet") { renderFilterSheet(); $("#filterOv").hidden = false; sync(); return; }
   if (a === "filt") { filt[act.dataset.group || "sort"] = act.dataset.v; render(); return; }
   if (a === "seeMore") {
@@ -1743,7 +1756,7 @@ document.addEventListener("keydown", e => {
   sync();
 });
 
-window.addEventListener("hashchange", route);
+window.addEventListener("hashchange", () => { navCount++; route(); });
 window.addEventListener("scroll", () => { $(".hdr").classList.toggle("sc", window.scrollY > 160); }, { passive: true });
 
 /* Restore saved state. Cart lines for a product or size that no longer exists, or is unavailable, are dropped. */
