@@ -324,7 +324,14 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .szc[aria-checked=true]{background:var(--sand);color:var(--ocean);border-color:var(--sand)}
 .szc:disabled,.szb:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
 .pc .pr .now{font-size:18px;font-weight:600}
-.vfade{animation:vf .18s ease-out}@keyframes vf{from{opacity:0}to{opacity:1}}
+.vfade{animation:vf .28s cubic-bezier(.16,1,.3,1)}@keyframes vf{from{opacity:0;transform:translateX(calc(var(--in-x,0px)*.5))}to{opacity:1;transform:none}}
+.hdr{view-transition-name:hdr}
+::view-transition-group(root){animation-duration:.4s}
+::view-transition-old(root){animation:vt-out .26s cubic-bezier(.4,0,.6,1) both}
+::view-transition-new(root){animation:vt-in .42s cubic-bezier(.16,1,.3,1) both}
+@keyframes vt-out{to{opacity:0;transform:translateX(var(--out-x,20px)) scale(.985)}}
+@keyframes vt-in{from{opacity:0;transform:translateX(var(--in-x,-30px))}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 .pc .pr.fade{animation:fi .25s ease}
 @keyframes fi{from{opacity:.35}to{opacity:1}}
 button.qa{width:100%;border:0;cursor:pointer;font-family:inherit}
@@ -1253,7 +1260,7 @@ function renderCounts() {
 }
 
 /* ---------- Routing (plain #names only) ---------- */
-const scrollMem = {}; let hashStack = [], curKey = null, lastY = 0, userTouched = false;
+let vtActive = false, didFirstRoute = false; const scrollMem = {}; let hashStack = [], curKey = null, lastY = 0, userTouched = false;
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 function restoreY(y) {
   const vw = $("#view"); if (y > 0 && vw) { vw.style.minHeight = (y + window.innerHeight) + "px"; setTimeout(() => { vw.style.minHeight = ""; }, 1200); }
@@ -1261,7 +1268,7 @@ function restoreY(y) {
   go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 350); setTimeout(go, 800);
 }
 function viewFade() {
-  const el = $("#view"); if (!el) return;
+  const el = $("#view"); if (!el || vtActive) return;
   el.classList.remove("vfade"); void el.offsetWidth; el.classList.add("vfade");
 }
 function route() {
@@ -1271,28 +1278,41 @@ function route() {
   if (isBack) hashStack.pop(); else if (hashStack[hashStack.length - 1] !== key) hashStack.push(key);
   curKey = key; userTouched = false;
   const y = isBack ? (scrollMem[key] || 0) : 0;
+  const apply = () => {
   const h = decodeURIComponent(location.hash.replace(/^#/, ""));
-  if (h === "shop" || h === "men" || h === "women" || h === "unisex" || h === "wishlist" || h === "offers" || h === "best") {
-    view = { name: h, arg: null };
-    filt = { sort: filt.sort, cat: "all" };
-    render(); viewFade();
-    restoreY(y);
-    return;
-  }
-  if (h.startsWith("product-")) {
-    view = { name: "product", arg: h.slice(8) };
-    pick = { qty: 1, photo: 0 };
-    render(); viewFade();
-    restoreY(y);
-    return;
-  }
-  if (view.name !== "home") { view = { name: "home", arg: null }; render(); viewFade(); }
-  if (h) {
-    const el = document.getElementById(h);
-    if (el) el.scrollIntoView({ behavior: "instant", block: "start" });
-  } else {
-    restoreY(y);
-  }
+    if (h === "shop" || h === "men" || h === "women" || h === "unisex" || h === "wishlist" || h === "offers" || h === "best") {
+      view = { name: h, arg: null };
+      filt = { sort: filt.sort, cat: "all" };
+      render(); viewFade();
+      restoreY(y);
+      return;
+    }
+    if (h.startsWith("product-")) {
+      view = { name: "product", arg: h.slice(8) };
+      pick = { qty: 1, photo: 0 };
+      render(); viewFade();
+      restoreY(y);
+      return;
+    }
+    if (view.name !== "home") { view = { name: "home", arg: null }; render(); viewFade(); }
+    if (h) {
+      const el = document.getElementById(h);
+      if (el) el.scrollIntoView({ behavior: "instant", block: "start" });
+    } else {
+      restoreY(y);
+    }
+  };
+  const rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const de = document.documentElement, first = !didFirstRoute; didFirstRoute = true;
+  const rtl = de.dir === "rtl" ? -1 : 1;
+  de.style.setProperty("--out-x", (isBack ? 26 : -18) * rtl + "px");
+  de.style.setProperty("--in-x", (isBack ? -34 : 34) * rtl + "px");
+  if (first || rm) { vtActive = false; apply(); return; }
+  if (document.startViewTransition) {
+    vtActive = true;
+    const vt = document.startViewTransition(apply);
+    vt.finished.finally(() => { vtActive = false; });
+  } else { vtActive = false; apply(); }
 }
 
 /* ---------- Cart ---------- */
