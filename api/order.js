@@ -110,10 +110,11 @@ function buildItems(rawItems, catalog) {
 const LRI = "\u2066", FSI = "\u2068", PDI = "\u2069";
 const ltr = (s) => `${LRI}${s}${PDI}`;
 const auto = (s) => `${FSI}${s}${PDI}`;
+const egp = (n) => `${Number(n).toLocaleString("en-US")} EGP`;
 function telegramText(o) {
   const lines = o.items.map((i) => {
     const unit = i.unit_price != null ? i.unit_price : Math.round(i.line_total / i.qty);
-    return `${ltr(`• ${esc(i.name)}${i.ml ? ` - ${i.ml}ml` : ""}`)}\n${ltr(`   ${i.qty} × ${Number(unit).toLocaleString("en-US")} = ${money(i.line_total)}`)}`;
+    return `${ltr(`• ${esc(i.name)}${i.ml ? ` - ${i.ml}ml` : ""}`)}\n${ltr(`   ${i.qty} × ${Number(unit).toLocaleString("en-US")} = ${egp(i.line_total)}`)}`;
   }).join("\n");
   const digits = o.phone.replace(/\D/g, "");
   const wa = /^(0)?1[0125]\d{8}$/.test(digits) ? `20${digits.replace(/^0/, "")}` : /^20\d{10}$/.test(digits) ? digits : "";
@@ -129,9 +130,9 @@ function telegramText(o) {
     `🧴 <b>المنتجات:</b>`,
     lines,
     "",
-    `المجموع الفرعي: ${ltr(money(o.subtotal))}`,
-    `الشحن: ${ltr(money(o.shipping))}`,
-    `<b>الإجمالي: ${ltr(money(o.total))}</b>`,
+    `المجموع الفرعي: ${ltr(egp(o.subtotal))}`,
+    `الشحن: ${ltr(egp(o.shipping))}`,
+    `<b>الإجمالي: ${ltr(egp(o.total))}</b>`,
     o.price_source === "client" ? "\n⚠️ الأسعار لم يتم التحقق منها من السيرفر، راجعها قبل التأكيد." : "",
   ].filter((x, i, a) => !(x === "" && a[i - 1] === "")).join("\n").trim();
 }
