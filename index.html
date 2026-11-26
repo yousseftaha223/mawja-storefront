@@ -324,14 +324,11 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .szc[aria-checked=true]{background:var(--sand);color:var(--ocean);border-color:var(--sand)}
 .szc:disabled,.szb:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
 .pc .pr .now{font-size:18px;font-weight:600}
-.vfade{animation:vf .28s cubic-bezier(.16,1,.3,1)}@keyframes vf{from{opacity:0;transform:translateX(calc(var(--in-x,0px)*.5))}to{opacity:1;transform:none}}
-.hdr{view-transition-name:hdr}
-::view-transition-group(root){animation-duration:.4s}
-::view-transition-old(root){animation:vt-out .26s cubic-bezier(.4,0,.6,1) both}
-::view-transition-new(root){animation:vt-in .42s cubic-bezier(.16,1,.3,1) both}
-@keyframes vt-out{to{opacity:0;transform:translateX(var(--out-x,20px)) scale(.985)}}
-@keyframes vt-in{from{opacity:0;transform:translateX(var(--in-x,-30px))}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+.navclip{overflow-x:clip}
+.ghostwrap{position:fixed;left:0;right:0;top:0;bottom:0;overflow:hidden;pointer-events:none;z-index:30}
+.ghostwrap>.ghost{position:absolute;left:0;right:0;will-change:transform,opacity;transform-origin:50% 0}
+#view.navanim{will-change:transform,opacity;transform-origin:50% 0}
+
 .pc .pr.fade{animation:fi .25s ease}
 @keyframes fi{from{opacity:.35}to{opacity:1}}
 button.qa{width:100%;border:0;cursor:pointer;font-family:inherit}
@@ -1260,7 +1257,7 @@ function renderCounts() {
 }
 
 /* ---------- Routing (plain #names only) ---------- */
-let vtActive = false, didFirstRoute = false; const scrollMem = {}; let hashStack = [], curKey = null, lastY = 0, userTouched = false;
+let didFirstRoute = false; const scrollMem = {}; let hashStack = [], curKey = null, lastY = 0, userTouched = false;
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 function restoreY(y) {
   const vw = $("#view"); if (y > 0 && vw) { vw.style.minHeight = (y + window.innerHeight) + "px"; setTimeout(() => { vw.style.minHeight = ""; }, 1200); }
@@ -1268,7 +1265,7 @@ function restoreY(y) {
   go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 350); setTimeout(go, 800);
 }
 function viewFade() {
-  const el = $("#view"); if (!el || vtActive) return;
+  const el = $("#view"); if (!el) return; return;
   el.classList.remove("vfade"); void el.offsetWidth; el.classList.add("vfade");
 }
 function route() {
@@ -1303,16 +1300,32 @@ function route() {
     }
   };
   const rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const de = document.documentElement, first = !didFirstRoute; didFirstRoute = true;
-  const rtl = de.dir === "rtl" ? -1 : 1;
-  de.style.setProperty("--out-x", (isBack ? 26 : -18) * rtl + "px");
-  de.style.setProperty("--in-x", (isBack ? -34 : 34) * rtl + "px");
-  if (first || rm) { vtActive = false; apply(); return; }
-  if (document.startViewTransition) {
-    vtActive = true;
-    const vt = document.startViewTransition(apply);
-    vt.finished.finally(() => { vtActive = false; });
-  } else { vtActive = false; apply(); }
+  const first = !didFirstRoute; didFirstRoute = true;
+  const vw = $("#view");
+  if (first || rm || !vw || !vw.animate) { apply(); return; }
+  const rtl = document.documentElement.dir === "rtl" ? -1 : 1;
+  const outX = (isBack ? 44 : -30) * rtl, inX = (isBack ? -56 : 56) * rtl;
+  const r = vw.getBoundingClientRect();
+  const wrap = document.createElement("div"); wrap.className = "ghostwrap";
+  const ghost = vw.cloneNode(true); ghost.removeAttribute("id"); ghost.className = "ghost";
+  ghost.setAttribute("aria-hidden", "true"); ghost.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
+  ghost.style.top = r.top + "px"; ghost.style.width = r.width + "px"; ghost.style.left = r.left + "px"; ghost.style.right = "auto";
+  wrap.appendChild(ghost); document.body.appendChild(wrap);
+  document.body.classList.add("navclip"); document.documentElement.classList.add("navclip");
+  apply();
+  const ease = "cubic-bezier(.22,1,.36,1)";
+  ghost.animate([
+    { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
+    { opacity: 0, transform: `translate3d(${outX}px,0,0) scale(.97)` }
+  ], { duration: 380, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+  vw.classList.add("navanim");
+  const a2 = vw.animate([
+    { opacity: 0, transform: `translate3d(${inX}px,0,0) scale(.985)`, offset: 0 },
+    { opacity: 1, transform: "translate3d(0,0,0) scale(1)", offset: 1 }
+  ], { duration: 460, easing: ease, fill: "backwards" });
+  const done = () => { wrap.remove(); vw.classList.remove("navanim"); document.body.classList.remove("navclip"); document.documentElement.classList.remove("navclip"); };
+  a2.onfinish = done; a2.oncancel = done;
+  setTimeout(done, 900);
 }
 
 /* ---------- Cart ---------- */
