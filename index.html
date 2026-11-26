@@ -407,6 +407,7 @@ select.field option{background:var(--ocean2);color:var(--sand)}
 .ferr{font-size:13px;color:#ff5a5f;font-weight:600;margin:-2px 0 6px;text-align:right}
 .hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
 .srow{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:6px}
+.fs-left{font-size:12.5px;line-height:1.5;opacity:.8;margin:-2px 0 8px;color:var(--sand)}
 .srow.tot{font-size:17px;font-weight:600;margin-bottom:12px}
 .cust{margin-top:20px;border-top:1px solid var(--line-lt);padding-top:14px;display:grid;gap:4px;font-size:14px;color:var(--lt-mute)}
 .cust b{color:var(--sand);font-weight:500}
@@ -838,7 +839,7 @@ const I18N = {
     cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", seeMore: "See more",
     nUnisex: "Unisex", catUnisex: "Unisex fragrances", fCat: "Category", fAll: "All",
     photos: "Photos", photoN: "Photo {n}", photosNote: "This fragrance has 2 photos. Tap a thumbnail or swipe the image to switch.",
-    freeShipBtn: "Free shipping", freeShipIf: "(Free shipping if your order is {n} EGP or more)", freeShipOn: "(Free shipping applied to your order)", freeShipWord: "Free",
+    freeShipBtn: "Free shipping", freeShipIf: "(Free shipping if your order is {n} EGP or more)", freeShipOn: "(Free shipping applied to your order)", freeShipWord: "Free", freeShipLeft: "Add {n} EGP more for free shipping (orders of {m} EGP or more)",
     shipLabel: "Shipping", total: "Total", shipNote: "Shipping ({fee}) is added at checkout.",
     custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
     phName: "First and last name", phAddress: "Governorate, city, street, building, floor, apartment",
@@ -886,7 +887,7 @@ const I18N = {
     cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", seeMore: "شوف المزيد",
     nUnisex: "للجنسين", catUnisex: "عطور للجنسين", fCat: "الفئة", fAll: "الكل",
     photos: "الصور", photoN: "الصورة {n}", photosNote: "لهذا العطر صورتان. اضغط على الصورة المصغّرة أو اسحب الصورة للتبديل.",
-    freeShipBtn: "شحن مجاني", freeShipIf: "(لو الأوردر {n} ج.م أو أكتر خد شحن مجاني)", freeShipOn: "(الشحن المجاني اتطبّق على طلبك)", freeShipWord: "مجاني",
+    freeShipBtn: "شحن مجاني", freeShipIf: "(لو الأوردر {n} ج.م أو أكتر خد شحن مجاني)", freeShipOn: "(الشحن المجاني اتطبّق على طلبك)", freeShipWord: "مجاني", freeShipLeft: "ضيف {n} ج.م كمان وخد شحن مجاني (للأوردرات {m} ج.م أو أكتر)",
     shipLabel: "الشحن", total: "الإجمالي", shipNote: "يُضاف الشحن ({fee}) عند إتمام الطلب.",
     custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
     phName: "الاسم الأول والأخير", phAddress: "المحافظة، المدينة، الشارع، رقم المبنى، الدور، الشقة",
@@ -1451,6 +1452,7 @@ const totalsHTML = () => {
   const f = shipFee();
   return `<div class="srow"><span>${t("subtotal")}</span><span>${money(cartTotal())}</span></div>
   <div class="srow"><span>${t("shipLabel")}</span><span>${f == null ? t("shipPick") : f === 0 ? t("freeShipWord") : money(f)}</span></div>
+  ${cartTotal() < FREE_SHIPPING_OVER ? `<p class="fs-left">${t("freeShipLeft", { n: FREE_SHIPPING_OVER - cartTotal(), m: FREE_SHIPPING_OVER })}</p>` : ""}
   <div class="srow tot"><span>${t("total")}</span><span>${f == null ? "—" : money(cartTotal() + f)}</span></div>`;
 };
 
