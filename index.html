@@ -325,6 +325,11 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .szc:disabled,.szb:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
 .pc .pr .now{font-size:18px;font-weight:600}
 .navclip{overflow-x:clip}
+body:not(.ready) .foot{visibility:hidden}
+body:not(.ready) #view{min-height:100vh}
+.skel-card .sk{background:rgba(231,213,187,.08);border-radius:10px;animation:skp 1.2s ease-in-out infinite alternate}
+.sk-img{aspect-ratio:1/1;width:100%}.sk-l{height:16px;margin-top:14px;width:70%}.sk-s{width:40%}
+@keyframes skp{from{opacity:.5}to{opacity:1}}
 
 .pc .pr.fade{animation:fi .25s ease}
 @keyframes fi{from{opacity:.35}to{opacity:1}}
@@ -1040,6 +1045,17 @@ function setTrack(play) {
 function vGo(i, play) { vIndex = i; setTrack(play); }
 
 /* ---------- Views ---------- */
+let catReady = false;
+const skelCards = () => Array.from({ length: 6 }, () => '<div class="pc skel-card" aria-hidden="true"><div class="sk sk-img"></div><div class="sk sk-l"></div><div class="sk sk-l sk-s"></div></div>').join("");
+const moreHTML = () => `<div class="more" id="homeMore"><button class="btn btn-dark" type="button" data-act="seeMore">${t("seeMore")}</button></div>`;
+function fillGrid() {
+  const g = $("#homeGrid"); if (!g) return false;
+  g.classList.remove("skel"); g.innerHTML = PRODUCTS.slice(0, homeShown).map(card).join("");
+  const m = $("#homeMore"); if (m) m.remove();
+  if (homeShown < PRODUCTS.length) g.insertAdjacentHTML("afterend", moreHTML());
+  applyStatic(); return true;
+}
+function homeSig() { return BANNER.image + "|" + NOW_OFFERS.join(",") + "|" + REVIEW_VIDEOS.length; }
 function renderHome() {
   const offers = NOW_OFFERS.map(s => BY[s]);
   return `
@@ -1071,8 +1087,8 @@ function renderHome() {
       <div class="sec-head">
         <div><h2 id="bsTitle" lang="en" dir="ltr">${t("bsTitle")}</h2><p class="sub">${t("bsSub")}</p></div>
       </div>
-      <div class="pgrid" id="homeGrid">${PRODUCTS.slice(0, homeShown).map(card).join("")}</div>
-      ${homeShown < PRODUCTS.length ? `<div class="more" id="homeMore"><button class="btn btn-dark" type="button" data-act="seeMore">${t("seeMore")}</button></div>` : ""}
+      <div class="pgrid${catReady ? "" : " skel"}" id="homeGrid">${catReady ? PRODUCTS.slice(0, homeShown).map(card).join("") : skelCards()}</div>
+      ${catReady && homeShown < PRODUCTS.length ? moreHTML() : ""}
     </div>
   </section>
 
@@ -1818,13 +1834,27 @@ function restoreState() {
    If it is slow, paint with the built-in values and update when the data arrives. */
 if (STORE_BACKUP) applyStore(STORE_BACKUP);   // backup first, live data replaces it as soon as it arrives
 let painted = false;
-function firstPaint() { if (painted) return; painted = true; restoreState(); render(); route(); }
-const paintTimer = setTimeout(firstPaint, 1500);
+let cachedRaw = null;
+try { cachedRaw = localStorage.getItem("mawja-cat"); if (cachedRaw && applyStore(JSON.parse(cachedRaw))) { catReady = true; priceTrusted = false; } } catch (e) { cachedRaw = null; }
+const onHomeRoute = () => !/^(shop|men|women|unisex|wishlist|offers|best|product-)/.test(decodeURIComponent(location.hash.replace(/^#/, "")));
+function firstPaint() { if (painted) return; painted = true; document.body.classList.add("ready"); restoreState(); render(); route(); }
+if (catReady || onHomeRoute()) firstPaint();   // hero and header draw at once; only product cards wait for live data
+setTimeout(() => document.body.classList.add("ready"), 3000);
+const paintTimer = setTimeout(() => { const was = catReady; catReady = true; if (!painted) firstPaint(); else if (!was && !fillGrid()) render(); }, 700);
 (LIVE_CATALOG ? loadStore(8000) : Promise.resolve(null)).then(d => {
-  const changed = applyStore(d);
   clearTimeout(paintTimer);
+  const was = catReady, sig0 = homeSig();
+  const raw = d ? JSON.stringify(d) : null;
+  const changed = applyStore(d);
+  if (changed && raw) { try { localStorage.setItem("mawja-cat", raw); } catch (e) {} }
+  catReady = true;
   if (!painted) return firstPaint();
-  if (changed) { restoreState(); render(); if (!$("#cartOv").hidden) renderCart(); }
+  if (!changed) { if (!was && !fillGrid()) render(); return; }
+  if (was && raw === cachedRaw) return;      // same as what is already on screen
+  restoreState();
+  if (!was && view.name === "home" && homeSig() === sig0 && fillGrid()) { renderCounts(); }
+  else render();
+  if (!$("#cartOv").hidden) renderCart();
 });
 
 /* Size labels over the big hero photo (it is cropped with object-fit:cover, so map the label positions through the crop) */
