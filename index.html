@@ -578,6 +578,48 @@ html body .hero2 .slogan p.ar-hl{display:block;width:100%;text-align:center}
   <img id="reviewDialogImage" alt="">
 </dialog>
 <main id="top"><div id="view"></div></main>
+<script>
+/* Hero shown as plain markup before the main script runs. One source: topHTML() is also used by renderHome(). */
+var HERO_T = {en: {"heroTitle": "Not just a perfume. It's a lifestyle.", "heroLede": "Remember yourself, a gift from MAWJA.", "heroCta": "Shop the collection", "nowTitle": "Now's offers", "stripOffers": "Offers", "stripMen": "Men's", "stripWomen": "Women's", "stripUnisex": "Unisex", "stripBest": "Best sellers"}, ar: {"heroCta": "تسوق المجموعة", "nowTitle": "العروض الحالية", "stripOffers": "العروض", "stripMen": "رجالي", "stripWomen": "نسائي", "stripUnisex": "للجنسين", "stripBest": "الأكثر مبيعاً"}};
+var HERO_BANNER = {image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop"};
+var HERO_LABELS = ["10ml", "55ml", "35ml"];
+function heroEsc(x) { return String(x).replace(/[&<>"']/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
+function topHTML(lang, B, offers) {
+  var T = function (k) { var a = HERO_T[lang]; return (a && a[k] !== undefined) ? a[k] : HERO_T.en[k]; };
+  return `<nav class="strip" aria-label="Sections">
+    ${offers ? `<a href="#offers" data-i18n="stripOffers">${T("stripOffers")}</a>` : ""}
+    <a href="#men" data-i18n="stripMen">${T("stripMen")}</a>
+    <a href="#women" data-i18n="stripWomen">${T("stripWomen")}</a>
+    <a href="#unisex" data-i18n="stripUnisex">${T("stripUnisex")}</a>
+    <a href="#best" data-i18n="stripBest">${T("stripBest")}</a>
+  </nav>
+  <section class="hero2" id="hero">
+    <a class="macro-link" href="${heroEsc(B.href)}"${/^https?:/.test(B.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}><span class="macro-wrap" id="macroWrap"><img class="macro" src="${heroEsc(B.image)}" alt="${heroEsc(B.alt)}" width="1000" height="1000" fetchpriority="high">${/fluffy/.test(B.image) ? HERO_LABELS.map(function (l, i) { return `<span class="lbl lbl-hero" data-hl="${i}">${l}</span>`; }).join("") : ""}</span></a>
+    <div class="slogan">
+      <svg class="tide" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0,60 C240,110 480,10 720,60 C960,110 1200,10 1440,60 C1680,110 1920,10 2160,60 C2400,110 2640,10 2880,60 L2880,120 L0,120Z"/><path class="w2" d="M0,80 C200,40 520,120 760,80 C1000,40 1240,120 1480,80 C1720,40 2040,120 2280,80 C2520,40 2760,120 3000,80 L3000,120 L0,120Z"/></svg>
+      <p class="kicker">Mawja &nbsp;|&nbsp; <span class="kar" lang="ar" dir="rtl">مـوچة</span></p>
+      <p class="ar-hl" lang="ar" dir="rtl">كواليتي تليق بيك<img class="ar-star" src="brand/star-beige.png" alt="" width="28" height="28"></p>
+      <h1 lang="en" dir="ltr">${T("heroTitle")}</h1>
+      <p class="lede" lang="en" dir="ltr">${T("heroLede")}</p>
+      <div class="ctas">
+        <a class="offers-btn" href="#shop">${T("heroCta")}</a>
+        ${offers ? `<a class="btn btn-line hero-line" href="#offers">${T("nowTitle")}</a>` : ""}
+      </div>
+      <ul class="chips" dir="rtl"><li>شحن سريع</li><li dir="ltr">10 · 35 · 55 ml</li><li>قيمة مقابل سعر</li></ul>
+    </div>
+  </section>`;
+}
+var EARLY_LANG = "en";
+try { var sv = JSON.parse(localStorage.getItem("mawja-lang")); if (sv === "ar" || sv === "en") EARLY_LANG = sv; } catch (e) {}
+var __earlyTop = null;
+(function () {
+  var h = decodeURIComponent(location.hash.replace(/^#/, ""));
+  if (/^(shop|men|women|unisex|wishlist|offers|best|product-)/.test(h)) return;
+  document.documentElement.lang = EARLY_LANG; document.documentElement.dir = EARLY_LANG === "ar" ? "rtl" : "ltr";
+  __earlyTop = topHTML(EARLY_LANG, HERO_BANNER, true);
+  document.getElementById("view").innerHTML = __earlyTop;
+})();
+</script>
 
 <footer class="foot">
   <div class="foot-in">
@@ -673,7 +715,7 @@ const CATS = ["men", "women", "unisex"];
 // A product has one main category (cat) and may also appear in more (cats). inCat() is true for either.
 const inCat = (p, c) => p.cat === c || (Array.isArray(p.cats) && p.cats.includes(c));
 // Top banner under the hero. image: file path, href: where a click goes (a page like "#shop", "#offers", or a full https link).
-const BANNER = { image: "demo/fluffy.jpg", alt: "MAWJA Fluffy", href: "#shop" };
+const BANNER = Object.assign({}, HERO_BANNER);
 
 /* ---------- Live data from the dashboard (/admin) ----------
    The dashboard saves one JSON file to Supabase Storage. It is read at runtime and replaces the values above.
@@ -761,9 +803,9 @@ const I18N = {
   en: {
     winter: "Winter collection is live now", nShop: "Shop", nMen: "Men", nWomen: "Women", nCollections: "Collections", nStory: "Our Story",
     search: "Search", searchPh: "Search fragrances", wish: "Wishlist", cart: "Cart", menu: "Menu", filterSort: "Sort", showResults: "Show results",
-    nowTitle: "Now's offers", nowSub: "Selected fragrances, on offer right now.",
-    heroTitle: "Not just a perfume. It's a lifestyle.", heroLede: "Remember yourself, a gift from MAWJA.",
-    heroCta: "Shop the collection", heroCta2: "Best sellers", stripOffers: "Offers", followTitle: "Follow Mawja on Instagram", followSub: "New scents, real customer reviews and offers, first on Instagram.", followBtn: "Follow @mawja_fragrances", waFloat: "Order on WhatsApp", igFloat: "Instagram",
+    nowSub: "Selected fragrances, on offer right now.",
+    
+    heroCta2: "Best sellers", followTitle: "Follow Mawja on Instagram", followSub: "New scents, real customer reviews and offers, first on Instagram.", followBtn: "Follow @mawja_fragrances", waFloat: "Order on WhatsApp", igFloat: "Instagram",
     catTitle: "Shop by collection", catMen: "Men's fragrances", catWomen: "Women's fragrances", catBest: "Best sellers",
     bsTitle: "Our perfumes", bestTitle: "Our perfumes", bsSub: "A carefully selected collection to start with.", viewAll: "View all",
     reviewFull: "Customer review", reviewClose: "Close review", reviewOpen: "Enlarge customer review",
@@ -787,8 +829,8 @@ const I18N = {
     fShop: "Shop", policyLink: "Shipping & returns", policyNote: "Shipping & returns policy", fHelp: "Help", fContact: "Contact", footStatement: "Mawja is not just a perfume. It's a lifestyle.",
     ship: "Shipping policy (coming soon)", ret: "Return policy (coming soon)", priv: "Privacy policy (coming soon)", terms: "Terms and conditions (coming soon)",
     copy: "© 2026 Mawjafragrances. All Rights Reserved",
-    cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", stripMen: "Men's", stripWomen: "Women's", stripBest: "Best sellers", seeMore: "See more",
-    nUnisex: "Unisex", catUnisex: "Unisex fragrances", stripUnisex: "Unisex", fCat: "Category", fAll: "All",
+    cur: "EGP", before: "before", now: "now", unavail: "Unavailable", contactUs: "Contact us", seeMore: "See more",
+    nUnisex: "Unisex", catUnisex: "Unisex fragrances", fCat: "Category", fAll: "All",
     photos: "Photos", photoN: "Photo {n}", photosNote: "This fragrance has 2 photos. Tap a thumbnail or swipe the image to switch.",
     shipLabel: "Shipping", total: "Total", shipNote: "Shipping ({fee}) is added at checkout.",
     custTitle: "Delivery details", fName: "Full name", fPhone: "Phone number", fAddress: "Detailed address",
@@ -808,9 +850,9 @@ const I18N = {
   ar: {
     winter: "مجموعة الشتاء متاحة الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
     search: "بحث", searchPh: "ابحث عن عطر", wish: "المفضلة", cart: "السلة", menu: "القائمة", filterSort: "ترتيب", showResults: "عرض النتائج",
-    nowTitle: "العروض الحالية", nowSub: "عطور مختارة، عليها عرض الآن.",
+    nowSub: "عطور مختارة، عليها عرض الآن.",
     
-    heroCta: "تسوق المجموعة", heroCta2: "الأكثر مبيعًا", stripOffers: "العروض", followTitle: "تابع موجة على انستجرام", followSub: "عطور جديدة وآراء عملاء حقيقية وعروض، تلاقيها الأول على انستجرام.", followBtn: "تابعنا @mawja_fragrances", waFloat: "اطلب على واتساب", igFloat: "انستجرام",
+    heroCta2: "الأكثر مبيعًا", followTitle: "تابع موجة على انستجرام", followSub: "عطور جديدة وآراء عملاء حقيقية وعروض، تلاقيها الأول على انستجرام.", followBtn: "تابعنا @mawja_fragrances", waFloat: "اطلب على واتساب", igFloat: "انستجرام",
     catTitle: "تسوق حسب المجموعة", catMen: "عطور رجالي", catWomen: "عطور نسائي", catBest: "الأكثر مبيعًا",
     bestTitle: "عطورنا", bsSub: "مجموعة مختارة بعناية لتبدأ بها", viewAll: "عرض الكل",
     reviewFull: "رأي عميل", reviewClose: "إغلاق الرأي", reviewOpen: "تكبير رأي العميل",
@@ -834,8 +876,8 @@ const I18N = {
     fShop: "تسوق", policyLink: "الشحن والاسترجاع", policyNote: "سياسة الشحن والاسترجاع", fHelp: "مساعدة", fContact: "تواصل", footStatement: "افتكر نفسك بحاجة حلوة...", 
     ship: "سياسة الشحن (قريبًا)", ret: "سياسة الاسترجاع (قريبًا)", priv: "سياسة الخصوصية (قريبًا)", terms: "الشروط والأحكام (قريبًا)",
     copy: "© 2026 Mawjafragrances. جميع الحقوق محفوظة",
-    cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", stripMen: "رجالي", stripWomen: "نسائي", stripBest: "الأكثر مبيعاً", seeMore: "شوف المزيد",
-    nUnisex: "للجنسين", catUnisex: "عطور للجنسين", stripUnisex: "للجنسين", fCat: "الفئة", fAll: "الكل",
+    cur: "ج.م", before: "قبل", now: "بعد", unavail: "غير متاح", contactUs: "تواصل معنا", seeMore: "شوف المزيد",
+    nUnisex: "للجنسين", catUnisex: "عطور للجنسين", fCat: "الفئة", fAll: "الكل",
     photos: "الصور", photoN: "الصورة {n}", photosNote: "لهذا العطر صورتان. اضغط على الصورة المصغّرة أو اسحب الصورة للتبديل.",
     shipLabel: "الشحن", total: "الإجمالي", shipNote: "يُضاف الشحن ({fee}) عند إتمام الطلب.",
     custTitle: "بيانات التوصيل", fName: "الاسم الكامل", fPhone: "رقم الهاتف", fAddress: "العنوان بالتفصيل",
@@ -853,6 +895,7 @@ const I18N = {
     eBusy: "عدد الطلبات كبير حاليًا. انتظر بضع دقائق ثم حاول مرة أخرى، أو تواصل معنا على واتساب."
   }
 };
+Object.assign(I18N.en, HERO_T.en); Object.assign(I18N.ar, HERO_T.ar);
 
 /* ---------- State ---------- */
 let lang = load("mawja-lang", "en") === "ar" ? "ar" : "en";
@@ -1059,28 +1102,7 @@ function homeSig() { return BANNER.image + "|" + NOW_OFFERS.join(",") + "|" + RE
 function renderHome() {
   const offers = NOW_OFFERS.map(s => BY[s]);
   return `
-  <nav class="strip" aria-label="Sections">
-    ${hasOffers() ? `<a href="#offers" data-i18n="stripOffers">Offers</a>` : ""}
-    <a href="#men" data-i18n="stripMen">Men's</a>
-    <a href="#women" data-i18n="stripWomen">Women's</a>
-    <a href="#unisex" data-i18n="stripUnisex">Unisex</a>
-    <a href="#best" data-i18n="stripBest">Best sellers</a>
-  </nav>
-  <section class="hero2" id="hero">
-    <a class="macro-link" href="${esc(BANNER.href)}"${/^https?:/.test(BANNER.href) ? ' target="_blank" rel="noopener noreferrer"' : ""}><span class="macro-wrap" id="macroWrap"><img class="macro" src="${esc(BANNER.image)}" alt="${esc(BANNER.alt)}" width="1000" height="1000" fetchpriority="high">${/fluffy/.test(BANNER.image) ? PHOTO_LABELS.fluffy.map((l, i) => `<span class="lbl lbl-hero" data-hl="${i}">${["10ml", "55ml", "35ml"][i]}</span>`).join("") : ""}</span></a>
-    <div class="slogan">
-      <svg class="tide" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0,60 C240,110 480,10 720,60 C960,110 1200,10 1440,60 C1680,110 1920,10 2160,60 C2400,110 2640,10 2880,60 L2880,120 L0,120Z"/><path class="w2" d="M0,80 C200,40 520,120 760,80 C1000,40 1240,120 1480,80 C1720,40 2040,120 2280,80 C2520,40 2760,120 3000,80 L3000,120 L0,120Z"/></svg>
-      <p class="kicker">Mawja &nbsp;|&nbsp; <span class="kar" lang="ar" dir="rtl">مـوچة</span></p>
-      <p class="ar-hl" lang="ar" dir="rtl">كواليتي تليق بيك<img class="ar-star" src="brand/star-beige.png" alt="" width="28" height="28"></p>
-      <h1 lang="en" dir="ltr">${t("heroTitle")}</h1>
-      <p class="lede" lang="en" dir="ltr">${t("heroLede")}</p>
-      <div class="ctas">
-        <a class="offers-btn" href="#shop">${t("heroCta")}</a>
-        ${hasOffers() ? `<a class="btn btn-line hero-line" href="#offers">${t("nowTitle")}</a>` : ""}
-      </div>
-      <ul class="chips" dir="rtl"><li>شحن سريع</li><li dir="ltr">10 · 35 · 55 ml</li><li>قيمة مقابل سعر</li></ul>
-    </div>
-  </section>
+  ${topHTML(lang, BANNER, hasOffers())}
 
   <section class="sec sec-light" id="bestsellers" aria-labelledby="bsTitle" style="padding-top:24px">
     <div class="sec-in">
@@ -1229,7 +1251,11 @@ function renderProduct(slug) {
 
 function render() {
   const el = $("#view");
-  if (view.name === "home") el.innerHTML = renderHome();
+  const top = view.name === "home" ? topHTML(lang, BANNER, hasOffers()) : null;
+  let keep = null;
+  if (top && top === __earlyTop) { const n0 = el.querySelector("nav.strip"), h0 = el.querySelector("#hero"); if (n0 && h0) keep = [n0, h0]; }   // identical hero already on screen: keep its nodes, no re-draw
+  __earlyTop = top;
+  if (view.name === "home") { el.innerHTML = renderHome(); if (keep) { const n1 = el.querySelector("nav.strip"), h1 = el.querySelector("#hero"); if (n1 && h1) { n1.replaceWith(keep[0]); h1.replaceWith(keep[1]); } } }
   else if (view.name === "product") el.innerHTML = renderProduct(view.arg);
   else el.innerHTML = renderList();
   setTrack(false);
