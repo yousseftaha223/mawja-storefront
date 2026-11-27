@@ -63,8 +63,8 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
 /* Winter marquee bar */
-.ann{background:var(--ocean2);color:var(--sand);font-size:13px;letter-spacing:.06em;overflow:hidden;white-space:nowrap}
-.ann .track{display:flex;width:max-content;padding:9px 0;animation:marq 20s linear infinite;will-change:transform}
+.ann{direction:ltr;background:var(--ocean2);color:var(--sand);font-size:13px;letter-spacing:.06em;overflow:hidden;white-space:nowrap}
+.ann .track{display:flex;width:max-content;padding:9px 0;animation:marq 40s linear infinite;will-change:transform}
 .ann .grp{display:flex;flex-shrink:0}
 .ann .grp span{display:inline-block;padding:0 2rem}
 @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -512,7 +512,7 @@ html body .hero2 .ctas .hero-line{width:auto;min-height:0;padding:6px 4px;border
 <body>
 
 <div class="ann" aria-label="Announcement">
-  <div class="track"><div class="grp"><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span></div><div class="grp" aria-hidden="true"><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span></div></div>
+  <div class="track"><div class="grp"><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span><span data-i18n="winter">Winter collection is live now</span></div><div class="grp" aria-hidden="true"><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span><span aria-hidden="true" data-i18n="winter">Winter collection is live now</span></div></div>
 </div>
 
 <header class="hdr">
@@ -856,7 +856,7 @@ const I18N = {
     eBusy: "Too many requests right now. Please wait a few minutes and try again, or contact us on WhatsApp."
   },
   ar: {
-    winter: "مجموعة الشتاء متاحة الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
+    winter: "كوليكشن الشتاء متاح الآن", nShop: "تسوق", nMen: "رجالي", nWomen: "نسائي", nCollections: "المجموعات", nStory: "قصتنا",
     search: "بحث", searchPh: "ابحث عن عطر", wish: "المفضلة", cart: "السلة", menu: "القائمة", filterSort: "ترتيب", showResults: "عرض النتائج",
     nowSub: "عطور مختارة، عليها عرض الآن.",
     
